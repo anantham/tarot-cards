@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { generateCardFrames } from '../utils/imageGeneration';
-import { generateGIF } from '../utils/gifGenerator';
+import { generateGIFSmart } from '../utils/gifGenerator';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard, GeneratedCard } from '../types';
 
@@ -60,7 +60,11 @@ export function useCardGeneration() {
           status: `Creating animated GIF for ${card.traditional.name}...`,
         });
 
-        gifUrl = await generateGIF(frames);
+        // Use smart GIF generation with automatic fallback
+        gifUrl = await generateGIFSmart(frames, 2, 10);
+      } else if (frames.length === 1) {
+        // Single frame - just use the image directly
+        gifUrl = frames[0];
       }
 
       // Save to store

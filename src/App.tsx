@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import CardDeck from './components/CardDeck';
 import CardDetail from './components/CardDetail';

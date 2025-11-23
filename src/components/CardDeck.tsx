@@ -13,7 +13,7 @@ interface CardProps {
   index: number;
 }
 
-function Card({ card, position, rotation, index }: CardProps) {
+function Card({ card, position, rotation }: CardProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const { setSelectedCard, settings } = useStore();
@@ -52,7 +52,6 @@ function Card({ card, position, rotation, index }: CardProps) {
       meshRef.current.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
 
       // Orient toward camera (not fully, just slightly)
-      const lookTarget = new THREE.Vector3(0, 0, 10);
       const currentRotation = new THREE.Euler().setFromQuaternion(meshRef.current.quaternion);
       const targetQuaternion = new THREE.Quaternion().setFromEuler(
         new THREE.Euler(currentRotation.x * 0.7, currentRotation.y * 0.7, 0)
@@ -141,7 +140,6 @@ function Card({ card, position, rotation, index }: CardProps) {
             color="#9333ea"
             anchorX="center"
             anchorY="middle"
-            opacity={0.8}
           >
             "{getKeyword()}"
           </Text>

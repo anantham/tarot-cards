@@ -96,7 +96,7 @@ export async function generateCardFrames(
     onProgress?.(i + 1, frameCount);
 
     // Add slight variations to prompt for animation effect
-    const framePrompt = addFrameVariation(basePrompt, i, frameCount);
+    const framePrompt = addFrameVariation(basePrompt, i);
 
     const result = await generateImage(framePrompt, settings.userPhoto, settings);
 
@@ -141,7 +141,7 @@ function getInterpretationForDeck(
 /**
  * Add slight variations to create animation effect
  */
-function addFrameVariation(basePrompt: string, frameIndex: number, totalFrames: number): string {
+function addFrameVariation(basePrompt: string, frameIndex: number): string {
   const variations = [
     'subtle head tilt to the left',
     'subtle head tilt to the right',
