@@ -1,0 +1,224 @@
+{
+  "cards": [
+    {
+      "number": 0,
+      "egyptian": {
+        "title": "Neophyte / Amun",
+        "motif": "uninitiated soul at the temple gate, trusting the hidden source",
+        "visual": "vagabond before the Duat’s threshold, Amun veiled behind fate"
+      },
+      "celtic": {
+        "title": "Wanderer / Young Merlin",
+        "motif": "raw magical potential before role, trust in wild land and spirits",
+        "visual": "cloaked figure stepping into mist with hound, second sight untested"
+      },
+      "shinto": {
+        "title": "The Void / Izanagi",
+        "motif": "wanderer-creator poised over chaos, shaping a half-formed world",
+        "visual": "standing on the floating bridge of heaven, stirring the sea toward islands"
+      }
+    },
+    {
+      "number": 1,
+      "egyptian": {
+        "title": "Osiris / Thoth",
+        "motif": "word and will enact reality; measured spellwork and rulership",
+        "visual": "scribe-priest with tools of heka, symbols of death-rebirth authority"
+      },
+      "celtic": {
+        "title": "Shaman / Taliesin",
+        "motif": "inspired speech as magic, mediator of seen and unseen",
+        "visual": "drum and tools at forest’s edge, bardic shapeshifter born of awen"
+      },
+      "shinto": {
+        "title": "Inari Ōkami",
+        "motif": "material manifestation and prosperity; intention into harvest",
+        "visual": "rice, fox messengers, shrine blessings turning seed to abundance"
+      }
+    },
+    {
+      "number": 2,
+      "egyptian": {
+        "title": "Isis",
+        "motif": "veiled mysteries, keeper of true names and resurrective secrets",
+        "visual": "behind a temple curtain with papyri and an ankh of hidden power"
+      },
+      "celtic": {
+        "title": "Seer / Cerridwen",
+        "motif": "guardian of the cauldron of awen; filters deep knowing",
+        "visual": "cloaked oracle by water with the cauldron of inspiration"
+      },
+      "shinto": {
+        "title": "Ame-no-Uzume",
+        "motif": "ecstatic trance and humor revealing hidden light",
+        "visual": "shamanic dancer at cave mouth, luring the sun back with laughter"
+      }
+    },
+    {
+      "number": 3,
+      "egyptian": {
+        "title": "Hathor",
+        "motif": "joy, music, sensual abundance, maternal care",
+        "visual": "sky-cow and festival singer, milk of the gods and soft-eyed plenty"
+      },
+      "celtic": {
+        "title": "The Lady / Danu",
+        "motif": "land-sovereignty and lineage, rivers and fertile hills",
+        "visual": "green river-mother bestowing right of kingship on the land"
+      },
+      "shinto": {
+        "title": "Konohanasakuya-hime",
+        "motif": "transient blossom beauty and fertile flowering",
+        "visual": "sakura around Mount Fuji, petals drifting over new life"
+      }
+    },
+    {
+      "number": 4,
+      "egyptian": {
+        "title": "Horus",
+        "motif": "divine mandate, sky oversight, unifier of the Two Lands",
+        "visual": "falcon-crowned ruler holding the kingdoms together"
+      },
+      "celtic": {
+        "title": "The Lord / Green Man",
+        "motif": "order as ecological stewardship and virile guardianship",
+        "visual": "antlered protector of the wild, green vitality as authority"
+      },
+      "shinto": {
+        "title": "Ōkuninushi",
+        "motif": "nation-builder, healer, arranger of fields and treaties",
+        "visual": "architect-king with tools of cultivation and medicine"
+      }
+    },
+    {
+      "number": 5,
+      "egyptian": {
+        "title": "Ptah / Anubis",
+        "motif": "priestly technician of creation and correct passage",
+        "visual": "craftsman-god with rod and ankh; jackal guide at weighing of the heart"
+      },
+      "celtic": {
+        "title": "Druid / Ancestor",
+        "motif": "elder lore-keeper, initiatory gate through stones",
+        "visual": "horned ancestor at a threshold of standing stones"
+      },
+      "shinto": {
+        "title": "Omoikane",
+        "motif": "council wisdom, gathers thoughts of many for right ritual",
+        "visual": "deliberative kami of protocol and correct procedure"
+      }
+    },
+    {
+      "number": 6,
+      "egyptian": {
+        "title": "Geb & Nut",
+        "motif": "cosmic lovers separated so life can occur between",
+        "visual": "arched sky over earth, longing gap that births creation"
+      },
+      "celtic": {
+        "title": "Forest Lovers (Stag & Doe)",
+        "motif": "ecological pairing, seasonal dance of wild masculine/feminine",
+        "visual": "stag and doe facing in the greenwood, year turning"
+      },
+      "shinto": {
+        "title": "Izanagi & Izanami",
+        "motif": "creation and irreversible rift; honeymoon and Yomi both present",
+        "visual": "primordial couple with jeweled spear over chaotic sea"
+      }
+    },
+    {
+      "number": 7,
+      "egyptian": {
+        "title": "War Chariot",
+        "motif": "state-backed disciplined advance, vehicle of empire",
+        "visual": "pharaoh in light chariot driving over foes"
+      },
+      "celtic": {
+        "title": "Archer",
+        "motif": "aimed intent, everything drawn taut to one decisive shot",
+        "visual": "bow at full draw, grounded stance, seasonal focus"
+      },
+      "shinto": {
+        "title": "Hachiman",
+        "motif": "divinely guided campaign, martial force with civic mandate",
+        "visual": "war-banner and bow of the clan-protecting kami"
+      }
+    },
+    {
+      "number": 10,
+      "egyptian": {
+        "title": "Shai / Sphinx",
+        "motif": "fate allotted by cosmic decree, riddling thresholds",
+        "visual": "sphinx and the measure of your portion at judgment"
+      },
+      "celtic": {
+        "title": "Wheel of the Year",
+        "motif": "Samhain to Beltane cycles; life rises and falls with the land",
+        "visual": "eight-spoked seasonal wheel turning light and dark"
+      },
+      "shinto": {
+        "title": "Mono no Aware (Seasons)",
+        "motif": "impermanence felt through blossoms, rice cycles, harvests",
+        "visual": "festivals passing with petals and ripening fields"
+      }
+    },
+    {
+      "number": 15,
+      "egyptian": {
+        "title": "Set / Apep",
+        "motif": "Isfet—unruly chaos that must be bounded by Ma’at",
+        "visual": "chaos serpent and red desert force challenging order"
+      },
+      "celtic": {
+        "title": "Cernunnos / Guardian",
+        "motif": "raw untamed life-force; binding when repressed, freeing when integrated",
+        "visual": "horned figure at cave mouth, beasts and bone shadow"
+      },
+      "shinto": {
+        "title": "Oni / Tengu",
+        "motif": "attachments and delusions personified; trickster punishment of arrogance",
+        "visual": "ogre and bird-goblin forms haunting those who ignore their shadow"
+      }
+    },
+    {
+      "number": 16,
+      "egyptian": {
+        "title": "Lightning-struck Pylon",
+        "motif": "collapse of false security and political order",
+        "visual": "temple gate cracking under divine wrath"
+      },
+      "celtic": {
+        "title": "Blasted Oak",
+        "motif": "nature reclaiming stagnant structures; shamanic knock from the tree",
+        "visual": "lightning-struck tree with a figure falling"
+      },
+      "shinto": {
+        "title": "Susanoo",
+        "motif": "storm breaking human arrangements, forcing a reset",
+        "visual": "tempest over rice fields, serpent-slaying storm god"
+      }
+    },
+    {
+      "number": 21,
+      "egyptian": {
+        "title": "Nut / The Universe",
+        "motif": "cosmic containment; the world held in a living sky-body",
+        "visual": "starry goddess arching over earth, birthing the sun anew"
+      },
+      "celtic": {
+        "title": "World Tree",
+        "motif": "ecological integration of underworld, middleworld, upperworld",
+        "visual": "great tree with roots, trunk, crown bridging three realms"
+      },
+      "shinto": {
+        "title": "Amaterasu",
+        "motif": "cosmos fully illuminated and seen; the clear mirror moment",
+        "visual": "sun goddess emerging from the cave, world lit in gold"
+      }
+    }
+  ],
+  "meta": {
+    "source": "Egyptian / Celtic (Druidcraft–Wildwood) / Shinto cross-deck correspondences",
+    "notes": "Use as inspirational flavor; keep card titles minimal unless needed."
+  }
+}

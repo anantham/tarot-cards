@@ -1,0 +1,14 @@
+{
+  "baseTemplate": "Generate a tarot card image based on this description: {CARD_PROMPT}. {LORE_CONTEXT}",
+  "framingTemplate": "Vertical 2:3 tarot card composition, portrait orientation, centered subject framed head-to-toe with comfortable headroom, ornate tarot border, clean card edges, no cropping of hands or head.",
+  "faceReferenceInstruction": "Use the facial features and likeness from this reference photo. Maintain the person's unique characteristics while placing them in the tarot card context.",
+  "styleReferenceInstruction": "Match the artistic style, color palette, and visual aesthetic from this reference image. Use this as the style guide for the entire composition.",
+  "poseReferenceInstruction": "Use the body pose, stance, and positioning from this reference image. Adapt it to fit the tarot card composition.",
+  "defaultPromptSuffix": ", highly detailed, cinematic lighting, tarot card art style, masterpiece quality",
+  "loreContextTemplate": "It represents {SUMMARY}. Axis: {AXIS}. Embodied feel: {FEEL}. Relational stance: {STANCE}. Scene: {SCENE}. Question: {QUESTION}.",
+  "metadata": {
+    "version": "1.0",
+    "description": "Editable prompt templates for tarot card generation",
+    "lastModified": "2025-01-24"
+  }
+}

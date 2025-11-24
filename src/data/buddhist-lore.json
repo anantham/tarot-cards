@@ -1,0 +1,30 @@
+{
+  "cards": [
+    { "number": 0, "title": "Prince Siddhartha / Bodhicitta", "concept": "Renunciation and first noble unease; leaving the palace to seek truth", "visual": "young prince stepping beyond palace gate with begging bowl, dog at heel, stepping into unknown" },
+    { "number": 1, "title": "Padmasambhava / Upaya", "concept": "Skillful means; using any tool to awaken beings", "visual": "tantric master with ritual implements, mudra and mantra, elements swirling" },
+    { "number": 2, "title": "Prajnaparamita / Sunyata", "concept": "Mother of Buddhas; emptiness of all phenomena", "visual": "robed figure behind a veil with Heart Sutra scroll, void halo" },
+    { "number": 3, "title": "Green Tara / Karuna", "concept": "Active compassion; one foot ready to move toward suffering", "visual": "green deity on lotus, one leg extended, hand in blessing, lush fertile surround" },
+    { "number": 4, "title": "Chakravartin / Shila", "concept": "Wheel-turning monarch; ethical discipline and protection", "visual": "sovereign on Dharma wheel throne, regal yet restrained, holding precept staff" },
+    { "number": 5, "title": "Shakyamuni Teaching / Dharma", "concept": "First Sermon; transmission of lineage", "visual": "Buddha in Deer Park, dharmachakra mudra, deer near a turning wheel" },
+    { "number": 6, "title": "Yab-Yum / Prajna & Upaya", "concept": "Tantric union of wisdom and method; non-duality", "visual": "paired figures in serene embrace, moon-sun halo, union of feminine/masculine energies" },
+    { "number": 7, "title": "Mahayana / Virya", "concept": "Great Vehicle; energy to carry all beings", "visual": "bodhisattva chariot/boat bearing many beings, banner of vows, purposeful motion" },
+    { "number": 8, "title": "Taming the Elephant / Kshanti", "concept": "Patience and gentle control of the wild mind", "visual": "monk guiding elephant and monkey along a path, calm gaze, soft reins" },
+    { "number": 9, "title": "Forest Monk / Pratyekabuddha", "concept": "Solitary realization through meditation", "visual": "hermit in cave with lantern and alms bowl, night sky, inner light" },
+    { "number": 10, "title": "Bhavachakra / Samsara", "concept": "Wheel of Life turning under ignorance", "visual": "wheel of six realms held by Yama, three poisons at center, twelve links around" },
+    { "number": 11, "title": "Yama / Karma", "concept": "Mirror of cause and effect; impartial justice", "visual": "lord of death with mirror and scales, sword of discernment" },
+    { "number": 12, "title": "Bodhisattva Vow / Reversal of View", "concept": "Voluntary suspension; seeing dependent origination", "visual": "figure inverted, serene, haloed, rope chosen not forced" },
+    { "number": 13, "title": "Maranasati / Anicca", "concept": "Corpse meditation; impermanence of aggregates", "visual": "cemetery contemplation, dissolving body, river of time" },
+    { "number": 14, "title": "Middle Way / Madhyamaka", "concept": "Balance of extremes; tuning effort and ease", "visual": "water poured between cups, sitar string neither too tight nor too loose" },
+    { "number": 15, "title": "Mara / Tanha & Upadana", "concept": "Craving and clinging as the true chains", "visual": "tempter crowned with three poisons, loose chains, seductive illusion" },
+    { "number": 16, "title": "House-builder Verse / Vipassana", "concept": "Insight lightning shattering the ego-structure", "visual": "tower-like ego cracked by lightning, ridgepole falling, liberation flash" },
+    { "number": 17, "title": "Amitabha / Pure Land", "concept": "Hope and refuge; conditions optimized for practice", "visual": "red Buddha over lotus lake, stars reflected, gentle blessing" },
+    { "number": 18, "title": "Reflection in Water / Maya", "concept": "Illusion and misperception; psychic ripples", "visual": "moon reflected in rippling pond, dogs howling, misty path" },
+    { "number": 19, "title": "Vairocana / Luminous Mind", "concept": "Primordial sun; clear light always present", "visual": "radiant sun Buddha, childlike openness, banners in warm light" },
+    { "number": 20, "title": "Lion’s Roar / Bardo", "concept": "Wake-up call of Dharma; transitional states", "visual": "trumpet and lion, figures rising from graves, in-between light" },
+    { "number": 21, "title": "Mandala / Nirvana", "concept": "Samsara and nirvana not-two; integrated cosmos", "visual": "sand mandala within wreath, dancer in center, sweeping grains to river" }
+  ],
+  "meta": {
+    "source": "Buddhist arcana mapping (Theravada/Mahayana/Vajrayana blend)",
+    "notes": "Use as inspirational flavor; card face can stay minimal."
+  }
+}

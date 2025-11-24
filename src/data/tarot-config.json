@@ -1,0 +1,22 @@
+{
+  "configuration": {
+    "promptComposition": {
+      "loreTemplate": " It represents {summary} Axis: {axis}. Embodied feel: {feel}. Relational stance: {stance}. Scene: {scene}. Question: {question}.",
+      "framingInstructions": " Vertical 2:3 tarot card composition, portrait orientation, centered subject framed head-to-toe with comfortable headroom, ornate tarot border, clean card edges, no cropping of hands or head.",
+      "compositionOrder": ["deckPrompt", "deckLore", "lore", "lotm", "tradition", "framing"],
+      "description": "Controls how the final prompt is assembled. Use {summary}, {axis}, {feel}, {stance}, {scene}, {question} as placeholders in loreTemplate. You can add/remove keys in compositionOrder; common keys include deckPrompt, deckLore, lore, lotm, tradition, framing."
+    },
+    "apiInstructions": {
+      "gemini": {
+        "requestPrefix": "Generate a tarot card image based on this description: {prompt}. Aspect ratio: 2:3 (vertical tarot card).",
+        "photoInstruction": "Use the provided reference photo to maintain the person's facial features and likeness.",
+        "multiImageInstructionTemplate": "{instruction}",
+        "description": "Instructions sent to Gemini API. {prompt} will be replaced with the assembled prompt. {instruction} comes from reference image objects."
+      },
+      "openrouter": {
+        "requestPrefix": "{prompt}",
+        "description": "OpenRouter uses the prompt directly without additional prefix"
+      }
+    }
+  }
+}

@@ -27,14 +27,41 @@ export interface TarotCard {
   personalLore: string;
 }
 
+export interface ReferenceImage {
+  id: string;
+  dataUrl: string;
+  instruction: string;
+  type: 'face' | 'body' | 'style' | 'background' | 'custom';
+  required?: boolean;
+}
+
+export interface PromptTemplates {
+  baseTemplate: string;
+  framingTemplate: string;
+  faceReferenceInstruction: string;
+  styleReferenceInstruction: string;
+  poseReferenceInstruction: string;
+  defaultPromptSuffix: string;
+  loreContextTemplate: string;
+}
+
 export interface Settings {
   userPhoto: string;
+  usePhoto?: boolean;
+  referenceImages?: ReferenceImage[];
   selectedDeckType: string;
   framesPerCard: number;
   generationModel: string;
   promptSuffix: string;
+  promptTemplates?: PromptTemplates;
+  apiProvider: 'openrouter' | 'gemini';
   apiEndpoint: string;
   apiKey?: string;
+  geminiApiKey?: string;
+  imageSize?: '1K' | '2K';
+  showCardInfo?: boolean;
+  animateCards?: boolean;
+  navigateWithArrows?: boolean;
 }
 
 export interface GeneratedCard {
@@ -42,6 +69,7 @@ export interface GeneratedCard {
   deckType: string;
   frames: string[]; // URLs to generated images
   gifUrl?: string;
+  videoUrl?: string;
   timestamp: number;
 }
 

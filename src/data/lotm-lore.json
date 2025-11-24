@@ -1,0 +1,184 @@
+{
+  "cards": [
+    {
+      "number": 0,
+      "pathway": "Seer",
+      "deity": "The Fool (Seq 0)",
+      "owner": "Klein Moretti — Sefirah Castle",
+      "status": "Active; anti-divination anchor",
+      "visual": "Vagabond Roselle stepping off a cliff with a white dog; infinite potential, beginning of the journey"
+    },
+    {
+      "number": 1,
+      "pathway": "Apprentice",
+      "deity": "Door (Seq 0)",
+      "owner": "Abraham family / Fors Wall (via Gehrman Sparrow)",
+      "status": "Hidden",
+      "visual": "Performer Roselle manipulating elements and space, planar keys and portals"
+    },
+    {
+      "number": 2,
+      "pathway": "Savant / Paragon",
+      "deity": "Knowledge Emperor (Seq 0)",
+      "owner": "Hidden Sage / Steam Church",
+      "status": "Unknown",
+      "visual": "Solemn Roselle with scrolls, machinery, and veiled knowledge"
+    },
+    {
+      "number": 3,
+      "pathway": "Assassin / Demoness",
+      "deity": "Primordial Demoness (Seq 0)",
+      "owner": "Zaratul / Loki",
+      "status": "Highly sought",
+      "visual": "Female Roselle, regal and seductive, throne and calamity motifs"
+    },
+    {
+      "number": 4,
+      "pathway": "Lawyer / Black Emperor",
+      "deity": "Black Emperor (Seq 0)",
+      "owner": "Klein Moretti",
+      "status": "Recovered from Roselle Museum",
+      "visual": "Roselle on a stone throne, black crown and armor, cold gaze"
+    },
+    {
+      "number": 5,
+      "pathway": "Sailor / Tyrant",
+      "deity": "Tyrant (Seq 0)",
+      "owner": "Alger Wilson",
+      "status": "Active use",
+      "visual": "Roselle amid storm and tsunami, papal or regal vestments, thunderous backdrop"
+    },
+    {
+      "number": 6,
+      "pathway": "Marauder / Error",
+      "deity": "Error (Seq 0)",
+      "owner": "Amon",
+      "status": "Presumed in Amon’s collection",
+      "visual": "Roselle with duplicate/shadow avatar, identity theft and parasitic feel"
+    },
+    {
+      "number": 7,
+      "pathway": "Hunter / Red Priest",
+      "deity": "Red Priest (Seq 0)",
+      "owner": "Klein Moretti",
+      "status": "Recovered from Tudor ruins",
+      "visual": "Hunter Roselle raising middle finger, burning building and traps"
+    },
+    {
+      "number": 8,
+      "pathway": "Warrior / Twilight Giant",
+      "deity": "Twilight Giant (Seq 0)",
+      "owner": "Combat Church (implied)",
+      "status": "Unknown",
+      "visual": "Roselle subduing a beast or wielding a massive greatsword, raw strength"
+    },
+    {
+      "number": 9,
+      "pathway": "Mystery Pryer / Hermit",
+      "deity": "Hermit (Seq 0)",
+      "owner": "Hidden Sage circle / Cattleya (implied)",
+      "status": "Unknown",
+      "visual": "Old Roselle with lantern and staff, seeking dangerous knowledge"
+    },
+    {
+      "number": 10,
+      "pathway": "Monster / Wheel of Fortune",
+      "deity": "Monster (Seq 0)",
+      "owner": "Bernadette Gustav",
+      "status": "Active use by Queen Mystic",
+      "visual": "Roselle weaving threads of fate atop a spinning wheel"
+    },
+    {
+      "number": 11,
+      "pathway": "Spectator / Visionary",
+      "deity": "Visionary (Seq 0)",
+      "owner": "Adam / Twilight Hermit Order",
+      "status": "Controlled by Hermit Order",
+      "visual": "Roselle as judge/observer with scales and sword, piercing gaze"
+    },
+    {
+      "number": 12,
+      "pathway": "Secrets Supplicant / Hanged Man",
+      "deity": "Hanged Man (Seq 0)",
+      "owner": "True Creator / Aurora Order",
+      "status": "Unknown",
+      "visual": "Roselle suspended upside down, sacrificial imagery, blood and shadow"
+    },
+    {
+      "number": 13,
+      "pathway": "Corpse Collector / Death",
+      "deity": "Death (Seq 0)",
+      "owner": "Numinous Episcopate / Azik (associated)",
+      "status": "Hidden",
+      "visual": "Roselle as a pale reaper, monarch of the dead, river of darkness"
+    },
+    {
+      "number": 14,
+      "pathway": "Prisoner / Chained",
+      "deity": "Chained (Seq 0)",
+      "owner": "Rose School of Thought (Temperance faction)",
+      "status": "Unknown",
+      "visual": "Roselle blending opposing forces, chains and restraint motifs"
+    },
+    {
+      "number": 15,
+      "pathway": "Criminal / Abyss",
+      "deity": "Abyss (Seq 0)",
+      "owner": "Deep Abyss cult",
+      "status": "Unknown",
+      "visual": "Devil archetype Roselle, temptation and corruption"
+    },
+    {
+      "number": 16,
+      "pathway": "Reader / White Tower",
+      "deity": "White Tower (Seq 0)",
+      "owner": "Church of Knowledge and Wisdom",
+      "status": "Unknown",
+      "visual": "Ivory tower struck by lightning, Roselle as strategist-scholar"
+    },
+    {
+      "number": 17,
+      "pathway": "Sleepless / Darkness",
+      "deity": "Darkness (Seq 0)",
+      "owner": "Evernight Church",
+      "status": "Unknown",
+      "visual": "Roselle under a vast starry sky and void, quiet hope within darkness"
+    },
+    {
+      "number": 18,
+      "pathway": "Apothecary / Moon",
+      "deity": "Primordial Moon (Seq 0)",
+      "owner": "Sanguine / Earth Mother factions",
+      "status": "Unknown",
+      "visual": "Roselle in crimson moonlight, illusions, biological mutation motifs"
+    },
+    {
+      "number": 19,
+      "pathway": "Bard / Sun",
+      "deity": "Sun (Seq 0)",
+      "owner": "Church of the Eternal Blazing Sun",
+      "status": "Unknown",
+      "visual": "Radiant Roselle, apollonian light, notarizing radiance"
+    },
+    {
+      "number": 20,
+      "pathway": "Arbiter / Justiciar",
+      "deity": "Justiciar (Seq 0)",
+      "owner": "Augustus family (Loen royalty)",
+      "status": "Unknown",
+      "visual": "Roselle passing verdict, trumpet and decree, order imposed on reality"
+    },
+    {
+      "number": 21,
+      "pathway": "Planter / Mother",
+      "deity": "Mother / Earth Mother (Seq 0)",
+      "owner": "Earth Mother Church",
+      "status": "Distinct from Klein’s alias “The World”",
+      "visual": "Roselle within a laurel wreath, entwined with nature and harvest"
+    }
+  ],
+  "meta": {
+    "source": "Compiled from Lord of the Mysteries lore (Cards of Blasphemy / Roselle era)",
+    "notes": "Use as inspiration only; keep card text minimal (title/number as needed)."
+  }
+}
