@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Settings, GeneratedCard, TarotCard } from '../types';
 import tarotData from '../data/tarot-decks.json';
+import { getAllGeneratedCards, putGeneratedCard, clearGeneratedCardsStore } from '../utils/idb';
 
 interface StoreState {
   // Settings
@@ -12,6 +13,8 @@ interface StoreState {
   generatedCards: GeneratedCard[];
   addGeneratedCard: (card: GeneratedCard) => void;
   getGeneratedCard: (cardNumber: number, deckType: string) => GeneratedCard | undefined;
+  getAllGenerationsForCard: (cardNumber: number, deckType: string) => GeneratedCard[];
+  deleteGeneratedCard: (timestamp: number) => void;
   clearGeneratedCards: () => void;
 
   // UI State
@@ -33,57 +36,77 @@ interface StoreState {
 
 export const useStore = create<StoreState>()(
   persist(
-    (set, get) => ({
-      // Initial settings
-      settings: tarotData.defaultSettings as Settings,
+    (set, get) => {
+      // Load any previously stored generations from IndexedDB
+      getAllGeneratedCards().then((cards) => set({ generatedCards: cards })).catch(() => {});
 
-      updateSettings: (newSettings) =>
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        })),
+      return {
+        // Initial settings
+        settings: tarotData.defaultSettings as Settings,
 
-      // Generated cards
-      generatedCards: [],
+        updateSettings: (newSettings) =>
+          set((state) => ({
+            settings: { ...state.settings, ...newSettings },
+          })),
 
-      addGeneratedCard: (card) =>
-        set((state) => {
-          // Remove existing card with same number and deck type
-          const filtered = state.generatedCards.filter(
-            (c) => !(c.cardNumber === card.cardNumber && c.deckType === card.deckType)
-          );
-          return { generatedCards: [...filtered, card] };
-        }),
+        // Generated cards (persisted in IndexedDB)
+        generatedCards: [],
 
-      getGeneratedCard: (cardNumber, deckType) => {
-        return get().generatedCards.find(
-          (c) => c.cardNumber === cardNumber && c.deckType === deckType
-        );
-      },
+        addGeneratedCard: (card) =>
+          set((state) => {
+            const updated = [...state.generatedCards, card];
+            void putGeneratedCard(card);
+            return { generatedCards: updated };
+          }),
 
-      clearGeneratedCards: () => set({ generatedCards: [] }),
+        getGeneratedCard: (cardNumber, deckType) => {
+          const cards = get().generatedCards
+            .filter((c) => c.cardNumber === cardNumber && c.deckType === deckType)
+            .sort((a, b) => b.timestamp - a.timestamp);
+          return cards[0];
+        },
 
-      // UI State
-      selectedCard: null,
-      setSelectedCard: (card) => set({ selectedCard: card }),
+        getAllGenerationsForCard: (cardNumber, deckType) => {
+          return get().generatedCards
+            .filter((c) => c.cardNumber === cardNumber && c.deckType === deckType)
+            .sort((a, b) => b.timestamp - a.timestamp);
+        },
 
-      isGenerating: false,
-      setIsGenerating: (generating) => set({ isGenerating: generating }),
+        deleteGeneratedCard: (timestamp) => {
+          const updated = get().generatedCards.filter((c) => c.timestamp !== timestamp);
+          set({ generatedCards: updated });
+          // No direct delete by timestamp in IDB store; rewrite the store
+          updated.forEach((card) => void putGeneratedCard(card));
+        },
 
-      showSettings: false,
-      setShowSettings: (show) => set({ showSettings: show }),
+        clearGeneratedCards: () => {
+          void clearGeneratedCardsStore();
+          set({ generatedCards: [] });
+        },
 
-      generationProgress: {
-        current: 0,
-        total: 0,
-        status: '',
-      },
-      setGenerationProgress: (progress) => set({ generationProgress: progress }),
-    }),
+        // UI State
+        selectedCard: null,
+        setSelectedCard: (card) => set({ selectedCard: card }),
+
+        isGenerating: false,
+        setIsGenerating: (generating) => set({ isGenerating: generating }),
+
+        showSettings: false,
+        setShowSettings: (show) => set({ showSettings: show }),
+
+        generationProgress: {
+          current: 0,
+          total: 0,
+          status: '',
+        },
+        setGenerationProgress: (progress) => set({ generationProgress: progress }),
+      };
+    },
     {
       name: 'tarot-cards-storage',
       partialize: (state) => ({
+        // Keep only lightweight settings in localStorage; generated cards live in IndexedDB
         settings: state.settings,
-        generatedCards: state.generatedCards,
       }),
     }
   )

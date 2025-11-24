@@ -1,64 +1,268 @@
-import { useRef, useState, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { useRef, useState, useMemo, useCallback } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Text, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard } from '../types';
 
-interface CardProps {
-  card: TarotCard;
-  position: [number, number, number];
-  rotation: [number, number, number];
-  index: number;
+interface CardPhysics {
+  position: THREE.Vector3;
+  velocity: THREE.Vector3;
+  acceleration: THREE.Vector3;
+  targetPosition: THREE.Vector3;
+  mass: number;
 }
 
-function Card({ card, position, rotation }: CardProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-  const { setSelectedCard, settings } = useStore();
+interface CardProps {
+  card: TarotCard;
+  initialPosition: [number, number, number];
+  initialRotation: [number, number, number];
+  index: number;
+  physics: React.MutableRefObject<CardPhysics>;
+  allPhysics: React.MutableRefObject<CardPhysics[]>;
+  currentlyDraggingRef: React.MutableRefObject<number | null>;
+}
 
-  // Random drift parameters for each card
+function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef }: CardProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const { setSelectedCard, settings } = useStore();
+  const showInfo = settings.showCardInfo !== false;
+  const { camera, pointer, raycaster } = useThree();
+
+  // DIAGNOSTIC: Track if useFrame ever runs
+  const frameCountRef = useRef(0);
+
+  // DIAGNOSTIC: Log initial state for card 0
+  if (index === 0 && !groupRef.current) {
+    console.log(`[INIT] Card 0 mounting`);
+    console.log(`  Initial position prop: (${initialPosition[0].toFixed(2)}, ${initialPosition[1].toFixed(2)}, ${initialPosition[2].toFixed(2)})`);
+    console.log(`  Physics ref position: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
+    console.log(`  Physics ref velocity: (${physics.current.velocity.x.toFixed(4)}, ${physics.current.velocity.y.toFixed(4)}, ${physics.current.velocity.z.toFixed(4)})`);
+  }
+
+  // Change cursor to grab hand when hovering, grabbing hand when dragging
+  useCursor(hovered && !dragging, 'grab');
+  useCursor(dragging, 'grabbing');
+
+  const dragOffset = useRef(new THREE.Vector3());
+  const lastDragPosition = useRef(new THREE.Vector3());
+  const dragVelocity = useRef(new THREE.Vector3());
+  const hasDragged = useRef(false); // Track if user actually moved the card
+
+  // Physics constants
+  const REPULSION_STRENGTH = 2.5;
+  const REPULSION_DISTANCE = 3.0;
+  const CURSOR_REPULSION_STRENGTH = 0.8;
+  const CURSOR_REPULSION_DISTANCE = 2.5;
+  const CENTER_ATTRACTION = 0.015; // Pull toward center
+  const CENTER_ATTRACTION_DISTANCE = 5.0; // Start pulling when farther than this
+  const DAMPING = 0.98;
+  const MAX_VELOCITY = 0.15;
+  const BOUNDARY_FORCE = 0.3;
+  const BOUNDARY_DISTANCE = 8;
+
+  // Random drift parameters
   const driftParams = useMemo(() => ({
-    speed: 0.3 + Math.random() * 0.4,
+    speed: 0.2 + Math.random() * 0.3,
     xOffset: Math.random() * Math.PI * 2,
     yOffset: Math.random() * Math.PI * 2,
     zOffset: Math.random() * Math.PI * 2,
-    xAmplitude: 0.3 + Math.random() * 0.5,
-    yAmplitude: 0.2 + Math.random() * 0.4,
-    zAmplitude: 0.1 + Math.random() * 0.3,
+    xAmplitude: 0.15 + Math.random() * 0.25,
+    yAmplitude: 0.1 + Math.random() * 0.2,
+    zAmplitude: 0.05 + Math.random() * 0.15,
     rotSpeed: 0.1 + Math.random() * 0.2,
   }), []);
 
+  const handlePointerDown = useCallback((e: any) => {
+    // Don't allow drag if another card is already being dragged
+    if (currentlyDraggingRef.current !== null && currentlyDraggingRef.current !== index) {
+      return;
+    }
+
+    e.stopPropagation();
+    setDragging(true);
+    hasDragged.current = false; // Reset drag tracking
+    currentlyDraggingRef.current = index; // Mark this card as being dragged
+
+    const group = groupRef.current;
+    if (!group) return;
+
+    // Calculate drag offset in world space
+    raycaster.setFromCamera(pointer, camera);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersectPoint = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, intersectPoint);
+
+    dragOffset.current.copy(group.position).sub(intersectPoint);
+    lastDragPosition.current.copy(group.position);
+    dragVelocity.current.set(0, 0, 0);
+
+    // Stop current physics motion
+    physics.current.velocity.set(0, 0, 0);
+    physics.current.acceleration.set(0, 0, 0);
+  }, [pointer, camera, raycaster, physics, currentlyDraggingRef, index]);
+
+  const handlePointerUp = useCallback(() => {
+    if (dragging) {
+      // Apply throw velocity
+      physics.current.velocity.copy(dragVelocity.current).multiplyScalar(0.5);
+      currentlyDraggingRef.current = null; // Clear the dragging state
+    }
+    setDragging(false);
+  }, [dragging, physics, currentlyDraggingRef]);
+
   useFrame((state) => {
-    if (!meshRef.current) return;
+    const group = groupRef.current;
+    if (!group) return;
 
     const time = state.clock.elapsedTime;
+    // Ensure minimum dt of 0.016 (~60fps) to prevent zero-dt frames
+    const dt = Math.max(Math.min(state.clock.getDelta(), 0.1), 0.016);
 
-    // Floating/drifting animation
-    const x = position[0] + Math.sin(time * driftParams.speed + driftParams.xOffset) * driftParams.xAmplitude;
-    const y = position[1] + Math.cos(time * driftParams.speed + driftParams.yOffset) * driftParams.yAmplitude;
-    const z = position[2] + Math.sin(time * driftParams.speed * 0.5 + driftParams.zOffset) * driftParams.zAmplitude;
+    // DIAGNOSTIC: Count frames for card 0
+    if (index === 0) {
+      frameCountRef.current++;
+      if (frameCountRef.current <= 30) {
+        console.log(`[Frame ${frameCountRef.current}] useFrame executing, time=${time.toFixed(3)}s, dt=${dt.toFixed(4)}s`);
+      }
+    }
 
-    meshRef.current.position.set(x, y, z);
+    if (dragging) {
+      // Update drag position
+      raycaster.setFromCamera(pointer, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+      const intersectPoint = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, intersectPoint);
+
+      const newPosition = intersectPoint.add(dragOffset.current);
+
+      // Calculate drag velocity for throw
+      const velocity = new THREE.Vector3().copy(newPosition).sub(lastDragPosition.current);
+      dragVelocity.current.copy(velocity).divideScalar(dt);
+
+      // Track if there was significant movement
+      if (velocity.length() > 0.01) {
+        hasDragged.current = true;
+      }
+
+      lastDragPosition.current.copy(newPosition);
+
+      physics.current.position.copy(newPosition);
+      group.position.copy(newPosition);
+    } else {
+      // Reset acceleration
+      physics.current.acceleration.set(0, 0, 0);
+
+      // Random trajectory drift
+      const driftX = Math.sin(time * driftParams.speed + driftParams.xOffset) * driftParams.xAmplitude * 0.01;
+      const driftY = Math.cos(time * driftParams.speed + driftParams.yOffset) * driftParams.yAmplitude * 0.01;
+      const driftZ = Math.sin(time * driftParams.speed * 0.5 + driftParams.zOffset) * driftParams.zAmplitude * 0.01;
+      physics.current.acceleration.add(new THREE.Vector3(driftX, driftY, driftZ));
+
+      // Card-to-card repulsion (magnetic field)
+      allPhysics.current.forEach((otherPhysics, otherIndex) => {
+        if (otherIndex === index) return;
+
+        const direction = new THREE.Vector3()
+          .copy(physics.current.position)
+          .sub(otherPhysics.position);
+
+        const distance = direction.length();
+
+        if (distance < REPULSION_DISTANCE && distance > 0.1) {
+          const force = REPULSION_STRENGTH / (distance * distance);
+          direction.normalize().multiplyScalar(force);
+          physics.current.acceleration.add(direction);
+        }
+      });
+
+      // Cursor repulsion
+      const cursorWorldPos = new THREE.Vector3(pointer.x * 10, pointer.y * 10, 0);
+      const cursorDirection = new THREE.Vector3()
+        .copy(physics.current.position)
+        .sub(cursorWorldPos);
+
+      const cursorDistance = cursorDirection.length();
+      if (cursorDistance < CURSOR_REPULSION_DISTANCE && cursorDistance > 0.1) {
+        const cursorForce = CURSOR_REPULSION_STRENGTH / (cursorDistance * cursorDistance);
+        cursorDirection.normalize().multiplyScalar(cursorForce);
+        physics.current.acceleration.add(cursorDirection);
+      }
+
+      // Center attraction (keeps cards from escaping)
+      const distanceFromCenter = physics.current.position.length();
+      if (distanceFromCenter > CENTER_ATTRACTION_DISTANCE) {
+        const centerDirection = new THREE.Vector3()
+          .copy(physics.current.position)
+          .negate()
+          .normalize();
+
+        // Stronger pull the farther from center
+        const pullStrength = CENTER_ATTRACTION * (distanceFromCenter / CENTER_ATTRACTION_DISTANCE);
+        centerDirection.multiplyScalar(pullStrength);
+        physics.current.acceleration.add(centerDirection);
+      }
+
+      // Boundary forces (keep cards in view)
+      const boundaryForce = new THREE.Vector3();
+
+      if (Math.abs(physics.current.position.x) > BOUNDARY_DISTANCE) {
+        boundaryForce.x = -Math.sign(physics.current.position.x) * BOUNDARY_FORCE;
+      }
+      if (Math.abs(physics.current.position.y) > BOUNDARY_DISTANCE) {
+        boundaryForce.y = -Math.sign(physics.current.position.y) * BOUNDARY_FORCE;
+      }
+      if (Math.abs(physics.current.position.z) > BOUNDARY_DISTANCE) {
+        boundaryForce.z = -Math.sign(physics.current.position.z) * BOUNDARY_FORCE;
+      }
+
+      physics.current.acceleration.add(boundaryForce);
+
+      // Update velocity
+      physics.current.velocity.add(
+        physics.current.acceleration.multiplyScalar(dt)
+      );
+
+      // Apply damping
+      physics.current.velocity.multiplyScalar(DAMPING);
+
+      // Limit velocity
+      if (physics.current.velocity.length() > MAX_VELOCITY) {
+        physics.current.velocity.normalize().multiplyScalar(MAX_VELOCITY);
+      }
+
+      // Update position
+      physics.current.position.add(
+        physics.current.velocity.clone().multiplyScalar(dt * 60)
+      );
+
+      // Apply to group
+      group.position.copy(physics.current.position);
+
+      // DIAGNOSTIC: Log physics state for card 0, first 10 frames
+      if (index === 0 && frameCountRef.current <= 10) {
+        console.log(`  Physics pos: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
+        console.log(`  Velocity mag: ${physics.current.velocity.length().toFixed(4)}`);
+        console.log(`  Accel mag: ${physics.current.acceleration.length().toFixed(4)}`);
+        console.log(`  Group pos: (${group.position.x.toFixed(2)}, ${group.position.y.toFixed(2)}, ${group.position.z.toFixed(2)})`);
+      }
+    }
 
     // Gentle rotation
-    meshRef.current.rotation.x = rotation[0] + Math.sin(time * driftParams.rotSpeed) * 0.1;
-    meshRef.current.rotation.y = rotation[1] + Math.cos(time * driftParams.rotSpeed) * 0.1;
-    meshRef.current.rotation.z = rotation[2] + Math.sin(time * driftParams.rotSpeed * 0.5) * 0.05;
+    group.rotation.x = initialRotation[0] + Math.sin(time * driftParams.rotSpeed) * 0.1;
+    group.rotation.y = initialRotation[1] + Math.cos(time * driftParams.rotSpeed) * 0.1;
+    group.rotation.z = initialRotation[2] + Math.sin(time * driftParams.rotSpeed * 0.5) * 0.05;
 
-    // Hover effect - orient toward camera and scale up
-    if (hovered) {
-      meshRef.current.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
-
-      // Orient toward camera (not fully, just slightly)
-      const currentRotation = new THREE.Euler().setFromQuaternion(meshRef.current.quaternion);
-      const targetQuaternion = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(currentRotation.x * 0.7, currentRotation.y * 0.7, 0)
-      );
-      meshRef.current.quaternion.slerp(targetQuaternion, 0.05);
+    // Hover effect - scale up and emit light
+    if (hovered && !dragging) {
+      group.scale.lerp(new THREE.Vector3(1.3, 1.3, 1.3), 0.1);
+    } else if (dragging) {
+      group.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.15);
     } else {
-      meshRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+      group.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
     }
   });
 
@@ -73,7 +277,7 @@ function Card({ card, position, rotation }: CardProps) {
     return card.traditional.name;
   };
 
-  // Get a keyword to whisper on hover
+  // Get a keyword
   const getKeyword = () => {
     const deckType = settings.selectedDeckType;
     let keywords: string[] = [];
@@ -88,42 +292,52 @@ function Card({ card, position, rotation }: CardProps) {
   };
 
   return (
-    <group>
-      <mesh
-        ref={meshRef}
-        position={position}
-        rotation={rotation}
-        onPointerEnter={() => setHovered(true)}
-        onPointerLeave={() => setHovered(false)}
-        onClick={() => setSelectedCard(card)}
-      >
+    <group
+      ref={groupRef}
+      position={initialPosition}
+      rotation={initialRotation}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onClick={(e) => {
+        // Only trigger card selection if there was no dragging movement
+        if (!hasDragged.current) {
+          e.stopPropagation();
+          setSelectedCard(card);
+        }
+      }}
+    >
+      <mesh>
         {/* Card body */}
         <boxGeometry args={[0.8, 1.2, 0.05]} />
         <meshStandardMaterial
-          color={hovered ? '#9333ea' : '#1a1a2e'}
-          emissive={hovered ? '#9333ea' : '#000000'}
-          emissiveIntensity={hovered ? 0.5 : 0}
+          color={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#1a1a2e'}
+          emissive={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#000000'}
+          emissiveIntensity={dragging ? 0.8 : hovered ? 0.5 : 0}
           metalness={0.3}
           roughness={0.7}
         />
       </mesh>
 
       {/* Card number */}
-      <Text
-        position={[position[0], position[1] + 0.5, position[2] + 0.03]}
-        fontSize={0.15}
-        color="#d4af37"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {card.number === 0 ? '0' : card.number}
-      </Text>
+      {showInfo && (
+        <Text
+          position={[0, 0.5, 0.03]}
+          fontSize={0.15}
+          color="#d4af37"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {card.number === 0 ? '0' : card.number}
+        </Text>
+      )}
 
       {/* Card name (shown on hover) */}
-      {hovered && (
+      {(hovered || dragging) && showInfo && (
         <>
           <Text
-            position={[position[0], position[1], position[2] + 0.03]}
+            position={[0, 0, 0.03]}
             fontSize={0.08}
             color="#ffffff"
             anchorX="center"
@@ -135,7 +349,7 @@ function Card({ card, position, rotation }: CardProps) {
 
           {/* Whispered keyword */}
           <Text
-            position={[position[0], position[1] - 0.4, position[2] + 0.03]}
+            position={[0, -0.4, 0.03]}
             fontSize={0.06}
             color="#9333ea"
             anchorX="center"
@@ -151,12 +365,37 @@ function Card({ card, position, rotation }: CardProps) {
 
 export default function CardDeck() {
   const cards = tarotData.cards as TarotCard[];
+  const currentlyDraggingRef = useRef<number | null>(null); // Track which card is being dragged
 
-  // Generate random positions for cards in 3D space
-  // Cards should be spread out but visible within camera view
-  const cardPositions = useMemo(() => {
+  // Initialize physics for all cards
+  const allPhysicsRef = useRef<CardPhysics[]>(
+    cards.map((_, index) => {
+      const angle = (index / cards.length) * Math.PI * 4;
+      const radius = 2 + (index % 3) * 1.5;
+
+      const initialPos = new THREE.Vector3(
+        Math.cos(angle) * radius + (Math.random() - 0.5) * 2,
+        Math.sin(angle) * radius * 0.5 + (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 3
+      );
+
+      return {
+        position: initialPos.clone(),
+        velocity: new THREE.Vector3(
+          (Math.random() - 0.5) * 0.1,
+          (Math.random() - 0.5) * 0.1,
+          (Math.random() - 0.5) * 0.05
+        ),
+        acceleration: new THREE.Vector3(),
+        targetPosition: initialPos.clone(),
+        mass: 1.0,
+      };
+    })
+  );
+
+  // Generate card positions and rotations
+  const cardData = useMemo(() => {
     return cards.map((_, index) => {
-      // Create a spiral-like distribution
       const angle = (index / cards.length) * Math.PI * 4;
       const radius = 2 + (index % 3) * 1.5;
 
@@ -175,15 +414,25 @@ export default function CardDeck() {
     });
   }, []);
 
+  // Create individual refs for each card's physics
+  const physicsRefs = useRef(
+    cards.map((_, index) => ({
+      current: allPhysicsRef.current[index],
+    }))
+  );
+
   return (
     <group>
       {cards.map((card, index) => (
         <Card
           key={card.number}
           card={card}
-          position={cardPositions[index].position}
-          rotation={cardPositions[index].rotation}
+          initialPosition={cardData[index].position}
+          initialRotation={cardData[index].rotation}
           index={index}
+          physics={physicsRefs.current[index]}
+          allPhysics={allPhysicsRef}
+          currentlyDraggingRef={currentlyDraggingRef}
         />
       ))}
     </group>

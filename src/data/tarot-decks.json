@@ -24,6 +24,11 @@
       "id": "japanese-shinto",
       "name": "Japanese Shinto Tarot",
       "description": "Kami spirits and Japanese spiritual traditions"
+    },
+    {
+      "id": "buddhist",
+      "name": "Buddhist Arcana",
+      "description": "Bodhisattva path and dismantling of self"
     }
   ],
   "cards": [
@@ -31,719 +36,1464 @@
       "number": 0,
       "traditional": {
         "name": "The Fool",
-        "keywords": ["beginnings", "innocence", "spontaneity", "free spirit"],
+        "keywords": [
+          "beginnings",
+          "innocence",
+          "spontaneity",
+          "free spirit"
+        ],
         "meaning": "New beginnings, taking a leap of faith, being carefree",
         "prompt": "A person standing at the edge of a cliff, one foot lifted as if about to step off into the unknown, sun shining behind them, carrying a small bundle, white dog at their feet, mountains in background, tarot card art style"
       },
       "lordOfMysteries": {
         "pathway": "Fool Pathway",
         "sequence": "Sequence 0: The Fool",
-        "keywords": ["miracles", "impossibility", "grafting", "fooling"],
+        "keywords": [
+          "miracles",
+          "impossibility",
+          "grafting",
+          "fooling"
+        ],
         "abilities": "Grafting, Historical Void Projection, Miracle Invocation",
-        "prompt": "A mysterious figure in ancient robes standing in a dimensional void, reality bending around them, cosmic symbols floating, holding cards that show different possibilities, ethereal and otherworldly atmosphere"
+        "prompt": "Tarot card: 0 – THE FOOL (Lord of the Mysteries). Render the title '0 – THE FOOL' on the card using Arabic numeral 0. A vagabond/jester/seer at the brink of a precipice, one foot lifted toward the void; carries a small bag or staff, simple/torn clothes, maybe a jester hat. Facets of the Fool pathway: faceless trickster, subtle marionette strings/control, seer/clown motifs, freedom from constraints. Ethereal void with cosmic symbols; feel like first and last, outside the sequence."
       },
       "egyptian": {
         "deity": "Ra - The Sun God",
-        "keywords": ["creation", "light", "beginning", "power"],
+        "keywords": [
+          "creation",
+          "light",
+          "beginning",
+          "power"
+        ],
         "prompt": "Ancient Egyptian deity Ra with solar disk crown, golden rays emanating, hieroglyphics in background, desert landscape, falcon-headed figure in royal regalia"
       },
       "celtic": {
         "figure": "Dagda - The Good God",
-        "keywords": ["abundance", "protection", "knowledge", "magic"],
+        "keywords": [
+          "abundance",
+          "protection",
+          "knowledge",
+          "magic"
+        ],
         "prompt": "Celtic druid figure with sacred oak staff, standing in ancient stone circle, mist swirling, Celtic knotwork patterns, mystical forest background"
       },
       "shinto": {
         "kami": "Amaterasu - Sun Goddess",
-        "keywords": ["light", "order", "divinity", "beginning"],
+        "keywords": [
+          "light",
+          "order",
+          "divinity",
+          "beginning"
+        ],
         "prompt": "Japanese goddess emerging from cave, radiant light, mirror and jewels, torii gate, cherry blossoms, traditional Japanese art style"
       },
-      "personalLore": "FILL THIS: Your story for this card - what aspect of your life does this represent? What vocation, lesson, or role?"
+      "personalLore": "FILL THIS: Your story for this card - what aspect of your life does this represent? What vocation, lesson, or role?",
+      "narrative": {
+        "summary": "Potential, faith, beginnings, edge between trust and stupidity.",
+        "axis": "Sacred Leap vs Stupid Risk",
+        "feel": "Held breath at the edge; terror and wonder together.",
+        "stance": "Alone with the world as witness; environment bigger than the figure.",
+        "scene": "Mid-step off an impossible ledge, cliff bending toward their foot as if reality wants to catch them.",
+        "question": "What are you willing to risk not understanding, if it means truly living?"
+      }
     },
     {
       "number": 1,
       "traditional": {
         "name": "The Magician",
-        "keywords": ["manifestation", "resourcefulness", "power", "inspired action"],
+        "keywords": [
+          "manifestation",
+          "resourcefulness",
+          "power",
+          "inspired action"
+        ],
         "meaning": "Skill, diplomacy, self-confidence, taking action",
         "prompt": "A person standing at a table with the four tarot suits (wand, cup, sword, pentacle), one hand pointing up to sky and one down to earth, infinity symbol above head, red roses and white lilies, confident expression"
       },
       "lordOfMysteries": {
         "pathway": "Apprentice Pathway",
         "sequence": "Sequence 0: Paragon",
-        "keywords": ["knowledge", "learning", "perfection", "mysteries"],
+        "keywords": [
+          "knowledge",
+          "learning",
+          "perfection",
+          "mysteries"
+        ],
         "abilities": "Knowledge Projection, Perfect Replication, Mystery Enhancement",
         "prompt": "A scholar surrounded by floating ancient tomes and mystical symbols, reality itself being written and rewritten, geometric patterns forming and dissolving, intense study and mastery"
       },
       "egyptian": {
         "deity": "Thoth - God of Wisdom",
-        "keywords": ["wisdom", "writing", "magic", "knowledge"],
+        "keywords": [
+          "wisdom",
+          "writing",
+          "magic",
+          "knowledge"
+        ],
         "prompt": "Ibis-headed deity Thoth holding ankh and was scepter, ancient scrolls floating, moon disk crown, hieroglyphic texts glowing with power"
       },
       "celtic": {
         "figure": "Merlin - The Wise Wizard",
-        "keywords": ["wisdom", "magic", "prophecy", "transformation"],
+        "keywords": [
+          "wisdom",
+          "magic",
+          "prophecy",
+          "transformation"
+        ],
         "prompt": "Druid wizard in flowing robes, crystal staff, ancient grimoire open before them, Celtic symbols glowing, mystical energy swirling"
       },
       "shinto": {
         "kami": "Tenjin - Kami of Learning",
-        "keywords": ["scholarship", "wisdom", "art", "refinement"],
+        "keywords": [
+          "scholarship",
+          "wisdom",
+          "art",
+          "refinement"
+        ],
         "prompt": "Scholarly figure in traditional Japanese robes, calligraphy brush and scrolls, plum blossoms, peaceful temple setting, aura of wisdom"
       },
-      "personalLore": "FILL THIS: Your story for The Magician - what skills have you mastered? What powers do you wield?"
+      "personalLore": "FILL THIS: Your story for The Magician - what skills have you mastered? What powers do you wield?",
+      "narrative": {
+        "summary": "Mastery, intention, manifestation, channeling versus manipulation.",
+        "axis": "Aligned Channel vs Manipulative Trickster",
+        "feel": "Sharp, focused current from crown to fingertips, like holding a live wire on purpose.",
+        "stance": "Between above and below, half priest, half performer; power flows through and draws eyes.",
+        "scene": "One hand to sky, one to earth; tools half sacred, half stage props, miracle blurring with trick.",
+        "question": "Are you serving something larger than yourself, or just bending appearances to your will?"
+      }
     },
     {
       "number": 2,
       "traditional": {
         "name": "The High Priestess",
-        "keywords": ["intuition", "sacred knowledge", "subconscious", "mystery"],
+        "keywords": [
+          "intuition",
+          "sacred knowledge",
+          "subconscious",
+          "mystery"
+        ],
         "meaning": "Intuition, higher powers, mystery, subconscious mind",
         "prompt": "A serene figure seated between two pillars (one black marked B, one white marked J), crescent moon crown, Torah scroll in lap, pomegranates on veil behind, calm waters"
       },
       "lordOfMysteries": {
         "pathway": "Secrets Supplicant Pathway",
         "sequence": "Sequence 0: Hidden Sage",
-        "keywords": ["secrets", "knowledge", "concealment", "revelation"],
+        "keywords": [
+          "secrets",
+          "knowledge",
+          "concealment",
+          "revelation"
+        ],
         "abilities": "Secret Keeping, Knowledge Theft, Mystic Revelation",
         "prompt": "A mysterious hooded figure in library of infinite secrets, books whispering forbidden knowledge, reality veiled in shadows, glowing eyes seeing all hidden truths"
       },
       "egyptian": {
         "deity": "Isis - Goddess of Magic",
-        "keywords": ["magic", "healing", "protection", "mystery"],
+        "keywords": [
+          "magic",
+          "healing",
+          "protection",
+          "mystery"
+        ],
         "prompt": "Egyptian goddess Isis with throne crown, wings spread protectively, ankh symbol, mystical spells visible in air, temple setting"
       },
       "celtic": {
         "figure": "Brigid - Triple Goddess",
-        "keywords": ["healing", "poetry", "smithcraft", "sacred flame"],
+        "keywords": [
+          "healing",
+          "poetry",
+          "smithcraft",
+          "sacred flame"
+        ],
         "prompt": "Celtic goddess figure with sacred flame, triple spiral symbol, healing herbs, standing at holy well, ethereal presence"
       },
       "shinto": {
         "kami": "Ame-no-Uzume - Goddess of Dawn",
-        "keywords": ["joy", "meditation", "hidden truths", "revelation"],
+        "keywords": [
+          "joy",
+          "meditation",
+          "hidden truths",
+          "revelation"
+        ],
         "prompt": "Graceful goddess dancing with mirror, sakura petals falling, soft dawn light, mystical and serene atmosphere"
       },
-      "personalLore": "FILL THIS: Your High Priestess moment - what intuitive knowledge guides you? What mysteries do you hold?"
+      "personalLore": "FILL THIS: Your High Priestess moment - what intuitive knowledge guides you? What mysteries do you hold?",
+      "narrative": {
+        "summary": "Spirituality, intuition, inner stillness, mystery of the unspoken.",
+        "axis": "Quiet Knowing vs Withheld Truth",
+        "feel": "Cool moonlight behind the eyes; soft weight in the chest saying you already know.",
+        "stance": "Turned slightly away, seated at the threshold; guardian of a veil, not its owner.",
+        "scene": "Between two pillars with a veiled backdrop of stars and deep water; a closed book rests on their lap.",
+        "question": "What truth are you pretending you do not already feel in your bones?"
+      }
     },
     {
       "number": 3,
       "traditional": {
         "name": "The Empress",
-        "keywords": ["femininity", "beauty", "nature", "abundance"],
+        "keywords": [
+          "femininity",
+          "beauty",
+          "nature",
+          "abundance"
+        ],
         "meaning": "Fertility, nurturing, abundance, nature",
         "prompt": "A regal figure seated on throne in lush garden, crown of twelve stars, Venus symbol on shield, wheat field, waterfall, pregnant with creative abundance"
       },
       "lordOfMysteries": {
         "pathway": "Moon Pathway",
         "sequence": "Sequence 0: Mother Goddess of Depravity",
-        "keywords": ["beauty", "deception", "corruption", "transformation"],
+        "keywords": [
+          "beauty",
+          "deception",
+          "corruption",
+          "transformation"
+        ],
         "abilities": "Beauty Manipulation, Dream Weaving, Psychological Corruption",
         "prompt": "An impossibly beautiful yet terrifying figure bathed in crimson moonlight, reality warping around them in beautiful nightmares, roses with thorns of madness"
       },
       "egyptian": {
         "deity": "Hathor - Goddess of Love",
-        "keywords": ["love", "beauty", "music", "joy"],
+        "keywords": [
+          "love",
+          "beauty",
+          "music",
+          "joy"
+        ],
         "prompt": "Cow-horned goddess Hathor with solar disk, sistrum rattle, joyful expression, flowers and music notes, celebration atmosphere"
       },
       "celtic": {
         "figure": "Danu - Mother Goddess",
-        "keywords": ["fertility", "earth", "rivers", "sovereignty"],
+        "keywords": [
+          "fertility",
+          "earth",
+          "rivers",
+          "sovereignty"
+        ],
         "prompt": "Earth mother figure in flowing green robes, rivers flowing from hands, flowers blooming at feet, ancient sacred landscape"
       },
       "shinto": {
         "kami": "Inari - Kami of Fertility",
-        "keywords": ["prosperity", "rice", "fertility", "success"],
+        "keywords": [
+          "prosperity",
+          "rice",
+          "fertility",
+          "success"
+        ],
         "prompt": "Figure surrounded by white foxes, rice fields golden in sunset, torii gates, abundant harvest, prosperity symbols"
       },
-      "personalLore": "FILL THIS: Your creative abundance - what have you nurtured into being? What grows under your care?"
+      "personalLore": "FILL THIS: Your creative abundance - what have you nurtured into being? What grows under your care?",
+      "narrative": {
+        "summary": "Decadence, nurturing, feminine abundance vs smothering excess.",
+        "axis": "Overflowing Care vs Overgrown Indulgence",
+        "feel": "Warmth spreading through belly and chest, like lying in the sun after a feast.",
+        "stance": "Surrounded by others, plants, textures, sounds; everything wants to grow closer.",
+        "scene": "Reclining on vines and cushions, fruits and flowers spilling over; a wilted bloom hints at unpruned abundance.",
+        "question": "Where does true nourishment end and overindulgence begin in how you treat yourself and others?"
+      }
     },
     {
       "number": 4,
       "traditional": {
         "name": "The Emperor",
-        "keywords": ["authority", "structure", "control", "father figure"],
+        "keywords": [
+          "authority",
+          "structure",
+          "control",
+          "father figure"
+        ],
         "meaning": "Authority, establishment, structure, leadership",
         "prompt": "A commanding figure on stone throne, crown and armor, holding ankh scepter, ram heads on throne, barren mountains behind, absolute authority"
       },
       "lordOfMysteries": {
         "pathway": "Black Emperor Pathway",
         "sequence": "Sequence 0: Black Emperor",
-        "keywords": ["order", "rules", "control", "dominion"],
+        "keywords": [
+          "order",
+          "rules",
+          "control",
+          "dominion"
+        ],
         "abilities": "Order Bestowal, Rule Enforcement, Parasitic Control",
         "prompt": "A dark emperor in obsidian throne, crown of black flames, reality itself bowing to their laws, fortress of absolute order, commanding presence"
       },
       "egyptian": {
         "deity": "Horus - God of Kingship",
-        "keywords": ["kingship", "sky", "protection", "victory"],
+        "keywords": [
+          "kingship",
+          "sky",
+          "protection",
+          "victory"
+        ],
         "prompt": "Falcon-headed deity Horus with double crown of Egypt, holding was scepter and ankh, Eye of Horus symbol prominent, regal pose"
       },
       "celtic": {
         "figure": "Nuada - Silver-Armed King",
-        "keywords": ["sovereignty", "justice", "warfare", "nobility"],
+        "keywords": [
+          "sovereignty",
+          "justice",
+          "warfare",
+          "nobility"
+        ],
         "prompt": "Celtic king with silver prosthetic arm, sword of light, standing before hill fort, warriors' respect, noble bearing"
       },
       "shinto": {
         "kami": "Jimmu - First Emperor",
-        "keywords": ["leadership", "foundation", "unity", "strength"],
+        "keywords": [
+          "leadership",
+          "foundation",
+          "unity",
+          "strength"
+        ],
         "prompt": "Imperial figure in traditional Japanese armor, sacred regalia, standing before Mount Fuji, divine authority, founding presence"
       },
-      "personalLore": "FILL THIS: Your empire - what structures have you built? What do you rule over?"
+      "personalLore": "FILL THIS: Your empire - what structures have you built? What do you rule over?",
+      "narrative": {
+        "summary": "Leadership, authority, structure, tension between protection and control.",
+        "axis": "Steady Foundation vs Rigid Domination",
+        "feel": "Weight in the shoulders like armor—comforting and heavy.",
+        "stance": "Elevated above others but facing them; responsible for them yet tempted to be above them.",
+        "scene": "Stone throne carved into a mountainside; a glowing city below, stable but unmoving.",
+        "question": "Where are you building solid ground—and where are you turning living beings into bricks?"
+      }
     },
     {
       "number": 5,
       "traditional": {
         "name": "The Hierophant",
-        "keywords": ["spiritual wisdom", "tradition", "conformity", "teaching"],
+        "keywords": [
+          "spiritual wisdom",
+          "tradition",
+          "conformity",
+          "teaching"
+        ],
         "meaning": "Spiritual wisdom, religious beliefs, conformity, tradition",
         "prompt": "A religious figure seated between two pillars, triple crown, two crossed keys, two acolytes kneeling, blessing gesture, formal religious setting"
       },
       "lordOfMysteries": {
         "pathway": "Hanged Man Pathway",
         "sequence": "Sequence 0: Tyrant",
-        "keywords": ["sea", "storms", "calamity", "tyranny"],
+        "keywords": [
+          "sea",
+          "storms",
+          "calamity",
+          "tyranny"
+        ],
         "abilities": "Weather Control, Ocean Dominion, Calamity Bringing",
         "prompt": "A figure commanding tempestuous seas and lightning storms, hovering above raging waters, trident of power, absolute control over natural disasters"
       },
       "egyptian": {
         "deity": "Osiris - God of Afterlife",
-        "keywords": ["death", "resurrection", "judgment", "tradition"],
+        "keywords": [
+          "death",
+          "resurrection",
+          "judgment",
+          "tradition"
+        ],
         "prompt": "Green-skinned deity Osiris with crook and flail, atef crown, throne in underworld, scales of judgment, eternal wisdom"
       },
       "celtic": {
         "figure": "Archdruid - Chief of Druids",
-        "keywords": ["wisdom", "teaching", "tradition", "sacred knowledge"],
+        "keywords": [
+          "wisdom",
+          "teaching",
+          "tradition",
+          "sacred knowledge"
+        ],
         "prompt": "Elder druid in white robes, golden sickle, standing in sacred grove, oak trees, teaching younger druids, ancient wisdom"
       },
       "shinto": {
         "kami": "Sarutahiko - Guide Deity",
-        "keywords": ["guidance", "crossroads", "teaching", "paths"],
+        "keywords": [
+          "guidance",
+          "crossroads",
+          "teaching",
+          "paths"
+        ],
         "prompt": "Wise guide figure at crossroads shrine, lantern light, showing the way, traditional robes, protective presence"
       },
-      "personalLore": "FILL THIS: Your teachings - what wisdom do you pass down? What traditions do you uphold?"
+      "personalLore": "FILL THIS: Your teachings - what wisdom do you pass down? What traditions do you uphold?",
+      "narrative": {
+        "summary": "Tradition, conformity, teaching, lineage versus empty ritual.",
+        "axis": "Living Tradition vs Hollow Dogma",
+        "feel": "Grounded spine, hands in a familiar gesture; comfort in patterns with an itch to question.",
+        "stance": "Between unseen source and gathered group, translating something old into something usable.",
+        "scene": "Teacher on temple steps, students at varying distances; some awake, others glazed in motion without meaning.",
+        "question": "Which of your \"shoulds\" are wise inheritance—and which are habits you are afraid to outgrow?"
+      }
     },
     {
       "number": 6,
       "traditional": {
         "name": "The Lovers",
-        "keywords": ["love", "harmony", "relationships", "choices"],
+        "keywords": [
+          "love",
+          "harmony",
+          "relationships",
+          "choices"
+        ],
         "meaning": "Love, harmony, relationships, values alignment",
         "prompt": "Two figures standing together in garden of Eden, angel Raphael blessing from above, tree of knowledge with serpent, tree of life, sun shining, naked innocence"
       },
       "lordOfMysteries": {
         "pathway": "Hunter Pathway",
         "sequence": "Sequence 0: Red Priest",
-        "keywords": ["war", "conquest", "strategy", "provocation"],
+        "keywords": [
+          "war",
+          "conquest",
+          "strategy",
+          "provocation"
+        ],
         "abilities": "War Declaration, Strategic Foresight, Provocation Mastery",
         "prompt": "A crimson-clad priest of war standing on battlefield, armies clashing in background, strategic brilliance visible in their eyes, banners of conquest"
       },
       "egyptian": {
         "deity": "Nut and Geb - Sky and Earth",
-        "keywords": ["union", "duality", "balance", "creation"],
+        "keywords": [
+          "union",
+          "duality",
+          "balance",
+          "creation"
+        ],
         "prompt": "Goddess Nut arching over Earth god Geb, stars on her body, their separation creating world, cosmic love and separation"
       },
       "celtic": {
         "figure": "Aengus and Caer - Divine Lovers",
-        "keywords": ["love", "dreams", "transformation", "choice"],
+        "keywords": [
+          "love",
+          "dreams",
+          "transformation",
+          "choice"
+        ],
         "prompt": "Two swan figures transforming into lovers, lakeside setting, Celtic love knot, magical transformation, romantic atmosphere"
       },
       "shinto": {
         "kami": "Izanagi and Izanami - Creator Couple",
-        "keywords": ["creation", "partnership", "life", "balance"],
+        "keywords": [
+          "creation",
+          "partnership",
+          "life",
+          "balance"
+        ],
         "prompt": "Divine couple on heavenly bridge stirring ocean with jeweled spear, islands forming, creating Japan together, harmonious creation"
       },
-      "personalLore": "FILL THIS: Your partnerships - what choices have defined you? Who stands beside you?"
+      "personalLore": "FILL THIS: Your partnerships - what choices have defined you? Who stands beside you?",
+      "narrative": {
+        "summary": "Partnership, emotion, balance, sacred weight of choosing.",
+        "axis": "Conscious Union vs Splitting Indecision",
+        "feel": "Heart pulled in two directions; ache and sweetness braided.",
+        "stance": "At least two beings with a third presence of fate or value hovering between.",
+        "scene": "Two figures reach toward each other while a constellation above forms a third shape they must also embrace.",
+        "question": "Who are you becoming by choosing this bond—or by refusing to choose?"
+      }
     },
     {
       "number": 7,
       "traditional": {
         "name": "The Chariot",
-        "keywords": ["control", "willpower", "determination", "victory"],
+        "keywords": [
+          "control",
+          "willpower",
+          "determination",
+          "victory"
+        ],
         "meaning": "Control, willpower, success, action, determination",
         "prompt": "A warrior standing in chariot pulled by two sphinxes (one black, one white), starry canopy, armor with moon symbols, city behind, victorious advance"
       },
       "lordOfMysteries": {
         "pathway": "Wheel of Fortune Pathway",
         "sequence": "Sequence 0: Key of Stars",
-        "keywords": ["fate", "probability", "luck", "chance"],
+        "keywords": [
+          "fate",
+          "probability",
+          "luck",
+          "chance"
+        ],
         "abilities": "Probability Manipulation, Fate Weaving, Luck Stealing",
         "prompt": "A figure surrounded by spinning wheels of fate and probability, stars aligning at their command, reality branching into favorable outcomes, cosmic dice rolling"
       },
       "egyptian": {
         "deity": "Montu - God of War",
-        "keywords": ["war", "conquest", "victory", "strength"],
+        "keywords": [
+          "war",
+          "conquest",
+          "victory",
+          "strength"
+        ],
         "prompt": "Falcon-headed war god Montu in war chariot, wielding weapons, solar disk with uraeus, charging into battle, unstoppable force"
       },
       "celtic": {
         "figure": "Cu Chulainn - Warrior Hero",
-        "keywords": ["heroism", "battle fury", "skill", "determination"],
+        "keywords": [
+          "heroism",
+          "battle fury",
+          "skill",
+          "determination"
+        ],
         "prompt": "Celtic warrior in battle chariot, Gae Bolg spear, warp spasm transformation, charging into battle, legendary prowess"
       },
       "shinto": {
         "kami": "Hachiman - God of War",
-        "keywords": ["archery", "warriors", "protection", "victory"],
+        "keywords": [
+          "archery",
+          "warriors",
+          "protection",
+          "victory"
+        ],
         "prompt": "Divine warrior in samurai armor, bow and arrows, standing victorious, protective presence over warriors, honorable strength"
       },
-      "personalLore": "FILL THIS: Your victories - what battles have you won? What drives you forward?"
+      "personalLore": "FILL THIS: Your victories - what battles have you won? What drives you forward?",
+      "narrative": {
+        "summary": "Prowess, determination, momentum, risk of being driven by drive.",
+        "axis": "Focused Drive vs Runaway Momentum",
+        "feel": "Leaning forward in the chest, adrenaline humming in the legs.",
+        "stance": "Ahead of the crowd, pulled by forces that must be steered.",
+        "scene": "Chariot pulled by two creatures veering apart, driver calm with loose but intentional reins; road ahead splits.",
+        "question": "Are you steering your momentum—or letting speed decide where you end up?"
+      }
     },
     {
       "number": 8,
       "traditional": {
         "name": "Strength",
-        "keywords": ["strength", "courage", "patience", "compassion"],
+        "keywords": [
+          "strength",
+          "courage",
+          "patience",
+          "compassion"
+        ],
         "meaning": "Inner strength, courage, persuasion, influence",
         "prompt": "A gentle figure calmly closing or petting a lion's mouth, infinity symbol above head, flower crown, mountain background, inner strength and gentleness"
       },
       "lordOfMysteries": {
         "pathway": "Sun Pathway",
         "sequence": "Sequence 0: Eternal Blazing Sun",
-        "keywords": ["purification", "light", "restraint", "divine"],
+        "keywords": [
+          "purification",
+          "light",
+          "restraint",
+          "divine"
+        ],
         "abilities": "Purification, Divine Light, Restraint of Evil",
         "prompt": "A radiant figure blazing with holy light, wings of pure flame, purifying darkness, divine restraint over chaos, eternal and magnificent"
       },
       "egyptian": {
         "deity": "Sekhmet - Lioness Goddess",
-        "keywords": ["power", "healing", "protection", "fierceness"],
+        "keywords": [
+          "power",
+          "healing",
+          "protection",
+          "fierceness"
+        ],
         "prompt": "Lioness-headed goddess Sekhmet with solar disk, both fierce warrior and healer, balancing destruction and protection, powerful presence"
       },
       "celtic": {
         "figure": "Scathach - Warrior Teacher",
-        "keywords": ["mastery", "training", "discipline", "strength"],
+        "keywords": [
+          "mastery",
+          "training",
+          "discipline",
+          "strength"
+        ],
         "prompt": "Warrior woman training heroes, Isle of Skye setting, wielding legendary spear, teaching discipline through strength, formidable yet wise"
       },
       "shinto": {
         "kami": "Susanoo - Storm God",
-        "keywords": ["wild strength", "courage", "heroism", "transformation"],
+        "keywords": [
+          "wild strength",
+          "courage",
+          "heroism",
+          "transformation"
+        ],
         "prompt": "Powerful deity taming the eight-headed serpent Yamata no Orochi, storm and courage, wild strength becoming heroic, dramatic confrontation"
       },
-      "personalLore": "FILL THIS: Your strength - what beasts have you tamed? What inner power sustains you?"
+      "personalLore": "FILL THIS: Your strength - what beasts have you tamed? What inner power sustains you?",
+      "narrative": {
+        "summary": "Control, fortitude, resilience, softness within strength.",
+        "axis": "Gentle Power vs Repressed Rage",
+        "feel": "Steady warm pressure in chest and hands; holding a trembling animal without squeezing.",
+        "stance": "Close to something wild, choosing to soothe rather than dominate.",
+        "scene": "Hand on the muzzle of a roaring beast; broken chains in grass, eyes softening.",
+        "question": "What happens when you stop gripping so hard and trust you are strong enough to stay open?"
+      }
     },
     {
       "number": 9,
       "traditional": {
         "name": "The Hermit",
-        "keywords": ["soul searching", "introspection", "solitude", "guidance"],
+        "keywords": [
+          "soul searching",
+          "introspection",
+          "solitude",
+          "guidance"
+        ],
         "meaning": "Soul searching, introspection, being alone, inner guidance",
         "prompt": "An old wise figure standing alone on mountain peak, holding lantern with six-pointed star, staff in other hand, snow-covered mountains, seeking wisdom in solitude"
       },
       "lordOfMysteries": {
         "pathway": "Mystery Pryer Pathway",
         "sequence": "Sequence 0: Eye of Wisdom",
-        "keywords": ["knowledge", "calculation", "foresight", "wisdom"],
+        "keywords": [
+          "knowledge",
+          "calculation",
+          "foresight",
+          "wisdom"
+        ],
         "abilities": "Perfect Calculation, Future Sight, Knowledge Accumulation",
         "prompt": "A solitary figure with third eye blazing, surrounded by infinite calculations and prophecies, seeing all possible futures, isolated in omniscience"
       },
       "egyptian": {
         "deity": "Anubis - Guide of Souls",
-        "keywords": ["guidance", "transition", "wisdom", "protection"],
+        "keywords": [
+          "guidance",
+          "transition",
+          "wisdom",
+          "protection"
+        ],
         "prompt": "Jackal-headed deity Anubis holding ankh, guiding souls through afterlife, torch illuminating path, protective solitude, ancient wisdom"
       },
       "celtic": {
         "figure": "Taliesin - Bardic Sage",
-        "keywords": ["wisdom", "poetry", "transformation", "vision"],
+        "keywords": [
+          "wisdom",
+          "poetry",
+          "transformation",
+          "vision"
+        ],
         "prompt": "Ancient bard in meditation, harp beside them, cauldron of wisdom, visions of past and future, solitary enlightenment"
       },
       "shinto": {
         "kami": "Omoikane - God of Wisdom",
-        "keywords": ["thought", "wisdom", "strategy", "contemplation"],
+        "keywords": [
+          "thought",
+          "wisdom",
+          "strategy",
+          "contemplation"
+        ],
         "prompt": "Contemplative deity in meditation, surrounded by scrolls of wisdom, peaceful shrine setting, deep thought and understanding"
       },
-      "personalLore": "FILL THIS: Your solitude - what wisdom have you found alone? What light do you carry?"
+      "personalLore": "FILL THIS: Your solitude - what wisdom have you found alone? What light do you carry?",
+      "narrative": {
+        "summary": "Solitude, wisdom, self-reflection, chosen aloneness vs fearful withdrawal.",
+        "axis": "Illuminating Solitude vs Self-Protective Isolation",
+        "feel": "Cool air around the body, small lantern warmth held close.",
+        "stance": "Distant from the crowd but not against it; watcher on the hill.",
+        "scene": "Lone figure on a high path, lantern over a drop; town lights below, path turns further inward.",
+        "question": "Are you stepping away to see clearly—or hiding because the world is looking back?"
+      }
     },
     {
       "number": 10,
       "traditional": {
         "name": "Wheel of Fortune",
-        "keywords": ["change", "cycles", "fate", "turning point"],
+        "keywords": [
+          "change",
+          "cycles",
+          "fate",
+          "turning point"
+        ],
         "meaning": "Good luck, karma, life cycles, destiny, turning point",
         "prompt": "A great wheel surrounded by clouds, sphinx on top, snake descending, Anubis ascending, four winged creatures in corners reading books, TARO letters, alchemical symbols"
       },
       "lordOfMysteries": {
         "pathway": "Monster Pathway",
         "sequence": "Sequence 0: Mother Tree of Desire",
-        "keywords": ["desire", "mutation", "evolution", "transformation"],
+        "keywords": [
+          "desire",
+          "mutation",
+          "evolution",
+          "transformation"
+        ],
         "abilities": "Desire Amplification, Mutation Granting, Wish Twisting",
         "prompt": "A vast tree-like being of desire and transformation, granting twisted wishes, reality mutating around them, beautiful corruption, endless hunger"
       },
       "egyptian": {
         "deity": "Khepri - God of Rebirth",
-        "keywords": ["transformation", "rebirth", "cycles", "renewal"],
+        "keywords": [
+          "transformation",
+          "rebirth",
+          "cycles",
+          "renewal"
+        ],
         "prompt": "Scarab-headed deity Khepri rolling sun disk, representing eternal cycles of death and rebirth, transformation and renewal"
       },
       "celtic": {
         "figure": "Arianrhod - Wheel of the Year",
-        "keywords": ["cycles", "fate", "stars", "time"],
+        "keywords": [
+          "cycles",
+          "fate",
+          "stars",
+          "time"
+        ],
         "prompt": "Goddess at spinning wheel weaving fate, surrounded by stars and seasons, Celtic wheel of the year, cosmic cycles"
       },
       "shinto": {
         "kami": "Ebisu - God of Fortune",
-        "keywords": ["luck", "prosperity", "fortune", "opportunity"],
+        "keywords": [
+          "luck",
+          "prosperity",
+          "fortune",
+          "opportunity"
+        ],
         "prompt": "Smiling deity Ebisu with fishing rod and sea bream, symbols of fortune flowing around, lucky opportunities manifesting"
       },
-      "personalLore": "FILL THIS: Your turning points - what cycles have shaped you? Where has fate led you?"
+      "personalLore": "FILL THIS: Your turning points - what cycles have shaped you? Where has fate led you?",
+      "narrative": {
+        "summary": "Luck, change, fate, cycles turning beyond personal will.",
+        "axis": "Dancing with Change vs Clinging to Control",
+        "feel": "Lurch in the stomach like a Ferris wheel tipping over the top.",
+        "stance": "Entangled with forces larger than will—systems, timing, others.",
+        "scene": "Great wheel turning in the sky with figures rising, falling, climbing back by choice.",
+        "question": "Where are you mistaking a temporary position on the wheel for your identity?"
+      }
     },
     {
       "number": 11,
       "traditional": {
         "name": "Justice",
-        "keywords": ["justice", "fairness", "truth", "law"],
+        "keywords": [
+          "justice",
+          "fairness",
+          "truth",
+          "law"
+        ],
         "meaning": "Justice, fairness, truth, cause and effect, law",
         "prompt": "A crowned figure seated on throne between two pillars, holding upright sword in right hand and balanced scales in left, purple cloak, impartial judgment"
       },
       "lordOfMysteries": {
         "pathway": "Justiciar Pathway",
         "sequence": "Sequence 0: Adjudicator",
-        "keywords": ["judgment", "law", "balance", "punishment"],
+        "keywords": [
+          "judgment",
+          "law",
+          "balance",
+          "punishment"
+        ],
         "abilities": "Crime Detection, Punishment Execution, Law Enforcement",
         "prompt": "A stern judge in divine court, scales of cosmic justice, sword of judgment, all crimes visible before them, absolute fairness and inevitable punishment"
       },
       "egyptian": {
         "deity": "Ma'at - Goddess of Truth",
-        "keywords": ["truth", "justice", "harmony", "order"],
+        "keywords": [
+          "truth",
+          "justice",
+          "harmony",
+          "order"
+        ],
         "prompt": "Goddess Ma'at with ostrich feather of truth, scales weighing heart against feather, maintaining cosmic balance and order"
       },
       "celtic": {
         "figure": "Brehon - Law Speaker",
-        "keywords": ["law", "judgment", "tradition", "fairness"],
+        "keywords": [
+          "law",
+          "judgment",
+          "tradition",
+          "fairness"
+        ],
         "prompt": "Druidic judge holding scales and rod of office, ancient law texts, oak grove court, dispensing traditional justice"
       },
       "shinto": {
         "kami": "Benzaiten - Goddess of Balance",
-        "keywords": ["eloquence", "wisdom", "arts", "balance"],
+        "keywords": [
+          "eloquence",
+          "wisdom",
+          "arts",
+          "balance"
+        ],
         "prompt": "Graceful deity Benzaiten with biwa instrument, flowing water representing balance and harmony, wise judgment"
       },
-      "personalLore": "FILL THIS: Your justice - what balance do you maintain? What truths do you uphold?"
+      "personalLore": "FILL THIS: Your justice - what balance do you maintain? What truths do you uphold?",
+      "narrative": {
+        "summary": "Fairness, truth, balance, cost of seeing all sides.",
+        "axis": "Clear Seeing vs Cold Judgment",
+        "feel": "Vertical line from crown to pelvis, breath held while scales settle.",
+        "stance": "Between parties or timelines, responsible to something beyond preference.",
+        "scene": "Sword and scales; a feather on one side, tangled threads on the other.",
+        "question": "If every voice—including your shadow—testified, what verdict would you reach?"
+      }
     },
     {
       "number": 12,
       "traditional": {
         "name": "The Hanged Man",
-        "keywords": ["suspension", "letting go", "sacrifice", "new perspective"],
+        "keywords": [
+          "suspension",
+          "letting go",
+          "sacrifice",
+          "new perspective"
+        ],
         "meaning": "Pause, surrender, letting go, new perspective",
         "prompt": "A figure suspended upside down from living tree by one foot, other leg crossed, hands behind back, halo around head, serene expression, sacrifice and enlightenment"
       },
       "lordOfMysteries": {
         "pathway": "Death Pathway",
         "sequence": "Sequence 0: Evernight Goddess",
-        "keywords": ["rest", "death", "comfort", "night"],
+        "keywords": [
+          "rest",
+          "death",
+          "comfort",
+          "night"
+        ],
         "abilities": "Death Bringing, Peaceful Rest, Dream Walking",
         "prompt": "A compassionate figure cloaked in eternal night, bringing peaceful death and rest, crimson moon above, gentle release from suffering"
       },
       "egyptian": {
         "deity": "Bes - Protector Through Sacrifice",
-        "keywords": ["protection", "sacrifice", "joy", "guardianship"],
+        "keywords": [
+          "protection",
+          "sacrifice",
+          "joy",
+          "guardianship"
+        ],
         "prompt": "Dwarf deity Bes in protective stance, fierce expression yet benevolent, sacrificing appearance for protection of others"
       },
       "celtic": {
         "figure": "Odin at Yggdrasil",
-        "keywords": ["sacrifice", "wisdom", "transformation", "enlightenment"],
+        "keywords": [
+          "sacrifice",
+          "wisdom",
+          "transformation",
+          "enlightenment"
+        ],
         "prompt": "Figure hanging from World Tree, sacrificing for knowledge, runes appearing, transformative wisdom through sacrifice"
       },
       "shinto": {
         "kami": "Konohanasakuya-hime",
-        "keywords": ["sacrifice", "purity", "transformation", "devotion"],
+        "keywords": [
+          "sacrifice",
+          "purity",
+          "transformation",
+          "devotion"
+        ],
         "prompt": "Princess deity walking through fire to prove purity, cherry blossoms falling, willing sacrifice for truth"
       },
-      "personalLore": "FILL THIS: Your sacrifice - what have you surrendered? What perspective did you gain?"
+      "personalLore": "FILL THIS: Your sacrifice - what have you surrendered? What perspective did you gain?",
+      "narrative": {
+        "summary": "Release, perspective, acceptance, power of choosing not to struggle.",
+        "axis": "Surrendered Insight vs Stuck Martyrdom",
+        "feel": "Unclenching after fighting too long, relief and vulnerability.",
+        "stance": "Suspended between action and outcome; spectators misread the pause.",
+        "scene": "Hanging upside down from a living tree, calm face with halo of realization; onlookers think defeat.",
+        "question": "What might you see differently if you stopped trying to fix anything at all?"
+      }
     },
     {
       "number": 13,
       "traditional": {
         "name": "Death",
-        "keywords": ["endings", "transformation", "transition", "release"],
+        "keywords": [
+          "endings",
+          "transformation",
+          "transition",
+          "release"
+        ],
         "meaning": "Endings, change, transformation, transition",
         "prompt": "A skeletal figure in black armor riding white horse, black flag with white rose, sun rising between two towers, figures of all classes before the horse, transformation"
       },
       "lordOfMysteries": {
         "pathway": "Demoness Pathway",
         "sequence": "Sequence 0: Primordial Demoness",
-        "keywords": ["desire", "corruption", "beauty", "catastrophe"],
+        "keywords": [
+          "desire",
+          "corruption",
+          "beauty",
+          "catastrophe"
+        ],
         "abilities": "Catastrophe Weaving, Disease Spreading, Unnatural Beauty",
         "prompt": "An incomprehensibly beautiful yet terrifying figure, endings and new corrupt beginnings, weaving catastrophes like art, transformation through desire"
       },
       "egyptian": {
         "deity": "Anput - Death and Rebirth",
-        "keywords": ["endings", "mummification", "transformation", "passage"],
+        "keywords": [
+          "endings",
+          "mummification",
+          "transformation",
+          "passage"
+        ],
         "prompt": "Jackal goddess Anput overseeing mummification and passage to afterlife, transformation through death, renewal"
       },
       "celtic": {
         "figure": "The Morrigan - Death Goddess",
-        "keywords": ["death", "war", "fate", "transformation"],
+        "keywords": [
+          "death",
+          "war",
+          "fate",
+          "transformation"
+        ],
         "prompt": "Triple goddess as crow on battlefield, death bringing transformation, fate weaving, war goddess of endings and beginnings"
       },
       "shinto": {
         "kami": "Izanami - Goddess of Death",
-        "keywords": ["death", "underworld", "transformation", "endings"],
+        "keywords": [
+          "death",
+          "underworld",
+          "transformation",
+          "endings"
+        ],
         "prompt": "Queen of Yomi underworld, transformation from creator to death deity, passage between worlds, inevitable endings"
       },
-      "personalLore": "FILL THIS: Your deaths - what versions of yourself have died? What transformed?"
+      "personalLore": "FILL THIS: Your deaths - what versions of yourself have died? What transformed?",
+      "narrative": {
+        "summary": "Metamorphosis, transition, release, endings enabling new forms.",
+        "axis": "Necessary Ending vs Refused Change",
+        "feel": "Hollowing in the chest followed by cool spaciousness.",
+        "stance": "Walking through a door that cannot be shut; leaving roles behind.",
+        "scene": "Cloaked figure through a field where old structures crumble into soil; green shoots breaking through.",
+        "question": "What are you keeping alive that has already finished its work?"
+      }
     },
     {
       "number": 14,
       "traditional": {
         "name": "Temperance",
-        "keywords": ["balance", "moderation", "patience", "purpose"],
+        "keywords": [
+          "balance",
+          "moderation",
+          "patience",
+          "purpose"
+        ],
         "meaning": "Balance, moderation, patience, purpose, meaning",
         "prompt": "An angel with wings, one foot on land and one in water, pouring liquid between two cups, triangle in square on chest, iris flowers, mountain with crown, alchemical mixing"
       },
       "lordOfMysteries": {
         "pathway": "Planter Pathway",
         "sequence": "Sequence 0: Mother Goddess of Harvest",
-        "keywords": ["life", "growth", "abundance", "balance"],
+        "keywords": [
+          "life",
+          "growth",
+          "abundance",
+          "balance"
+        ],
         "abilities": "Life Granting, Harvest Blessing, Natural Balance",
         "prompt": "A nurturing figure surrounded by abundant harvest and flowing life energy, perfect balance of nature, seasons bowing to their will"
       },
       "egyptian": {
         "deity": "Hapi - God of the Nile",
-        "keywords": ["abundance", "balance", "flow", "nourishment"],
+        "keywords": [
+          "abundance",
+          "balance",
+          "flow",
+          "nourishment"
+        ],
         "prompt": "Androgynous deity Hapi pouring water from vessels, representing Nile's balanced flooding, abundance and moderation"
       },
       "celtic": {
         "figure": "Manannán mac Lir - Sea God",
-        "keywords": ["flow", "balance", "boundaries", "passage"],
+        "keywords": [
+          "flow",
+          "balance",
+          "boundaries",
+          "passage"
+        ],
         "prompt": "Sea deity managing boundaries between worlds, cloak of mist, maintaining balance between realms, flowing moderation"
       },
       "shinto": {
         "kami": "Ame-no-Minakanushi",
-        "keywords": ["balance", "center", "harmony", "cosmic order"],
+        "keywords": [
+          "balance",
+          "center",
+          "harmony",
+          "cosmic order"
+        ],
         "prompt": "Central deity maintaining cosmic balance, perfect harmony of all things, centered and moderating force"
       },
-      "personalLore": "FILL THIS: Your balance - what do you moderate? What flows through you?"
+      "personalLore": "FILL THIS: Your balance - what do you moderate? What flows through you?",
+      "narrative": {
+        "summary": "Balance, introspection, combining, patient mixing of opposites.",
+        "axis": "Harmonious Blending vs Blurred Dilution",
+        "feel": "Slow even breaths; warmth and coolness meeting in the center.",
+        "stance": "Between extremes, mediating without erasing difference.",
+        "scene": "Pouring liquid between cups, one foot on land and one on water, path winding toward dawn.",
+        "question": "Where could gentler mixing serve you better than a hard either-or?"
+      }
     },
     {
       "number": 15,
       "traditional": {
         "name": "The Devil",
-        "keywords": ["bondage", "materialism", "temptation", "addiction"],
+        "keywords": [
+          "bondage",
+          "materialism",
+          "temptation",
+          "addiction"
+        ],
         "meaning": "Shadow self, attachment, addiction, restriction, sexuality",
         "prompt": "A horned devil figure on pedestal, inverted pentagram on forehead, two chained naked figures (male and female) with horns and tails, chains loose enough to remove, darkness and temptation"
       },
       "lordOfMysteries": {
         "pathway": "Criminal Pathway",
         "sequence": "Sequence 0: Chained God",
-        "keywords": ["bondage", "theft", "freedom", "desire"],
+        "keywords": [
+          "bondage",
+          "theft",
+          "freedom",
+          "desire"
+        ],
         "abilities": "Theft Mastery, Chain Manipulation, Desire Liberation",
         "prompt": "A bound deity breaking chains of reality itself, stealing concepts and possibilities, imprisoned yet free, paradoxical liberation"
       },
       "egyptian": {
         "deity": "Set - God of Chaos",
-        "keywords": ["chaos", "storms", "strength", "disruption"],
+        "keywords": [
+          "chaos",
+          "storms",
+          "strength",
+          "disruption"
+        ],
         "prompt": "Set with mysterious animal head, desert storms, necessary chaos and disruption, challenging order, raw power"
       },
       "celtic": {
         "figure": "Crom Cruach - Dark Idol",
-        "keywords": ["temptation", "sacrifice", "bondage", "materialism"],
+        "keywords": [
+          "temptation",
+          "sacrifice",
+          "bondage",
+          "materialism"
+        ],
         "prompt": "Dark standing stone idol, shadows and chains, representing material bondage and dark temptations, ancient power"
       },
       "shinto": {
         "kami": "Oni - Demon Spirits",
-        "keywords": ["temptation", "chaos", "punishment", "shadow"],
+        "keywords": [
+          "temptation",
+          "chaos",
+          "punishment",
+          "shadow"
+        ],
         "prompt": "Horned oni figure with iron club, representing shadow self and temptation, wild chaos and restriction"
       },
-      "personalLore": "FILL THIS: Your shadows - what chains have bound you? What temptations shape you?"
+      "personalLore": "FILL THIS: Your shadows - what chains have bound you? What temptations shape you?",
+      "narrative": {
+        "summary": "Excess, temptation, attachment, stories that make the cage feel like home.",
+        "axis": "Conscious Desire vs Unconscious Addiction",
+        "feel": "Tight pull in gut and throat; craving that feels like need.",
+        "stance": "Bound to something once comforting now demanding obedience.",
+        "scene": "Horned figure above two chained beings; chains are loose enough to slip but heads stay bowed.",
+        "question": "What are you calling \"just how things are\" that is actually a choice you keep making?"
+      }
     },
     {
       "number": 16,
       "traditional": {
         "name": "The Tower",
-        "keywords": ["sudden change", "upheaval", "revelation", "awakening"],
+        "keywords": [
+          "sudden change",
+          "upheaval",
+          "revelation",
+          "awakening"
+        ],
         "meaning": "Sudden change, upheaval, chaos, revelation, awakening",
         "prompt": "A tall tower struck by lightning, crown blown off top, two figures falling from burning tower, grey clouds, sudden destruction and revelation"
       },
       "lordOfMysteries": {
         "pathway": "Sailor Pathway",
         "sequence": "Sequence 0: Lord of Storms",
-        "keywords": ["lightning", "storms", "destruction", "upheaval"],
+        "keywords": [
+          "lightning",
+          "storms",
+          "destruction",
+          "upheaval"
+        ],
         "abilities": "Lightning Control, Storm Summoning, Destruction Bringing",
         "prompt": "A storm lord commanding lightning and tempests, towers crumbling before divine fury, absolute upheaval and revelation through destruction"
       },
       "egyptian": {
         "deity": "Sekhmet Unleashed",
-        "keywords": ["destruction", "upheaval", "plague", "revelation"],
+        "keywords": [
+          "destruction",
+          "upheaval",
+          "plague",
+          "revelation"
+        ],
         "prompt": "Lioness goddess in full destructive fury, cities falling, necessary destruction before renewal, catastrophic revelation"
       },
       "celtic": {
         "figure": "Balor's Evil Eye",
-        "keywords": ["destruction", "revelation", "catastrophe", "power"],
+        "keywords": [
+          "destruction",
+          "revelation",
+          "catastrophe",
+          "power"
+        ],
         "prompt": "Giant with destructive eye opening, towers falling, catastrophic power revealed, sudden upheaval"
       },
       "shinto": {
         "kami": "Raijin - Thunder God",
-        "keywords": ["thunder", "upheaval", "sudden change", "awakening"],
+        "keywords": [
+          "thunder",
+          "upheaval",
+          "sudden change",
+          "awakening"
+        ],
         "prompt": "Thunder deity with drums, lightning striking, sudden awakening through destruction, divine upheaval"
       },
-      "personalLore": "FILL THIS: Your tower moments - what sudden changes shook you? What was revealed in collapse?"
+      "personalLore": "FILL THIS: Your tower moments - what sudden changes shook you? What was revealed in collapse?",
+      "narrative": {
+        "summary": "Upheaval, chaos, dread, mercy in a failing structure.",
+        "axis": "Necessary Collapse vs Avoided Meltdown",
+        "feel": "Floor dropping out; panic then clarity.",
+        "stance": "Many people and beliefs shaken; no one fully outside the blast.",
+        "scene": "Lightning splits a tower; stones and old certainties tumble, revealing open sky.",
+        "question": "What have you built on that cannot bear the weight you put on it?"
+      }
     },
     {
       "number": 17,
       "traditional": {
         "name": "The Star",
-        "keywords": ["hope", "renewal", "spirituality", "healing"],
+        "keywords": [
+          "hope",
+          "renewal",
+          "spirituality",
+          "healing"
+        ],
         "meaning": "Hope, faith, purpose, renewal, spirituality",
         "prompt": "A naked figure kneeling by water, pouring water from two jugs (one into water, one onto land), large yellow star above with seven smaller stars, bird in tree, hope and renewal"
       },
       "lordOfMysteries": {
         "pathway": "Reader Pathway",
         "sequence": "Sequence 0: Visionary",
-        "keywords": ["dreams", "hope", "imagination", "creation"],
+        "keywords": [
+          "dreams",
+          "hope",
+          "imagination",
+          "creation"
+        ],
         "abilities": "Dream Creation, Reality Writing, Hope Manifestation",
         "prompt": "A visionary creating new realities from pure imagination, stars of possibility shining above, dreams becoming real, infinite hope"
       },
       "egyptian": {
         "deity": "Sopdet - Star Goddess",
-        "keywords": ["hope", "renewal", "flooding", "new year"],
+        "keywords": [
+          "hope",
+          "renewal",
+          "flooding",
+          "new year"
+        ],
         "prompt": "Goddess Sopdet as star Sirius, bringing hope of Nile flood and renewal, new beginnings, celestial promise"
       },
       "celtic": {
         "figure": "Arianrhod's Silver Wheel",
-        "keywords": ["stars", "hope", "cosmic order", "renewal"],
+        "keywords": [
+          "stars",
+          "hope",
+          "cosmic order",
+          "renewal"
+        ],
         "prompt": "Goddess in silver wheel of stars, Caer Arianrhod constellation, cosmic hope and renewal, stellar beauty"
       },
       "shinto": {
         "kami": "Tanabata Deities",
-        "keywords": ["hope", "reunion", "wishes", "stars"],
+        "keywords": [
+          "hope",
+          "reunion",
+          "wishes",
+          "stars"
+        ],
         "prompt": "Star deities Orihime and Hikoboshi, wish papers on bamboo, hopeful reunion, celestial love and renewal"
       },
-      "personalLore": "FILL THIS: Your hope - what stars guide you? What renewal have you experienced?"
+      "personalLore": "FILL THIS: Your hope - what stars guide you? What renewal have you experienced?",
+      "narrative": {
+        "summary": "Hope, faith, gentle renewal, quiet healing after devastation.",
+        "axis": "Tender Hope vs Fragile Escapism",
+        "feel": "Soft cool exhale after a long cry; tiny lightness in the sternum.",
+        "stance": "Alone with the night sky but not lonely; guided by something vast.",
+        "scene": "Kneeling by water, pouring from two vessels, anchored by a single bright star.",
+        "question": "What small act of faith are you ready to take now, even if unsure it is enough?"
+      }
     },
     {
       "number": 18,
       "traditional": {
         "name": "The Moon",
-        "keywords": ["illusion", "fear", "subconscious", "intuition"],
+        "keywords": [
+          "illusion",
+          "fear",
+          "subconscious",
+          "intuition"
+        ],
         "meaning": "Illusion, fear, anxiety, subconscious, intuition",
         "prompt": "A full moon with face, two towers, path leading to mountains, dog and wolf howling, crayfish emerging from water, illusion and fear"
       },
       "lordOfMysteries": {
         "pathway": "Sleepless Pathway",
         "sequence": "Sequence 0: Darkness",
-        "keywords": ["night", "fear", "nightmares", "concealment"],
+        "keywords": [
+          "night",
+          "fear",
+          "nightmares",
+          "concealment"
+        ],
         "abilities": "Nightmare Weaving, Fear Manipulation, Darkness Control",
         "prompt": "A figure of pure darkness under crimson moon, nightmares made manifest, fear and illusion as weapons, unsleeping terror"
       },
       "egyptian": {
         "deity": "Khonsu - Moon God",
-        "keywords": ["moon", "time", "healing", "protection"],
+        "keywords": [
+          "moon",
+          "time",
+          "healing",
+          "protection"
+        ],
         "prompt": "Falcon-headed moon god Khonsu with lunar disk and crescent, night's mysteries, time passage, protective yet mysterious"
       },
       "celtic": {
         "figure": "Cerridwen - Moon Witch",
-        "keywords": ["moon", "transformation", "magic", "intuition"],
+        "keywords": [
+          "moon",
+          "transformation",
+          "magic",
+          "intuition"
+        ],
         "prompt": "Witch goddess with cauldron under full moon, transformation magic, intuitive wisdom, lunar mysteries"
       },
       "shinto": {
         "kami": "Tsukuyomi - Moon God",
-        "keywords": ["moon", "night", "mystery", "balance"],
+        "keywords": [
+          "moon",
+          "night",
+          "mystery",
+          "balance"
+        ],
         "prompt": "Moon deity Tsukuyomi in night realm, mysterious and distant, balancing sister sun, lunar wisdom and fear"
       },
-      "personalLore": "FILL THIS: Your illusions - what fears haunt you? What do you see by moonlight?"
+      "personalLore": "FILL THIS: Your illusions - what fears haunt you? What do you see by moonlight?",
+      "narrative": {
+        "summary": "Mystery, duality, darkness, uneasy beauty of not knowing.",
+        "axis": "Deep Imagination vs Paralyzing Confusion",
+        "feel": "Foggy heaviness in head and gut; intuitions and fears flicker.",
+        "stance": "Between tame and wild, conscious and unconscious; pulled by tides unseen.",
+        "scene": "Path between a wolf and a dog howling at a huge moon; road toward strange towers, water hides depths.",
+        "question": "Which fears are intuitions twisted by old wounds—and which are real warnings to honor?"
+      }
     },
     {
       "number": 19,
       "traditional": {
         "name": "The Sun",
-        "keywords": ["joy", "success", "celebration", "positivity"],
+        "keywords": [
+          "joy",
+          "success",
+          "celebration",
+          "positivity"
+        ],
         "meaning": "Joy, success, celebration, positivity, vitality",
         "prompt": "A bright sun with face, naked child on white horse, sunflowers, red banner, wall behind, pure joy and success"
       },
       "lordOfMysteries": {
         "pathway": "Spectator Pathway",
         "sequence": "Sequence 0: Evernight",
-        "keywords": ["observation", "clarity", "truth", "revelation"],
+        "keywords": [
+          "observation",
+          "clarity",
+          "truth",
+          "revelation"
+        ],
         "abilities": "Perfect Observation, Mind Reading, Truth Seeing",
         "prompt": "An all-seeing figure in brilliant clarity, every truth revealed under their gaze, perfect understanding, illuminating observation"
       },
       "egyptian": {
         "deity": "Ra at Zenith",
-        "keywords": ["sun", "victory", "life", "power"],
+        "keywords": [
+          "sun",
+          "victory",
+          "life",
+          "power"
+        ],
         "prompt": "Sun god Ra at noon in solar barque, maximum power and glory, life-giving rays, victorious journey across sky"
       },
       "celtic": {
         "figure": "Lugh - Sun God",
-        "keywords": ["skill", "victory", "light", "mastery"],
+        "keywords": [
+          "skill",
+          "victory",
+          "light",
+          "mastery"
+        ],
         "prompt": "Multi-talented deity Lugh radiating light, master of all skills, victorious and glorious, shining triumph"
       },
       "shinto": {
         "kami": "Amaterasu Supreme",
-        "keywords": ["sun", "glory", "order", "joy"],
+        "keywords": [
+          "sun",
+          "glory",
+          "order",
+          "joy"
+        ],
         "prompt": "Sun goddess Amaterasu at full glory, light illuminating all, joy and celebration, divine radiance"
       },
-      "personalLore": "FILL THIS: Your glory - what successes illuminate you? What joy do you radiate?"
+      "personalLore": "FILL THIS: Your glory - what successes illuminate you? What joy do you radiate?",
+      "narrative": {
+        "summary": "Joy, happiness, clarity, vulnerability of being fully seen.",
+        "axis": "Open Radiance vs Blinding Positivity",
+        "feel": "Warmth in chest and face; shoulders drop as tension melts.",
+        "stance": "Out in the open, visible; no curtains, no shadows.",
+        "scene": "Child on a white horse beneath a huge sun, arms wide; wall crumbled to let light pour in.",
+        "question": "Where could honest joy shine more—and where are you using positivity to avoid a harder truth?"
+      }
     },
     {
       "number": 20,
       "traditional": {
         "name": "Judgement",
-        "keywords": ["judgement", "rebirth", "inner calling", "absolution"],
+        "keywords": [
+          "judgement",
+          "rebirth",
+          "inner calling",
+          "absolution"
+        ],
         "meaning": "Judgement, rebirth, inner calling, absolution",
         "prompt": "Angel Gabriel blowing trumpet with cross banner, dead rising from coffins, mountains and water, resurrection and calling to higher purpose"
       },
       "lordOfMysteries": {
         "pathway": "Corpse Collector Pathway",
         "sequence": "Sequence 0: Death",
-        "keywords": ["judgment", "rebirth", "resurrection", "endings"],
+        "keywords": [
+          "judgment",
+          "rebirth",
+          "resurrection",
+          "endings"
+        ],
         "abilities": "Death Judgment, Undead Control, Resurrection",
         "prompt": "A figure judging souls and granting resurrection, the dead rising at their call, ultimate judgment between rest and return"
       },
       "egyptian": {
         "deity": "Osiris Judging",
-        "keywords": ["judgment", "resurrection", "afterlife", "truth"],
+        "keywords": [
+          "judgment",
+          "resurrection",
+          "afterlife",
+          "truth"
+        ],
         "prompt": "Osiris presiding over Hall of Two Truths, weighing hearts against feather of Ma'at, judgment of souls, resurrection for worthy"
       },
       "celtic": {
         "figure": "Donn - Lord of the Dead",
-        "keywords": ["judgment", "ancestors", "rebirth", "calling"],
+        "keywords": [
+          "judgment",
+          "ancestors",
+          "rebirth",
+          "calling"
+        ],
         "prompt": "Deity Donn calling souls to Tech Duinn, judgment of ancestors, gathering of the dead, cycle of rebirth"
       },
       "shinto": {
         "kami": "Emma-O - Judge of Dead",
-        "keywords": ["judgment", "karma", "rebirth", "truth"],
+        "keywords": [
+          "judgment",
+          "karma",
+          "rebirth",
+          "truth"
+        ],
         "prompt": "Judge deity Emma-O with mirror of karma, souls being judged for rebirth, truth revealed, karmic judgment"
       },
-      "personalLore": "FILL THIS: Your judgment - what calls you higher? What has been resurrected in you?"
+      "personalLore": "FILL THIS: Your judgment - what calls you higher? What has been resurrected in you?",
+      "narrative": {
+        "summary": "Decision, reflection, awakening, call to step out of old selves.",
+        "axis": "Honest Reckoning vs Self-Crucifixion",
+        "feel": "Shiver up the spine, like hearing your name from far and near at once.",
+        "stance": "Among others who are also called; judged as part of a wider unfolding.",
+        "scene": "Figures rise from open coffins as a horn sounds; terrified and relieved, seeing clearly.",
+        "question": "If you answered the call to become who you secretly know you are, what life must you leave behind?"
+      }
     },
     {
       "number": 21,
       "traditional": {
         "name": "The World",
-        "keywords": ["completion", "accomplishment", "travel", "fulfillment"],
+        "keywords": [
+          "completion",
+          "accomplishment",
+          "travel",
+          "fulfillment"
+        ],
         "meaning": "Completion, accomplishment, travel, fulfillment",
         "prompt": "A naked figure dancing in wreath, holding two wands, four winged creatures in corners (angel, eagle, lion, bull), completion and fulfillment"
       },
       "lordOfMysteries": {
         "pathway": "White Tower Pathway",
         "sequence": "Sequence 0: Hermit",
-        "keywords": ["completion", "accumulation", "preservation", "fulfillment"],
+        "keywords": [
+          "completion",
+          "accumulation",
+          "preservation",
+          "fulfillment"
+        ],
         "abilities": "Knowledge Preservation, History Recording, Complete Understanding",
         "prompt": "A figure at the center of all accumulated knowledge and history, complete understanding achieved, cycles completed, ultimate fulfillment"
       },
       "egyptian": {
         "deity": "Atum - The Complete One",
-        "keywords": ["completion", "totality", "creation finished", "wholeness"],
+        "keywords": [
+          "completion",
+          "totality",
+          "creation finished",
+          "wholeness"
+        ],
         "prompt": "Creator god Atum in complete form, all creation finished, wearing both crowns, ultimate wholeness and completion"
       },
       "celtic": {
         "figure": "Sovereignty Goddess",
-        "keywords": ["completion", "kingdom", "wholeness", "fulfillment"],
+        "keywords": [
+          "completion",
+          "kingdom",
+          "wholeness",
+          "fulfillment"
+        ],
         "prompt": "Goddess of sovereignty offering cup of completion, united kingdom, all quests fulfilled, perfect wholeness"
       },
       "shinto": {
         "kami": "Ame-no-Minakanushi Complete",
-        "keywords": ["completion", "cosmic fulfillment", "totality", "center"],
+        "keywords": [
+          "completion",
+          "cosmic fulfillment",
+          "totality",
+          "center"
+        ],
         "prompt": "Central deity with all creation complete and balanced, cosmic dance finished, perfect fulfillment of all things"
       },
-      "personalLore": "FILL THIS: Your completion - what cycles have you finished? What world have you created?"
+      "personalLore": "FILL THIS: Your completion - what cycles have you finished? What world have you created?",
+      "narrative": {
+        "summary": "Fulfillment, integration, completion, stillness at the end of a dance.",
+        "axis": "Whole Integration vs Stagnant Arrival",
+        "feel": "Wide, spacious ease; nothing urgent, ready to begin again.",
+        "stance": "In harmony with many circles; not needing to be the center.",
+        "scene": "Figure dances within a wreath, one foot about to step out; four elements watch as witnesses.",
+        "question": "Now that you have arrived, what new journey are you willing to begin as a beginner again?"
+      }
     }
   ],
   "defaultSettings": {
-    "userPhoto": "YOUR_PHOTO_URL_HERE",
+    "userPhoto": "",
+    "usePhoto": true,
     "selectedDeckType": "lord-of-mysteries",
     "framesPerCard": 4,
-    "generationModel": "google/gemini-pro-1.5",
+    "generationModel": "gemini-2.5-flash-image",
     "promptSuffix": ", highly detailed, cinematic lighting, tarot card art style, masterpiece quality",
-    "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions"
+    "apiProvider": "gemini",
+    "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "showCardInfo": true,
+    "animateCards": true,
+    "navigateWithArrows": false
   },
   "costEstimation": {
-    "gemini-pro-1.5": {
-      "perImage": 0.05,
-      "note": "Approximate cost per image generation"
+    "google/gemini-2.5-flash-image": {
+      "perImage": 0.003,
+      "inputTokenCost": 0.3,
+      "outputTokenCost": 2.5,
+      "note": "Fast & Free tier available - $0.30/M input, $2.50/M output tokens"
+    },
+    "openai/gpt-5-image-mini": {
+      "perImage": 0.0035,
+      "inputTokenCost": 2.5,
+      "outputTokenCost": 2,
+      "note": "$2.50/M input, $2/M output tokens"
+    },
+    "google/gemini-3-pro-image-preview": {
+      "perImage": 0.013,
+      "inputTokenCost": 2,
+      "outputTokenCost": 12,
+      "note": "High quality - $2/M input, $12/M output tokens"
     }
   }
 }

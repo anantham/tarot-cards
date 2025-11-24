@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import CardDeck from './components/CardDeck';
 import CardDetail from './components/CardDetail';
 import Settings from './components/Settings';
@@ -21,6 +22,19 @@ function App() {
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />
           <pointLight position={[-10, -10, -10]} intensity={0.5} color="#9333ea" />
+
+          {/* Interactive Camera Controls */}
+          <OrbitControls
+            enableDamping
+            dampingFactor={0.05}
+            rotateSpeed={0.5}
+            zoomSpeed={0.8}
+            minDistance={5}
+            maxDistance={30}
+            maxPolarAngle={Math.PI / 1.5}
+            minPolarAngle={Math.PI / 4}
+          />
+
           <CardDeck />
         </Canvas>
       )}
