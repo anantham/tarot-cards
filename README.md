@@ -19,7 +19,7 @@ Generate a complete set of 22 animated tarot cards featuring **you** as the prot
 Each card includes:
 
 1. **AI-Generated Imagery**: Your photo composed into the tarot archetype
-2. **Animated GIFs**: 4-6 frame animations like shiny Pokémon cards
+2. **AI Video Generation**: Generates 8-second cinematic videos for each card using Google's **Veo 3.1** model (replacing static GIFs).
 3. **Personal Lore**: Custom narrative about what that archetype means in your life
 4. **Multiple Interpretations**: Switch between cultural/spiritual traditions
 5. **Customizable Prompts**: Full control over the AI generation style
@@ -40,7 +40,7 @@ Cards float in 3D space like a mystical deck in motion:
 1. **Shuffled deck** floating dramatically in 3D space
 2. **Pick/click a card** to select it
 3. **Card flips and expands** with smooth animations
-4. **View full details**: Animated GIF, lore, keywords, meanings, abilities
+4. **View full details**: Cinematic video, lore, keywords, meanings, abilities
 
 ## 🛠️ Technical Stack
 
@@ -49,14 +49,16 @@ Cards float in 3D space like a mystical deck in motion:
 - **Animations**: Framer Motion
 - **State Management**: Zustand with persistence
 - **AI Generation**: OpenRouter API (Gemini Pro, GPT-4o Mini, etc.)
-- **Image Processing**: Custom GIF generation from multiple frames
+- **Video Generation**: Google Gemini API (Veo 3.1)
+- **Image Processing**: Custom video handling and asset management
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- OpenRouter API key ([get one here](https://openrouter.ai/keys))
+- **OpenRouter API Key**: For image generation ([get one here](https://openrouter.ai/keys))
+- **Google Gemini API Key**: Required specifically for **Veo** video generation.
 
 ### Installation
 
@@ -70,31 +72,48 @@ npm run dev
 
 The app will open at http://localhost:3000
 
-### Configuration
+## ⚙️ Configuration & Costs
 
-1. Click the **Settings** button (⚙️) in the top right
-2. Add your OpenRouter API key
-3. Upload your photo
-4. Choose your preferred deck type
-5. Customize generation settings
+The app is highly configurable via `src/data/tarot-config.json`. This file controls:
+
+*   **Prompt Composition**: How the AI prompt is built using lore, deck context, and visual framing instructions.
+*   **Cost Estimation**:
+    *   **Image**: ~$0.003/image (Gemini Flash)
+    *   **Video**: Uses Google's Veo 3.1 (Preview).
+    *   *Note: Costs are estimates and depend on the specific model and provider.*
+
+**Default Settings:**
+*   Model: `gemini-2.5-flash-image`
+*   Frames: 4 (for legacy sprite sheets) or Single Image + Video
+*   Provider: Gemini or OpenRouter
+
+## 🎴 Multi-Deck System
+
+The project now supports deep lore customization. All deck data is located in `src/data/`.
+
+*   **`tarot-decks.json`**: The core database. Contains definitions for every card across multiple interpretations (Lord of Mysteries, Egyptian, Celtic, etc.).
+*   **`tarot-config.json`**: Global settings for prompt engineering and API handling.
+
+**To add a new deck:**
+1.  Add a new entry to `deckTypes` in `tarot-decks.json`.
+2.  Add the corresponding key (e.g., `"cyberpunk"`) to every card object in `cards`.
+
+## 🛠️ Scripts
+
+*   **`npm run add-narratives`** (`scripts/add-narratives.cjs`):
+    *   A utility script that merges rich narrative descriptions (summary, axis, feeling, scene) into your `tarot-decks.json` file.
+    *   Useful if you want to reset or update the core card lore without manually editing the huge JSON file.
 
 ## 📖 Using the Generator
 
 ### Test Before Generating All
 
 1. Open **Settings** (⚙️ button in header)
-2. Upload your photo
-3. Choose a deck type (Lord of the Mysteries recommended!)
-4. Adjust frames per card (4-6 recommended)
+2. Add your API keys
+3. Upload your photo
+4. Choose a deck type (Lord of the Mysteries recommended!)
 5. **Generate ONE card first** to test your photo and prompt
 6. Refine as needed, then generate all 22
-
-### Cost Estimation
-
-The app shows estimated costs:
-- ~$0.05 per image (varies by model)
-- 4 frames × 22 cards = 88 images = ~$4.40 for full deck
-- Test single card first: ~$0.20
 
 ## 🎭 Deck Types
 
@@ -141,22 +160,12 @@ All card data is in `src/data/tarot-decks.json`:
 - ✅ Full 3D card deck visualization with touch controls
 - ✅ 5 different cultural/spiritual tarot interpretations
 - ✅ AI-powered image generation with your photo
-- ✅ Animated GIF creation (shiny card effect)
+- ✅ Cinematic video generation for each card
 - ✅ Persistent caching of generated cards
 - ✅ Cost estimation before generation
 - ✅ Test single card before generating all 22
 - ✅ Fully customizable prompts and lore
 - ✅ Responsive design for desktop and mobile
-
-## 🎯 Roadmap
-
-- [ ] Implement actual GIF encoding (currently using first frame)
-- [ ] Add more AI model options
-- [ ] Share individual cards on social media
-- [ ] Export deck as PDF or image pack
-- [ ] AR mode for viewing cards in physical space
-- [ ] Minor Arcana support (56 additional cards)
-- [ ] Community deck sharing
 
 ## 🏗️ Project Structure
 
@@ -169,7 +178,8 @@ tarot-cards/
 │   │   ├── Header.tsx     # App header
 │   │   └── Settings.tsx   # Settings panel
 │   ├── data/              # Card data
-│   │   └── tarot-decks.json  # All 22 cards × 5 interpretations
+│   │   ├── tarot-decks.json  # All 22 cards × 5 interpretations
+│   │   └── tarot-config.json # Configuration & Prompt Engineering
 │   ├── hooks/             # Custom React hooks
 │   │   └── useCardGeneration.ts
 │   ├── store/             # Zustand state management
@@ -178,11 +188,13 @@ tarot-cards/
 │   │   └── index.ts
 │   ├── utils/             # Utilities
 │   │   ├── imageGeneration.ts  # OpenRouter API integration
-│   │   └── gifGenerator.ts     # GIF creation
+│   │   ├── videoGeneration.ts  # Google Veo API integration
+│   │   └── cardPhysics.ts      # 3D physics calculations
 │   ├── App.tsx            # Main app component
 │   ├── main.tsx           # Entry point
 │   └── index.css          # Global styles
 ├── public/                # Static assets
+├── scripts/               # Build & Maintenance scripts
 ├── package.json
 ├── vite.config.ts
 └── README.md

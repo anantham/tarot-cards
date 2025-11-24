@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Tarot App Storage</title>
+</head>
+<body>
+    <h1>Clear Tarot App localStorage</h1>
+    <button onclick="clearStorage()">Clear All Settings</button>
+    <pre id="output"></pre>
+
+    <script>
+        function clearStorage() {
+            const output = document.getElementById('output');
+            output.textContent = 'Clearing localStorage...\n';
+
+            // Show what's being cleared
+            output.textContent += '\nBefore:\n' + JSON.stringify(localStorage, null, 2);
+
+            // Clear all
+            localStorage.clear();
+
+            output.textContent += '\n\nCleared! Please close this tab and refresh the main app.';
+        }
+    </script>
+</body>
+</html>
