@@ -24,6 +24,8 @@ interface StoreState {
   setIsGenerating: (generating: boolean) => void;
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
+  returnToSettingsOnClose: boolean;
+  setReturnToSettingsOnClose: (value: boolean) => void;
 
   // Generation progress
   generationProgress: {
@@ -93,6 +95,8 @@ export const useStore = create<StoreState>()(
 
         showSettings: false,
         setShowSettings: (show) => set({ showSettings: show }),
+        returnToSettingsOnClose: false,
+        setReturnToSettingsOnClose: (value) => set({ returnToSettingsOnClose: value }),
 
         generationProgress: {
           current: 0,

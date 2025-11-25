@@ -84,7 +84,22 @@ export async function generateVideoFromImage(
       const startText = await startResponse.text();
 
       if (!startResponse.ok) {
-        throw new Error(`Video start failed: ${startResponse.status} ${startText}`);
+        let details = startText;
+        try {
+          const parsed = JSON.parse(startText);
+          if (parsed?.error?.message) {
+            details = parsed.error.message;
+          }
+        } catch {
+          // ignore parse failure, keep raw text
+        }
+        if (startResponse.status === 429 || details.toLowerCase().includes('quota')) {
+          throw new Error(
+            'Rate limit hit for Gemini video. Wait a bit or check billing/usage. ' +
+            'Daily cap is often 10 videos; RPM limit can be 5 or lower. Details: ' + details
+          );
+        }
+        throw new Error(`Video start failed: ${startResponse.status} ${details}`);
       }
 
       let operation: any;
@@ -104,6 +119,22 @@ export async function generateVideoFromImage(
       let attempts = 0;
       while (attempts < maxPollAttempts) {
         const opResp = await fetch(operationUrl);
+        if (!opResp.ok) {
+          const opText = await opResp.text();
+          let detail = opText;
+          try {
+            const parsed = JSON.parse(opText);
+            detail = parsed?.error?.message || opText;
+          } catch {
+            // ignore parse error
+          }
+          if (opResp.status === 429 || detail.toLowerCase().includes('quota')) {
+            throw new Error(
+              'Rate limit hit while polling video status. Wait a bit and retry. Details: ' + detail
+            );
+          }
+          throw new Error(`Video poll failed: ${opResp.status} ${detail}`);
+        }
         const opText = await opResp.text();
         let opData: any;
         try {

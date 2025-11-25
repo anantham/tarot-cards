@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
@@ -16,6 +16,7 @@ export default function Settings() {
     isGenerating,
     generatedCards,
     setSelectedCard,
+    setReturnToSettingsOnClose,
   } = useStore();
 
   const { generateSingleCard, generateAllCards, generateAllVideos, error: generationError } = useCardGeneration();
@@ -31,10 +32,17 @@ export default function Settings() {
   const [showControls, setShowControls] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [galleryDeckFilter, setGalleryDeckFilter] = useState<string>('all');
+  const [dismissedError, setDismissedError] = useState(false);
 
   const showCardInfo = settings.showCardInfo !== false;
   const navWithArrows = settings.navigateWithArrows === true;
   const usePhoto = settings.usePhoto !== false;
+  const lowerError = (generationError || '').toLowerCase();
+  const isRateLimitError = lowerError.includes('rate limit') || lowerError.includes('quota');
+
+  useEffect(() => {
+    setDismissedError(false);
+  }, [generationError]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,6 +273,19 @@ export default function Settings() {
               <p style={{ fontSize: '0.9rem', marginBottom: '1rem', opacity: 0.8, lineHeight: '1.5' }}>
                 Upload multiple reference images to blend faces, poses, styles, and backgrounds into your tarot cards.
               </p>
+              {settings.usePhoto === false && (
+                <div style={{
+                  marginBottom: '1rem',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  color: '#ffb347',
+                  fontSize: '0.85rem',
+                }}>
+                  Image references are currently disabled. Turn on "Use uploaded images for generation" above to include them.
+                </div>
+              )}
 
               {/* Upload Button */}
               <label
@@ -787,6 +808,7 @@ export default function Settings() {
                                 key={cardNumber}
                                 onClick={() => {
                                   setSelectedCard(tarotCard);
+                                  setReturnToSettingsOnClose(true);
                                   setShowSettings(false);
                                 }}
                                 style={{
@@ -1108,6 +1130,9 @@ export default function Settings() {
               <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', opacity: 0.8 }}>
                 Uses the first generated frame of each card to create an 8s Veo video. Cards without images are skipped.
               </p>
+              <div style={{ fontSize: '0.85rem', marginBottom: '1rem', opacity: 0.7 }}>
+                Videos are throttled to about 2 requests per minute to avoid Gemini rate limits (daily cap is often ~10 videos).
+              </div>
               <button
                 onClick={() => generateAllVideos()}
                 disabled={isGenerating || !settings.geminiApiKey}
@@ -1136,15 +1161,45 @@ export default function Settings() {
           </section>
 
           {/* Error Display */}
-          {generationError && (
+          {generationError && !dismissedError && (
             <div style={{
               padding: '1rem',
               background: 'rgba(255, 0, 0, 0.1)',
               border: '1px solid rgba(255, 0, 0, 0.3)',
               borderRadius: '8px',
               color: '#ff6b6b',
+              position: 'relative',
             }}>
-              <strong>Error:</strong> {generationError}
+              <button
+                aria-label="Dismiss error"
+                onClick={() => setDismissedError(true)}
+                style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  right: '0.5rem',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#ff6b6b',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                }}
+              >
+                ✕
+              </button>
+              <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>Error</div>
+              <div style={{ lineHeight: 1.5 }}>{generationError}</div>
+              {isRateLimitError && (
+                <div style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: '#ffd1d1' }}>
+                  <div style={{ marginBottom: '0.35rem' }}>
+                    Gemini video quota was hit. Common limits: ~10 videos/day and 5 requests/minute (sometimes lower).
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: 1.5 }}>
+                    <li>We now throttle video requests to ~2 per minute to help avoid this.</li>
+                    <li>Try again after some time or use a new API key with billing enabled.</li>
+                    <li><a href="https://ai.dev/usage?tab=rate-limit" target="_blank" rel="noopener noreferrer" style={{ color: '#ffd1d1', textDecoration: 'underline' }}>Check current usage</a></li>
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>

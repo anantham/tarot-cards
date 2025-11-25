@@ -220,7 +220,13 @@ export async function generateCardFrames(
     .join(' ')
     .trim() || interpretation.prompt;
 
-  const basePrompt = composed;
+  const roman = card.number > 0 ? toRoman(card.number) : '0';
+  const cardNumberNote =
+    card.number === 0
+      ? 'Integrate the number 0 into the card design (corner, frame engraving, or sigil).'
+      : `Integrate the card number ${card.number} (${roman}) into the design—subtle corner numbering, border engraving, or a small background sigil.`;
+
+  const basePrompt = `${composed} ${cardNumberNote}`.trim();
 
   // Generate single image only (for video reference)
   onProgress?.(1, 1);
@@ -254,6 +260,8 @@ function getInterpretationForDeck(
       return card.celtic;
     case 'japanese-shinto':
       return card.shinto;
+    case 'advaita-vedanta':
+      return card.advaita;
     case 'buddhist':
       // Use traditional prompt as base; Buddhist flavor is layered via deckLoreText
       return card.traditional;

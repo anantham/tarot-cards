@@ -7,7 +7,17 @@ import tarotData from '../data/tarot-decks.json';
 import type { TarotCard } from '../types';
 
 export default function CardDetail() {
-  const { selectedCard, setSelectedCard, settings, getAllGenerationsForCard, deleteGeneratedCard, isGenerating } = useStore();
+  const {
+    selectedCard,
+    setSelectedCard,
+    settings,
+    getAllGenerationsForCard,
+    deleteGeneratedCard,
+    isGenerating,
+    returnToSettingsOnClose,
+    setReturnToSettingsOnClose,
+    setShowSettings,
+  } = useStore();
   const { generateVideo, error: generationError } = useCardGeneration();
   const cards = tarotData.cards as TarotCard[];
   const totalCards = cards.length;
@@ -36,6 +46,7 @@ export default function CardDetail() {
     if (deckType === 'egyptian-tarot') return selectedCard.egyptian;
     if (deckType === 'celtic-tarot') return selectedCard.celtic;
     if (deckType === 'japanese-shinto') return selectedCard.shinto;
+    if (deckType === 'advaita-vedanta') return selectedCard.advaita;
     return selectedCard.traditional;
   };
 
@@ -90,6 +101,14 @@ export default function CardDetail() {
     return interpretation.name || interpretation.pathway || interpretation.deity || interpretation.figure || interpretation.kami || 'Unknown';
   };
 
+  const closeDetail = () => {
+    setSelectedCard(null);
+    if (returnToSettingsOnClose) {
+      setShowSettings(true);
+    }
+    setReturnToSettingsOnClose(false);
+  };
+
   const navigateCard = (step: number) => {
     const currentIndex = cards.findIndex((c) => c.number === selectedCard.number);
     if (currentIndex === -1) return;
@@ -97,6 +116,10 @@ export default function CardDetail() {
     setNavDirection(step >= 0 ? 1 : -1);
     setSelectedCard(cards[nextIndex]);
   };
+
+  useEffect(() => {
+    return () => setReturnToSettingsOnClose(false);
+  }, [setReturnToSettingsOnClose]);
 
   useEffect(() => {
     const videoEl = videoRef.current;
@@ -156,7 +179,7 @@ export default function CardDetail() {
         navigateCard(-1);
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        setSelectedCard(null);
+        closeDetail();
       }
     };
     window.addEventListener('keydown', handler);
@@ -179,7 +202,7 @@ export default function CardDetail() {
         justifyContent: 'center',
         padding: '2rem',
       }}
-      onClick={() => setSelectedCard(null)}
+      onClick={closeDetail}
     >
       {/* Nav buttons (optional) */}
       {navEnabled && (

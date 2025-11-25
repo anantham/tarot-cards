@@ -29,6 +29,11 @@
       "id": "buddhist",
       "name": "Buddhist Arcana",
       "description": "Bodhisattva path and dismantling of self"
+    },
+    {
+      "id": "advaita-vedanta",
+      "name": "Advaita Vedanta Arcana",
+      "description": "Non-dual lens: cards as superimpositions masking the Self"
     }
   ],
   "cards": [
@@ -55,7 +60,7 @@
           "fooling"
         ],
         "abilities": "Grafting, Historical Void Projection, Miracle Invocation",
-        "prompt": "Tarot card: 0 – THE FOOL (Lord of the Mysteries). Render the title '0 – THE FOOL' on the card using Arabic numeral 0. A vagabond/jester/seer at the brink of a precipice, one foot lifted toward the void; carries a small bag or staff, simple/torn clothes, maybe a jester hat. Facets of the Fool pathway: faceless trickster, subtle marionette strings/control, seer/clown motifs, freedom from constraints. Ethereal void with cosmic symbols; feel like first and last, outside the sequence."
+        "prompt": "Tarot card: 0 \u2013 THE FOOL (Lord of the Mysteries). Render the title '0 \u2013 THE FOOL' on the card using Arabic numeral 0. A vagabond/jester/seer at the brink of a precipice, one foot lifted toward the void; carries a small bag or staff, simple/torn clothes, maybe a jester hat. Facets of the Fool pathway: faceless trickster, subtle marionette strings/control, seer/clown motifs, freedom from constraints. Ethereal void with cosmic symbols; feel like first and last, outside the sequence."
       },
       "egyptian": {
         "deity": "Ra - The Sun God",
@@ -86,6 +91,17 @@
           "beginning"
         ],
         "prompt": "Japanese goddess emerging from cave, radiant light, mirror and jewels, torii gate, cherry blossoms, traditional Japanese art style"
+      },
+      "advaita": {
+        "name": "Jivatma in Lila",
+        "keywords": [
+          "individual soul",
+          "cosmic play",
+          "prarabdha karma",
+          "descent",
+          "samsara"
+        ],
+        "prompt": "Advaita tarot card: the jivatma stepping from a radiant cliff of the Absolute into the ocean of samsara, small bundle of prarabdha karma on a stick, playful smile, sunlit void behind, sense of cosmic play"
       },
       "personalLore": "FILL THIS: Your story for this card - what aspect of your life does this represent? What vocation, lesson, or role?",
       "narrative": {
@@ -152,6 +168,17 @@
         ],
         "prompt": "Scholarly figure in traditional Japanese robes, calligraphy brush and scrolls, plum blossoms, peaceful temple setting, aura of wisdom"
       },
+      "advaita": {
+        "name": "Ishvara the Magician",
+        "keywords": [
+          "creator",
+          "maya shakti",
+          "projection",
+          "veda tools",
+          "cosmic trick"
+        ],
+        "prompt": "Cosmic creator (Brahma/Ishvara) at an altar with four Vedas like tarot suits, weaving the universe with maya shakti, swirling galaxies and sacred geometry forming, serene authority"
+      },
       "personalLore": "FILL THIS: Your story for The Magician - what skills have you mastered? What powers do you wield?",
       "narrative": {
         "summary": "Mastery, intention, manifestation, channeling versus manipulation.",
@@ -216,6 +243,17 @@
           "revelation"
         ],
         "prompt": "Graceful goddess dancing with mirror, sakura petals falling, soft dawn light, mystical and serene atmosphere"
+      },
+      "advaita": {
+        "name": "Saraswati Veil and Revelation",
+        "keywords": [
+          "higher knowledge",
+          "para vidya",
+          "veil",
+          "discernment",
+          "sat vs asat"
+        ],
+        "prompt": "Goddess Saraswati seated before a translucent veil, moonlit library of truth, holding scripture that distinguishes sat from asat, calm waters and lotus, gaze of pure discernment"
       },
       "personalLore": "FILL THIS: Your High Priestess moment - what intuitive knowledge guides you? What mysteries do you hold?",
       "narrative": {
@@ -282,6 +320,16 @@
         ],
         "prompt": "Figure surrounded by white foxes, rice fields golden in sunset, torii gates, abundant harvest, prosperity symbols"
       },
+      "advaita": {
+        "name": "Prakriti the Field",
+        "keywords": [
+          "nature",
+          "sensory allure",
+          "fertility",
+          "maya field"
+        ],
+        "prompt": "Prakriti as a lush earth mother, fertile fields and forests, vines and grain overflowing, sensory world as womb of forms, beautiful and inviting yet transient"
+      },
       "personalLore": "FILL THIS: Your creative abundance - what have you nurtured into being? What grows under your care?",
       "narrative": {
         "summary": "Decadence, nurturing, feminine abundance vs smothering excess.",
@@ -347,14 +395,24 @@
         ],
         "prompt": "Imperial figure in traditional Japanese armor, sacred regalia, standing before Mount Fuji, divine authority, founding presence"
       },
+      "advaita": {
+        "name": "Vishnu the Preserver",
+        "keywords": [
+          "dharma",
+          "order",
+          "stability",
+          "protection"
+        ],
+        "prompt": "Vishnu seated on a cosmic throne above calm ocean, conch and discus in hand, radiant grid of order around him, protective gaze maintaining the dream's structure"
+      },
       "personalLore": "FILL THIS: Your empire - what structures have you built? What do you rule over?",
       "narrative": {
         "summary": "Leadership, authority, structure, tension between protection and control.",
         "axis": "Steady Foundation vs Rigid Domination",
-        "feel": "Weight in the shoulders like armor—comforting and heavy.",
+        "feel": "Weight in the shoulders like armor\u2014comforting and heavy.",
         "stance": "Elevated above others but facing them; responsible for them yet tempted to be above them.",
         "scene": "Stone throne carved into a mountainside; a glowing city below, stable but unmoving.",
-        "question": "Where are you building solid ground—and where are you turning living beings into bricks?"
+        "question": "Where are you building solid ground\u2014and where are you turning living beings into bricks?"
       }
     },
     {
@@ -412,6 +470,17 @@
         ],
         "prompt": "Wise guide figure at crossroads shrine, lantern light, showing the way, traditional robes, protective presence"
       },
+      "advaita": {
+        "name": "Guru Pointing to the Moon",
+        "keywords": [
+          "teacher",
+          "maha vakya",
+          "pointer",
+          "lineage",
+          "dispels ignorance"
+        ],
+        "prompt": "Adi Shankara-like guru teaching in temple courtyard, one finger pointing to the full moon, palm-leaf texts with mahavakyas open, devoted student listening, lamp of knowledge glowing"
+      },
       "personalLore": "FILL THIS: Your teachings - what wisdom do you pass down? What traditions do you uphold?",
       "narrative": {
         "summary": "Tradition, conformity, teaching, lineage versus empty ritual.",
@@ -419,7 +488,7 @@
         "feel": "Grounded spine, hands in a familiar gesture; comfort in patterns with an itch to question.",
         "stance": "Between unseen source and gathered group, translating something old into something usable.",
         "scene": "Teacher on temple steps, students at varying distances; some awake, others glazed in motion without meaning.",
-        "question": "Which of your \"shoulds\" are wise inheritance—and which are habits you are afraid to outgrow?"
+        "question": "Which of your \"shoulds\" are wise inheritance\u2014and which are habits you are afraid to outgrow?"
       }
     },
     {
@@ -477,6 +546,16 @@
         ],
         "prompt": "Divine couple on heavenly bridge stirring ocean with jeweled spear, islands forming, creating Japan together, harmonious creation"
       },
+      "advaita": {
+        "name": "Ardhanarishvara",
+        "keywords": [
+          "non-duality",
+          "union",
+          "observer observed",
+          "wholeness"
+        ],
+        "prompt": "Ardhanarishvara, body half Shiva half Parvati, seamless union of masculine and feminine, background symbols of duality dissolving, serene realization of not-two"
+      },
       "personalLore": "FILL THIS: Your partnerships - what choices have defined you? Who stands beside you?",
       "narrative": {
         "summary": "Partnership, emotion, balance, sacred weight of choosing.",
@@ -484,7 +563,7 @@
         "feel": "Heart pulled in two directions; ache and sweetness braided.",
         "stance": "At least two beings with a third presence of fate or value hovering between.",
         "scene": "Two figures reach toward each other while a constellation above forms a third shape they must also embrace.",
-        "question": "Who are you becoming by choosing this bond—or by refusing to choose?"
+        "question": "Who are you becoming by choosing this bond\u2014or by refusing to choose?"
       }
     },
     {
@@ -542,6 +621,16 @@
         ],
         "prompt": "Divine warrior in samurai armor, bow and arrows, standing victorious, protective presence over warriors, honorable strength"
       },
+      "advaita": {
+        "name": "Arjuna on the Chariot",
+        "keywords": [
+          "karma yoga",
+          "duty without doer",
+          "battlefield",
+          "discipline"
+        ],
+        "prompt": "Arjuna on his chariot at Kurukshetra, bow lowered in contemplation, horses steady, inner light of Krishna as guide behind him, acting without attachment to results"
+      },
       "personalLore": "FILL THIS: Your victories - what battles have you won? What drives you forward?",
       "narrative": {
         "summary": "Prowess, determination, momentum, risk of being driven by drive.",
@@ -549,7 +638,7 @@
         "feel": "Leaning forward in the chest, adrenaline humming in the legs.",
         "stance": "Ahead of the crowd, pulled by forces that must be steered.",
         "scene": "Chariot pulled by two creatures veering apart, driver calm with loose but intentional reins; road ahead splits.",
-        "question": "Are you steering your momentum—or letting speed decide where you end up?"
+        "question": "Are you steering your momentum\u2014or letting speed decide where you end up?"
       }
     },
     {
@@ -606,6 +695,16 @@
           "transformation"
         ],
         "prompt": "Powerful deity taming the eight-headed serpent Yamata no Orochi, storm and courage, wild strength becoming heroic, dramatic confrontation"
+      },
+      "advaita": {
+        "name": "Durga Riding the Lion",
+        "keywords": [
+          "guna mastery",
+          "shakti",
+          "courage",
+          "inner control"
+        ],
+        "prompt": "Goddess Durga serene atop a lion or tiger, gently taming the beast, weapons calm, aura of sattvic strength as rajas and tamas swirl like a storm she rides above"
       },
       "personalLore": "FILL THIS: Your strength - what beasts have you tamed? What inner power sustains you?",
       "narrative": {
@@ -672,6 +771,16 @@
         ],
         "prompt": "Contemplative deity in meditation, surrounded by scrolls of wisdom, peaceful shrine setting, deep thought and understanding"
       },
+      "advaita": {
+        "name": "Dakshinamurti the Hermit",
+        "keywords": [
+          "silence",
+          "inner cave",
+          "withdrawal",
+          "witness"
+        ],
+        "prompt": "Dakshinamurti under a great banyan tree, silent teaching mudra, lamp glowing in the cave of the heart, mountains and stars beyond, disciple absorbing wordless guidance"
+      },
       "personalLore": "FILL THIS: Your solitude - what wisdom have you found alone? What light do you carry?",
       "narrative": {
         "summary": "Solitude, wisdom, self-reflection, chosen aloneness vs fearful withdrawal.",
@@ -679,7 +788,7 @@
         "feel": "Cool air around the body, small lantern warmth held close.",
         "stance": "Distant from the crowd but not against it; watcher on the hill.",
         "scene": "Lone figure on a high path, lantern over a drop; town lights below, path turns further inward.",
-        "question": "Are you stepping away to see clearly—or hiding because the world is looking back?"
+        "question": "Are you stepping away to see clearly\u2014or hiding because the world is looking back?"
       }
     },
     {
@@ -737,12 +846,22 @@
         ],
         "prompt": "Smiling deity Ebisu with fishing rod and sea bream, symbols of fortune flowing around, lucky opportunities manifesting"
       },
+      "advaita": {
+        "name": "Kala-Chakra",
+        "keywords": [
+          "samsara wheel",
+          "time",
+          "gunas",
+          "cycles"
+        ],
+        "prompt": "Wheel of time turning in the sky, three gunas as colored spokes driving it, beings rising and falling on the rim, seasons and stars spinning in endless motion"
+      },
       "personalLore": "FILL THIS: Your turning points - what cycles have shaped you? Where has fate led you?",
       "narrative": {
         "summary": "Luck, change, fate, cycles turning beyond personal will.",
         "axis": "Dancing with Change vs Clinging to Control",
         "feel": "Lurch in the stomach like a Ferris wheel tipping over the top.",
-        "stance": "Entangled with forces larger than will—systems, timing, others.",
+        "stance": "Entangled with forces larger than will\u2014systems, timing, others.",
         "scene": "Great wheel turning in the sky with figures rising, falling, climbing back by choice.",
         "question": "Where are you mistaking a temporary position on the wheel for your identity?"
       }
@@ -802,6 +921,16 @@
         ],
         "prompt": "Graceful deity Benzaiten with biwa instrument, flowing water representing balance and harmony, wise judgment"
       },
+      "advaita": {
+        "name": "Yama's Scales",
+        "keywords": [
+          "karma phala",
+          "justice",
+          "truth mirror",
+          "law"
+        ],
+        "prompt": "Lord Yama standing stern yet impartial, holding scales and a mirror of truth, rod of dharma by his side, souls weighed under an unblinking cosmic law"
+      },
       "personalLore": "FILL THIS: Your justice - what balance do you maintain? What truths do you uphold?",
       "narrative": {
         "summary": "Fairness, truth, balance, cost of seeing all sides.",
@@ -809,7 +938,7 @@
         "feel": "Vertical line from crown to pelvis, breath held while scales settle.",
         "stance": "Between parties or timelines, responsible to something beyond preference.",
         "scene": "Sword and scales; a feather on one side, tangled threads on the other.",
-        "question": "If every voice—including your shadow—testified, what verdict would you reach?"
+        "question": "If every voice\u2014including your shadow\u2014testified, what verdict would you reach?"
       }
     },
     {
@@ -866,6 +995,16 @@
           "devotion"
         ],
         "prompt": "Princess deity walking through fire to prove purity, cherry blossoms falling, willing sacrifice for truth"
+      },
+      "advaita": {
+        "name": "Tapasya Inversion",
+        "keywords": [
+          "penance",
+          "vairagya",
+          "reversed view",
+          "surrender"
+        ],
+        "prompt": "Ascetic hanging calmly upside down from a sacred tree, one leg folded, fire of tapas beneath, the world inverted around him, serene face of renunciation"
       },
       "personalLore": "FILL THIS: Your sacrifice - what have you surrendered? What perspective did you gain?",
       "narrative": {
@@ -932,6 +1071,16 @@
         ],
         "prompt": "Queen of Yomi underworld, transformation from creator to death deity, passage between worlds, inevitable endings"
       },
+      "advaita": {
+        "name": "Kali Pralaya",
+        "keywords": [
+          "ego death",
+          "time devourer",
+          "liberation",
+          "ferocity"
+        ],
+        "prompt": "Fierce Kali dancing on dissolving forms, severing the head of ego, garland of time and skulls, cosmic night swallowing name and form, liberation through destruction"
+      },
       "personalLore": "FILL THIS: Your deaths - what versions of yourself have died? What transformed?",
       "narrative": {
         "summary": "Metamorphosis, transition, release, endings enabling new forms.",
@@ -978,7 +1127,7 @@
         "prompt": "Androgynous deity Hapi pouring water from vessels, representing Nile's balanced flooding, abundance and moderation"
       },
       "celtic": {
-        "figure": "Manannán mac Lir - Sea God",
+        "figure": "Manann\u00e1n mac Lir - Sea God",
         "keywords": [
           "flow",
           "balance",
@@ -996,6 +1145,16 @@
           "cosmic order"
         ],
         "prompt": "Central deity maintaining cosmic balance, perfect harmony of all things, centered and moderating force"
+      },
+      "advaita": {
+        "name": "Harihara Alchemy",
+        "keywords": [
+          "balance",
+          "ida pingala",
+          "union",
+          "yoga"
+        ],
+        "prompt": "Harihara, fusion of Vishnu and Shiva, holding conch and trident, ida and pingala channels braided in light, elixir poured between vessels, tranquil inner alchemy"
       },
       "personalLore": "FILL THIS: Your balance - what do you moderate? What flows through you?",
       "narrative": {
@@ -1062,6 +1221,16 @@
         ],
         "prompt": "Horned oni figure with iron club, representing shadow self and temptation, wild chaos and restriction"
       },
+      "advaita": {
+        "name": "Mahishasura Ahamkara",
+        "keywords": [
+          "ego",
+          "bondage",
+          "shape-shift",
+          "illusion"
+        ],
+        "prompt": "Mahishasura the buffalo demon bound by subtle chains of thought, masks of victim, hero, and villain floating around, ego claiming the body amid smoky palace shadows"
+      },
       "personalLore": "FILL THIS: Your shadows - what chains have bound you? What temptations shape you?",
       "narrative": {
         "summary": "Excess, temptation, attachment, stories that make the cage feel like home.",
@@ -1126,6 +1295,16 @@
           "awakening"
         ],
         "prompt": "Thunder deity with drums, lightning striking, sudden awakening through destruction, divine upheaval"
+      },
+      "advaita": {
+        "name": "Nataraja Breaks the Pot",
+        "keywords": [
+          "self inquiry",
+          "tower collapse",
+          "false self",
+          "liberation"
+        ],
+        "prompt": "Nataraja dancing as a tower-like clay pot cracks open, lightning of atma vichara, space inside merging with space outside, flames clearing the debris of false self"
       },
       "personalLore": "FILL THIS: Your tower moments - what sudden changes shook you? What was revealed in collapse?",
       "narrative": {
@@ -1192,6 +1371,16 @@
         ],
         "prompt": "Star deities Orihime and Hikoboshi, wish papers on bamboo, hopeful reunion, celestial love and renewal"
       },
+      "advaita": {
+        "name": "Ganga Grace",
+        "keywords": [
+          "bhakti",
+          "purification",
+          "gentle hope",
+          "anugraha"
+        ],
+        "prompt": "River Ganga descending from Shiva's hair to earth, starlit sky, devotee bathing in luminous water, cooling grace after a storm, quiet devotion"
+      },
       "personalLore": "FILL THIS: Your hope - what stars guide you? What renewal have you experienced?",
       "narrative": {
         "summary": "Hope, faith, gentle renewal, quiet healing after devastation.",
@@ -1257,6 +1446,16 @@
         ],
         "prompt": "Moon deity Tsukuyomi in night realm, mysterious and distant, balancing sister sun, lunar wisdom and fear"
       },
+      "advaita": {
+        "name": "Rope or Snake",
+        "keywords": [
+          "misperception",
+          "fear",
+          "adhyasa",
+          "clarity"
+        ],
+        "prompt": "Twilight path where a coiled rope is mistaken for a snake, torchlight revealing simple rope, half-lit landscape holding both fear and relief, lesson of superimposition"
+      },
       "personalLore": "FILL THIS: Your illusions - what fears haunt you? What do you see by moonlight?",
       "narrative": {
         "summary": "Mystery, duality, darkness, uneasy beauty of not knowing.",
@@ -1264,7 +1463,7 @@
         "feel": "Foggy heaviness in head and gut; intuitions and fears flicker.",
         "stance": "Between tame and wild, conscious and unconscious; pulled by tides unseen.",
         "scene": "Path between a wolf and a dog howling at a huge moon; road toward strange towers, water hides depths.",
-        "question": "Which fears are intuitions twisted by old wounds—and which are real warnings to honor?"
+        "question": "Which fears are intuitions twisted by old wounds\u2014and which are real warnings to honor?"
       }
     },
     {
@@ -1322,6 +1521,16 @@
         ],
         "prompt": "Sun goddess Amaterasu at full glory, light illuminating all, joy and celebration, divine radiance"
       },
+      "advaita": {
+        "name": "Surya the Witness",
+        "keywords": [
+          "self luminous",
+          "awareness",
+          "joy",
+          "clarity"
+        ],
+        "prompt": "Radiant sun deity shining without effort, childlike rider open-armed on a white horse, everything illuminated evenly, symbol of witness consciousness"
+      },
       "personalLore": "FILL THIS: Your glory - what successes illuminate you? What joy do you radiate?",
       "narrative": {
         "summary": "Joy, happiness, clarity, vulnerability of being fully seen.",
@@ -1329,7 +1538,7 @@
         "feel": "Warmth in chest and face; shoulders drop as tension melts.",
         "stance": "Out in the open, visible; no curtains, no shadows.",
         "scene": "Child on a white horse beneath a huge sun, arms wide; wall crumbled to let light pour in.",
-        "question": "Where could honest joy shine more—and where are you using positivity to avoid a harder truth?"
+        "question": "Where could honest joy shine more\u2014and where are you using positivity to avoid a harder truth?"
       }
     },
     {
@@ -1386,6 +1595,16 @@
           "truth"
         ],
         "prompt": "Judge deity Emma-O with mirror of karma, souls being judged for rebirth, truth revealed, karmic judgment"
+      },
+      "advaita": {
+        "name": "Moksha Awakening",
+        "keywords": [
+          "liberation",
+          "call",
+          "realization",
+          "end of dream"
+        ],
+        "prompt": "Conch blast awakening dreamers, figures rising in golden light realizing they were never bound, soft doors of sleep opening to boundless awareness"
       },
       "personalLore": "FILL THIS: Your judgment - what calls you higher? What has been resurrected in you?",
       "narrative": {
@@ -1451,6 +1670,16 @@
           "center"
         ],
         "prompt": "Central deity with all creation complete and balanced, cosmic dance finished, perfect fulfillment of all things"
+      },
+      "advaita": {
+        "name": "Purnam",
+        "keywords": [
+          "wholeness",
+          "non-dual",
+          "completion",
+          "lila"
+        ],
+        "prompt": "Dancer within a cosmic wreath dissolving into endless sky, no outside edge, mantra 'Purnamadah Purnamidam' subtly inscribed, serene unity and playful lila"
       },
       "personalLore": "FILL THIS: Your completion - what cycles have you finished? What world have you created?",
       "narrative": {

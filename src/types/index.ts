@@ -24,6 +24,7 @@ export interface TarotCard {
   egyptian: CardInterpretation;
   celtic: CardInterpretation;
   shinto: CardInterpretation;
+  advaita: CardInterpretation;
   personalLore: string;
 }
 

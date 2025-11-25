@@ -185,6 +185,7 @@ export function useCardGeneration() {
       const cards = tarotData.cards as TarotCard[];
       const failures: string[] = [];
       const skipped: string[] = [];
+      const rateLimitDelayMs = 35000; // ~2 requests per minute to stay under RPM
 
       for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
@@ -208,6 +209,7 @@ export function useCardGeneration() {
           continue;
         }
 
+        let requestedVideo = false;
         try {
           const title = card.number === 0 ? '0 – THE FOOL' : `${card.traditional.name}`;
           const basePrompt =
@@ -216,6 +218,7 @@ export function useCardGeneration() {
             'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
 
           const videoResult = await generateVideoFromImage(basePrompt, referenceImage, settings);
+          requestedVideo = true;
           if (videoResult.error || !videoResult.videoUrl) {
             throw new Error(videoResult.error || 'No video URL returned');
           }
@@ -235,8 +238,8 @@ export function useCardGeneration() {
           console.error('Video generation error:', innerErr);
         }
 
-        if (i < cards.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 1500));
+        if (i < cards.length - 1 && requestedVideo) {
+          await new Promise((resolve) => setTimeout(resolve, rateLimitDelayMs));
         }
       }
 

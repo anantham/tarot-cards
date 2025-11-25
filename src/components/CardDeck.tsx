@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useCallback } from 'react';
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
@@ -53,28 +53,39 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const hasDragged = useRef(false); // Track if user actually moved the card
 
   // Physics constants
-  const REPULSION_STRENGTH = 2.5;
-  const REPULSION_DISTANCE = 3.0;
-  const CURSOR_REPULSION_STRENGTH = 0.8;
-  const CURSOR_REPULSION_DISTANCE = 2.5;
-  const CENTER_ATTRACTION = 0.015; // Pull toward center
+  const REPULSION_STRENGTH = 6.0;
+  const REPULSION_DISTANCE = 4.0;
+  const CURSOR_REPULSION_STRENGTH = 1.0;
+  const CURSOR_REPULSION_DISTANCE = 3.0;
+  const CENTER_ATTRACTION = 0.05; // stronger pull toward origin
   const CENTER_ATTRACTION_DISTANCE = 5.0; // Start pulling when farther than this
-  const DAMPING = 0.98;
-  const MAX_VELOCITY = 0.15;
-  const BOUNDARY_FORCE = 0.3;
-  const BOUNDARY_DISTANCE = 8;
+  const DAMPING = 0.965;
+  const MAX_VELOCITY = 0.45;
+  const BOUNDARY_FORCE = 0.5;
+  const BOUNDARY_DISTANCE = 9;
+  const ORBITAL_SPIN = 0.25;
+  const DRAG_REPULSION_STRENGTH = 3.5;
 
   // Random drift parameters
   const driftParams = useMemo(() => ({
-    speed: 0.2 + Math.random() * 0.3,
+    speed: 0.35 + Math.random() * 0.4,
     xOffset: Math.random() * Math.PI * 2,
     yOffset: Math.random() * Math.PI * 2,
     zOffset: Math.random() * Math.PI * 2,
-    xAmplitude: 0.15 + Math.random() * 0.25,
-    yAmplitude: 0.1 + Math.random() * 0.2,
-    zAmplitude: 0.05 + Math.random() * 0.15,
-    rotSpeed: 0.1 + Math.random() * 0.2,
+    xAmplitude: 0.25 + Math.random() * 0.3,
+    yAmplitude: 0.2 + Math.random() * 0.25,
+    zAmplitude: 0.1 + Math.random() * 0.2,
+    rotSpeed: 0.35 + Math.random() * 0.4,
   }), []);
+
+  // Independent angular velocity so cards spin on varied axes
+  const angularVelocity = useMemo(() => {
+    return new THREE.Vector3(
+      (Math.random() - 0.5) * 0.6,
+      (Math.random() - 0.5) * 0.6,
+      (Math.random() - 0.5) * 0.6
+    );
+  }, []);
 
   const handlePointerDown = useCallback((e: any) => {
     // Don't allow drag if another card is already being dragged
@@ -109,10 +120,17 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     if (dragging) {
       // Apply throw velocity
       physics.current.velocity.copy(dragVelocity.current).multiplyScalar(0.5);
-      currentlyDraggingRef.current = null; // Clear the dragging state
     }
+    currentlyDraggingRef.current = null; // Clear the dragging state even if pointerup happens elsewhere
     setDragging(false);
   }, [dragging, physics, currentlyDraggingRef]);
+
+  // Release drag even if pointer is released off-card
+  useEffect(() => {
+    const onWindowPointerUp = () => handlePointerUp();
+    window.addEventListener('pointerup', onWindowPointerUp);
+    return () => window.removeEventListener('pointerup', onWindowPointerUp);
+  }, [handlePointerUp]);
 
   useFrame((state) => {
     const group = groupRef.current;
@@ -138,6 +156,18 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       raycaster.ray.intersectPlane(plane, intersectPoint);
 
       const newPosition = intersectPoint.add(dragOffset.current);
+
+      // Keep dragged card from overlapping others by nudging away
+      allPhysics.current.forEach((otherPhysics, otherIndex) => {
+        if (otherIndex === index) return;
+        const direction = new THREE.Vector3().copy(newPosition).sub(otherPhysics.position);
+        const distance = direction.length();
+        if (distance < REPULSION_DISTANCE * 0.9 && distance > 0.05) {
+          const force = DRAG_REPULSION_STRENGTH / Math.max(distance * distance, 0.01);
+          direction.normalize().multiplyScalar(force);
+          newPosition.add(direction.multiplyScalar(dt * 20)); // immediate nudge
+        }
+      });
 
       // Calculate drag velocity for throw
       const velocity = new THREE.Vector3().copy(newPosition).sub(lastDragPosition.current);
@@ -206,6 +236,14 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         physics.current.acceleration.add(centerDirection);
       }
 
+      // Orbital swirl around origin for constant motion
+      const tangential = new THREE.Vector3(
+        -physics.current.position.y,
+        physics.current.position.x,
+        0
+      ).normalize().multiplyScalar(ORBITAL_SPIN);
+      physics.current.acceleration.add(tangential);
+
       // Boundary forces (keep cards in view)
       const boundaryForce = new THREE.Vector3();
 
@@ -251,10 +289,13 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       }
     }
 
-    // Gentle rotation
-    group.rotation.x = initialRotation[0] + Math.sin(time * driftParams.rotSpeed) * 0.1;
-    group.rotation.y = initialRotation[1] + Math.cos(time * driftParams.rotSpeed) * 0.1;
-    group.rotation.z = initialRotation[2] + Math.sin(time * driftParams.rotSpeed * 0.5) * 0.05;
+    // Multi-axis rotation with a bit of wobble
+    group.rotation.x += angularVelocity.x * dt;
+    group.rotation.y += angularVelocity.y * dt;
+    group.rotation.z += angularVelocity.z * dt;
+    group.rotation.x += Math.sin(time * driftParams.rotSpeed) * 0.02;
+    group.rotation.y += Math.cos(time * driftParams.rotSpeed * 0.8) * 0.02;
+    group.rotation.z += Math.sin(time * driftParams.rotSpeed * 0.6) * 0.015;
 
     // Hover effect - scale up and emit light
     if (hovered && !dragging) {
@@ -274,6 +315,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     if (deckType === 'egyptian-tarot') return card.egyptian.deity || card.traditional.name;
     if (deckType === 'celtic-tarot') return card.celtic.figure || card.traditional.name;
     if (deckType === 'japanese-shinto') return card.shinto.kami || card.traditional.name;
+    if (deckType === 'advaita-vedanta') return card.advaita.name || card.traditional.name;
     return card.traditional.name;
   };
 
@@ -287,6 +329,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     else if (deckType === 'egyptian-tarot') keywords = card.egyptian.keywords;
     else if (deckType === 'celtic-tarot') keywords = card.celtic.keywords;
     else if (deckType === 'japanese-shinto') keywords = card.shinto.keywords;
+    else if (deckType === 'advaita-vedanta') keywords = card.advaita.keywords;
 
     return keywords[Math.floor(Math.random() * keywords.length)] || 'mystery';
   };
@@ -382,9 +425,9 @@ export default function CardDeck() {
       return {
         position: initialPos.clone(),
         velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.1,
-          (Math.random() - 0.5) * 0.1,
-          (Math.random() - 0.5) * 0.05
+          (Math.random() - 0.5) * 0.25,
+          (Math.random() - 0.5) * 0.25,
+          (Math.random() - 0.5) * 0.2
         ),
         acceleration: new THREE.Vector3(),
         targetPosition: initialPos.clone(),
