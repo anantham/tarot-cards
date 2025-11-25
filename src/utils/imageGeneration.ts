@@ -137,7 +137,7 @@ async function generateImageWithOpenRouter(
 export async function generateCardFrames(
   card: TarotCard,
   deckType: string,
-  frameCount: number,
+  _frameCount: number,
   settings: Settings,
   onProgress?: (current: number, total: number) => void
 ): Promise<string[]> {

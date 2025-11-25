@@ -30,7 +30,7 @@ function extractVideoUri(opData: any): string | null {
  */
 export async function generateVideoFromImage(
   prompt: string,
-  referenceImage?: string,
+  referenceImage: string | undefined,
   settings?: Settings
 ): Promise<VideoResponse> {
   try {

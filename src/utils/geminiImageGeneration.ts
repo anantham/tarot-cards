@@ -56,7 +56,7 @@ export async function generateImageWithGemini(
     if (hasReferenceImages) {
       console.log('[Gemini] Using multi-image reference system');
 
-      settings.referenceImages.forEach((refImg, index) => {
+      settings.referenceImages?.forEach((refImg, index) => {
         const base64Data = refImg.dataUrl.split(',')[1];
         const mimeType = refImg.dataUrl.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
 
@@ -106,8 +106,6 @@ export async function generateImageWithGemini(
     };
 
     // Add response modalities for image generation with Pro model features
-    const isPro = settings.generationModel.includes('gemini-3-pro');
-
     requestPayload.generationConfig = {
       responseModalities: ['TEXT', 'IMAGE'],
     };

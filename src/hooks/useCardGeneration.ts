@@ -92,6 +92,10 @@ export function useCardGeneration() {
       const existing = getGeneratedCard(cardNumber, settings.selectedDeckType);
       const referenceImage = existing?.frames?.[0];
 
+      if (!referenceImage) {
+        throw new Error('No reference image found. Please generate the card image first.');
+      }
+
       const title = card.number === 0 ? '0 – THE FOOL' : `${card.traditional.name}`;
       const basePrompt =
         `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
@@ -104,7 +108,7 @@ export function useCardGeneration() {
         status: `Generating video for ${title}...`,
       });
 
-      const videoResult = await generateVideoFromImage(basePrompt, referenceImage, settings);
+      const videoResult = await generateVideoFromImage(basePrompt, referenceImage!, settings);
       if (videoResult.error || !videoResult.videoUrl) {
         throw new Error(videoResult.error || 'No video URL returned');
       }
@@ -195,29 +199,29 @@ export function useCardGeneration() {
         setGenerationProgress({
           current: i,
           total: cards.length,
-          status: `Generating video ${i + 1}/${cards.length}: ${card.traditional.name}`,
+          status: `Generating video ${i + 1}/${cards.length}: ${card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`}`,
         });
 
         if (!referenceImage) {
-          failures.push(`${card.traditional.name} (no image yet)`);
+          failures.push(`${card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`} (no image yet)`);
           continue;
         }
 
         // Skip if video already exists (cache hit)
         if (existing?.videoUrl) {
-          skipped.push(card.traditional.name);
+          skipped.push(card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`);
           continue;
         }
 
         let requestedVideo = false;
         try {
-          const title = card.number === 0 ? '0 – THE FOOL' : `${card.traditional.name}`;
+          const title = card.number === 0 ? '0 – THE FOOL' : (card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`);
           const basePrompt =
             `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
             `${card.lordOfMysteries.prompt} Render the title clearly on the card. ` +
             'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
 
-          const videoResult = await generateVideoFromImage(basePrompt, referenceImage, settings);
+          const videoResult = await generateVideoFromImage(basePrompt, referenceImage as string, settings);
           requestedVideo = true;
           if (videoResult.error || !videoResult.videoUrl) {
             throw new Error(videoResult.error || 'No video URL returned');

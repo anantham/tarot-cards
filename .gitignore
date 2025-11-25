@@ -32,3 +32,4 @@ dist-ssr
 public/generated
 styles/
 src/data/tarot-decks.json.backup
+.vercel
