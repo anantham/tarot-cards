@@ -75,8 +75,8 @@ export interface GeneratedCard {
   gifUrl?: string;
   videoUrl?: string;
   timestamp: number;
-  shared?: boolean;         // NEW: has been uploaded to IPFS
-  source?: 'local' | 'community';  // NEW: origin of card
+  shared: boolean;         // NEW: has been uploaded to IPFS
+  source: 'local' | 'community';  // NEW: origin of card
   bundleCID?: string;      // NEW: IPFS bundle CID if from community
 }
 

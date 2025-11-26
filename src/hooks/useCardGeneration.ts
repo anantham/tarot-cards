@@ -59,6 +59,8 @@ export function useCardGeneration() {
         frames,
         gifUrl: frames[0], // Use image as static "gif"
         timestamp: Date.now(),
+        shared: false,
+        source: 'local',
       };
 
       addGeneratedCard(generatedCard);
@@ -120,6 +122,8 @@ export function useCardGeneration() {
         gifUrl: existing?.gifUrl,
         videoUrl: videoResult.videoUrl,
         timestamp: Date.now(),
+        shared: false,
+        source: 'local',
       };
 
       addGeneratedCard(updated);
@@ -234,6 +238,8 @@ export function useCardGeneration() {
             gifUrl: existing.gifUrl,
             videoUrl: videoResult.videoUrl,
             timestamp: Date.now(),
+            shared: false,
+            source: 'local',
           };
 
           addGeneratedCard(updated);

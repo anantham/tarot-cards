@@ -56,8 +56,14 @@ export const useStore = create<StoreState>()(
 
         addGeneratedCard: (card) =>
           set((state) => {
-            const updated = [...state.generatedCards, card];
-            void putGeneratedCard(card);
+            // Ensure new fields have defaults
+            const fullCard: GeneratedCard = {
+              ...card,
+              shared: card.shared ?? false,
+              source: card.source ?? 'local',
+            };
+            const updated = [...state.generatedCards, fullCard];
+            void putGeneratedCard(fullCard);
             return { generatedCards: updated };
           }),
 
