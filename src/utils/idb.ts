@@ -3,7 +3,7 @@ import type { GeneratedCard } from '../types';
 
 const DB_NAME = 'tarot-cards-idb';
 const STORE_NAME = 'generatedCards';
-const DB_VERSION = 2; // Increment from 1
+const DB_VERSION = 3; // Increment to handle keyPath change
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -18,10 +18,12 @@ function openDB(): Promise<IDBDatabase> {
       const db = request.result;
       const oldVersion = event.oldVersion;
 
-      // Version 1: Create initial object store
+      // Version 1: Create initial object store with timestamp as keyPath
       if (oldVersion < 1) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          const store = db.createObjectStore(STORE_NAME, { keyPath: 'timestamp' });
+          // Add index to query by card and deck combination
+          store.createIndex('by-card-deck', ['cardNumber', 'deckType'], { unique: false });
         }
       }
 
@@ -52,6 +54,38 @@ function openDB(): Promise<IDBDatabase> {
               }
               cursor.continue();
             }
+          };
+        }
+      }
+
+      // Version 3: Migrate from 'id' keyPath to 'timestamp' keyPath
+      if (oldVersion < 3 && oldVersion >= 1) {
+        const transaction = request.transaction;
+        if (transaction) {
+          // Read all existing records from old store
+          const oldStore = transaction.objectStore(STORE_NAME);
+          const getAllRequest = oldStore.getAll();
+
+          getAllRequest.onsuccess = () => {
+            const existingCards = getAllRequest.result || [];
+
+            // Delete the old store
+            db.deleteObjectStore(STORE_NAME);
+
+            // Create new store with timestamp as keyPath
+            const newStore = db.createObjectStore(STORE_NAME, { keyPath: 'timestamp' });
+
+            // Recreate all indexes
+            newStore.createIndex('by-source', 'source', { unique: false });
+            newStore.createIndex('by-shared', 'shared', { unique: false });
+            newStore.createIndex('by-card-deck', ['cardNumber', 'deckType'], { unique: false });
+
+            // Re-insert all records (remove 'id' field if present)
+            existingCards.forEach((card: GeneratedCard & { id?: string }) => {
+              // Remove the old 'id' field
+              const { id, ...cleanCard } = card as GeneratedCard & { id?: string };
+              newStore.add(cleanCard);
+            });
           };
         }
       }
@@ -91,8 +125,7 @@ export async function getAllGeneratedCards(): Promise<GeneratedCard[]> {
 
 export async function putGeneratedCard(card: GeneratedCard): Promise<void> {
   try {
-    const id = `${card.deckType}-${card.cardNumber}`;
-    await withStore('readwrite', (store) => store.put({ ...card, id }));
+    await withStore('readwrite', (store) => store.put(card));
   } catch (error) {
     console.warn('[IDB] putGeneratedCard failed', error);
   }
@@ -144,27 +177,35 @@ export async function markCardsAsShared(timestamps: number[]): Promise<void> {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
 
-    // Get all cards and mark the ones with matching timestamps
-    const getAllRequest = store.getAll();
-
     await new Promise<void>((resolve, reject) => {
-      getAllRequest.onsuccess = () => {
-        const cards = getAllRequest.result || [];
-        const timestampSet = new Set(timestamps);
+      // Use direct key access with timestamp as keyPath
+      let completed = 0;
+      const total = timestamps.length;
 
-        // Update each matching card
-        cards.forEach((card: GeneratedCard & { id: string }) => {
-          if (timestampSet.has(card.timestamp)) {
+      if (total === 0) {
+        resolve();
+        return;
+      }
+
+      timestamps.forEach((timestamp) => {
+        const getRequest = store.get(timestamp);
+
+        getRequest.onsuccess = () => {
+          const card = getRequest.result as GeneratedCard | undefined;
+          if (card) {
             card.shared = true;
             store.put(card);
           }
-        });
 
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error ?? new Error('Failed to mark cards as shared'));
-      };
+          completed++;
+          if (completed === total) {
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error ?? new Error('Failed to mark cards as shared'));
+          }
+        };
 
-      getAllRequest.onerror = () => reject(getAllRequest.error ?? new Error('Failed to get cards'));
+        getRequest.onerror = () => reject(getRequest.error ?? new Error(`Failed to get card with timestamp ${timestamp}`));
+      });
     });
   } catch (error) {
     console.error('[IDB] markCardsAsShared failed', error);
