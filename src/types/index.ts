@@ -63,6 +63,9 @@ export interface Settings {
   showCardInfo?: boolean;
   animateCards?: boolean;
   navigateWithArrows?: boolean;
+  autoShareEnabled?: boolean;     // NEW
+  displayName?: string;           // NEW
+  lastSharedTimestamp?: number;   // NEW
 }
 
 export interface GeneratedCard {
@@ -72,6 +75,9 @@ export interface GeneratedCard {
   gifUrl?: string;
   videoUrl?: string;
   timestamp: number;
+  shared?: boolean;         // NEW: has been uploaded to IPFS
+  source?: 'local' | 'community';  // NEW: origin of card
+  bundleCID?: string;      // NEW: IPFS bundle CID if from community
 }
 
 export interface TarotDeckData {
@@ -91,4 +97,29 @@ export interface CardState {
   interpretation: CardInterpretation;
   deckType: string;
   generated?: GeneratedCard;
+}
+
+export interface GalleryBundle {
+  cid: string;
+  author?: string;
+  cardCount: number;
+  timestamp: number;
+  deckTypes: string[];
+}
+
+export interface IPFSCardPackage {
+  author?: string;
+  timestamp: number;
+  version: string;
+  cards: Array<{
+    cardNumber: number;
+    deckType: string;
+    cardName: string;
+    imageData: string;     // base64 or data URL
+    videoData?: string;    // base64 or data URL
+    metadata: {
+      generatedAt: number;
+      model: string;
+    };
+  }>;
 }
