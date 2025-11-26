@@ -15,13 +15,18 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@ipld/car": "^5.4.2",
     "@react-three/drei": "^9.92.0",
     "@react-three/fiber": "^8.15.0",
+    "@ucanto/core": "^10.4.6",
+    "@ucanto/principal": "^9.0.3",
     "@web3-storage/w3up-client": "^17.3.0",
     "framer-motion": "^10.16.0",
+    "isomorphic-dompurify": "^2.33.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0",
+    "zod": "^4.1.13",
     "zustand": "^4.4.0"
   },
   "devDependencies": {
