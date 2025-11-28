@@ -19,7 +19,10 @@ export function useCardGeneration() {
   /**
    * Generate a single card image (for video reference)
    */
-  const generateSingleCard = async (cardNumber: number): Promise<void> => {
+  const generateSingleCard = async (
+    cardNumber: number,
+    progressContext?: { current: number; total: number; cardName?: string }
+  ): Promise<void> => {
     try {
       setError(null);
       setIsGenerating(true);
@@ -31,10 +34,16 @@ export function useCardGeneration() {
         throw new Error(`Card ${cardNumber} not found`);
       }
 
+      const totalCards = progressContext?.total ?? 1;
+      const baseCurrent = progressContext?.current ?? 0;
+      const cardLabel = progressContext?.cardName || card.traditional.name;
+
       setGenerationProgress({
-        current: 0,
-        total: 1,
-        status: `Generating ${card.traditional.name}...`,
+        current: baseCurrent,
+        total: totalCards,
+        status: progressContext
+          ? `Generating card ${baseCurrent + 1}/${totalCards}: ${cardLabel}`
+          : `Generating ${cardLabel}...`,
       });
 
       // Generate single image (for video reference)
@@ -43,11 +52,14 @@ export function useCardGeneration() {
         settings.selectedDeckType,
         1, // Always 1 frame now
         settings,
-        (current, total) => {
+        (current, _total) => {
+          const progressCurrent = Math.min(totalCards, baseCurrent + current);
           setGenerationProgress({
-            current,
-            total,
-            status: `Generating ${card.traditional.name}...`,
+            current: progressCurrent,
+            total: totalCards,
+            status: progressContext
+              ? `Generating card ${baseCurrent + 1}/${totalCards}: ${cardLabel}`
+              : `Generating ${cardLabel}...`,
           });
         }
       );
@@ -66,9 +78,11 @@ export function useCardGeneration() {
       addGeneratedCard(generatedCard);
 
       setGenerationProgress({
-        current: 1,
-        total: 1,
-        status: 'Complete!',
+        current: Math.min(totalCards, baseCurrent + 1),
+        total: totalCards,
+        status: progressContext
+          ? `Generated ${cardLabel} (${baseCurrent + 1}/${totalCards})`
+          : 'Complete!',
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -154,13 +168,11 @@ export function useCardGeneration() {
       for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
 
-        setGenerationProgress({
+        await generateSingleCard(card.number, {
           current: i,
           total: cards.length,
-          status: `Generating card ${i + 1}/${cards.length}: ${card.traditional.name}`,
+          cardName: card.traditional.name,
         });
-
-        await generateSingleCard(card.number);
 
         // Delay between cards to avoid rate limiting
         if (i < cards.length - 1) {

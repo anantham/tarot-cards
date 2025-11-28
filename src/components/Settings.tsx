@@ -5,6 +5,7 @@ import { useCardGeneration } from '../hooks/useCardGeneration';
 import { useGallerySharing } from '../hooks/useGallerySharing';
 import { getUnsharedCards } from '../utils/idb';
 import tarotData from '../data/tarot-decks.json';
+import CommunityGallery from './CommunityGallery';
 import type { TarotDeckData } from '../types';
 
 const deckData = tarotData as TarotDeckData;
@@ -37,12 +38,21 @@ export default function Settings() {
   const [showGallery, setShowGallery] = useState(false);
   const [galleryDeckFilter, setGalleryDeckFilter] = useState<string>('all');
   const [dismissedError, setDismissedError] = useState(false);
+  const [showCommunityGallery, setShowCommunityGallery] = useState(false);
 
+  // Shared generation state
   const showCardInfo = settings.showCardInfo !== false;
   const navWithArrows = settings.navigateWithArrows === true;
   const usePhoto = settings.usePhoto !== false;
   const lowerError = (generationError || '').toLowerCase();
   const isRateLimitError = lowerError.includes('rate limit') || lowerError.includes('quota');
+  const hasImageApiKey = settings.apiProvider === 'gemini'
+    ? Boolean(settings.geminiApiKey)
+    : Boolean(settings.apiKey);
+  const missingApiKeyMessage =
+    settings.apiProvider === 'gemini'
+      ? 'Enter your Gemini API key above to enable generation.'
+      : 'Enter your OpenRouter API key above to enable generation.';
 
   useEffect(() => {
     setDismissedError(false);
@@ -1084,6 +1094,45 @@ export default function Settings() {
             )}
           </section>
 
+          {/* Community Gallery Browser */}
+          <section>
+            <div
+              onClick={() => setShowCommunityGallery(!showCommunityGallery)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                padding: '0.75rem 1rem',
+                background: 'rgba(147, 51, 234, 0.1)',
+                border: '1px solid rgba(147, 51, 234, 0.3)',
+                borderRadius: '8px',
+                marginBottom: showCommunityGallery ? '1rem' : '1.5rem',
+              }}
+            >
+              <h3 style={{ fontSize: '1.3rem', margin: 0, color: '#9333ea' }}>
+                Community Gallery
+              </h3>
+              <span style={{ fontSize: '1.5rem', color: '#9333ea' }}>
+                {showCommunityGallery ? '−' : '+'}
+              </span>
+            </div>
+
+            {showCommunityGallery && (
+              <div
+                style={{
+                  padding: '1rem',
+                  background: 'rgba(0, 0, 0, 0.25)',
+                  borderRadius: '8px',
+                  maxHeight: '60vh',
+                  overflow: 'auto',
+                }}
+              >
+                <CommunityGallery embedded />
+              </div>
+            )}
+          </section>
+
           {/* Controls & Help */}
           <section>
             <div
@@ -1185,28 +1234,33 @@ export default function Settings() {
                     color: '#e8e8e8',
                     fontSize: '0.95rem',
                   }}
-                />
-              </div>
-              <button
-                onClick={() => generateSingleCard(testCardNumber)}
-                disabled={isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey)}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 'rgba(100, 100, 100, 0.3)' : 'rgba(147, 51, 234, 0.3)',
-                  border: '1px solid rgba(147, 51, 234, 0.5)',
-                  borderRadius: '8px',
-                  color: '#e8e8e8',
-                  fontSize: '0.95rem',
-                  fontWeight: '500',
-                  cursor: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 'not-allowed' : 'pointer',
-                  whiteSpace: 'nowrap',
-                  opacity: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 0.5 : 1,
-                }}
-              >
-                {isGenerating ? 'Generating...' : 'Generate 1 Card'}
-              </button>
+              />
             </div>
-          </section>
+            <button
+              onClick={() => generateSingleCard(testCardNumber)}
+              disabled={isGenerating || !hasImageApiKey}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: isGenerating || !hasImageApiKey ? 'rgba(100, 100, 100, 0.3)' : 'rgba(147, 51, 234, 0.3)',
+                border: '1px solid rgba(147, 51, 234, 0.5)',
+                borderRadius: '8px',
+                color: '#e8e8e8',
+                fontSize: '0.95rem',
+                fontWeight: '500',
+                cursor: isGenerating || !hasImageApiKey ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+                opacity: isGenerating || !hasImageApiKey ? 0.5 : 1,
+              }}
+            >
+              {isGenerating ? 'Generating...' : 'Generate 1 Card'}
+            </button>
+          </div>
+          {!hasImageApiKey && (
+            <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#ffb347' }}>
+              {missingApiKeyMessage}
+            </p>
+          )}
+        </section>
 
           {/* Generate All */}
           <section>
@@ -1220,29 +1274,29 @@ export default function Settings() {
                 Generate All 22 Cards
               </h3>
               <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', opacity: 0.8 }}>
-                This will generate all 22 Major Arcana cards with your photo. Make sure to test one card first!
-              </p>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button
-                  onClick={() => generateAllCards()}
-                  disabled={isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey)}
-                  style={{
-                    flex: 1,
-                    padding: '1rem 2rem',
-                    background: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 'rgba(100, 100, 100, 0.5)' : 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)',
-                    opacity: isGenerating || (settings.apiProvider === 'gemini' ? !settings.geminiApiKey : !settings.apiKey) ? 0.6 : 1,
-                  }}
-                >
-                  {isGenerating ? '⏳ Generating...' : '🎴 Generate All Cards'}
-                </button>
-                <button
+              This will generate all 22 Major Arcana cards with your photo. Make sure to test one card first!
+            </p>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                onClick={() => generateAllCards()}
+                disabled={isGenerating || !hasImageApiKey}
+                style={{
+                  flex: 1,
+                  padding: '1rem 2rem',
+                  background: isGenerating || !hasImageApiKey ? 'rgba(100, 100, 100, 0.5)' : 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#ffffff',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: isGenerating || !hasImageApiKey ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)',
+                  opacity: isGenerating || !hasImageApiKey ? 0.6 : 1,
+                }}
+              >
+                {isGenerating ? '⏳ Generating...' : '🎴 Generate All Cards'}
+              </button>
+              <button
                   onClick={() => {
                     if (confirm('This will delete all generated cards. Are you sure?')) {
                       clearGeneratedCards();
@@ -1261,6 +1315,11 @@ export default function Settings() {
                   🗑️ Clear Cache
                 </button>
               </div>
+              {!hasImageApiKey && (
+                <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#ffb347' }}>
+                  {missingApiKeyMessage}
+                </p>
+              )}
             </div>
           </section>
 

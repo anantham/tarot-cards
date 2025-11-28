@@ -18,6 +18,11 @@ export function useGallerySharing() {
   const [progress, setProgress] = useState<string>('');
   const { addGeneratedCard } = useStore();
 
+  const logProgress = (message: string) => {
+    console.log(`[Gallery] ${message}`);
+    setProgress(message);
+  };
+
   /**
    * Convert PNG image to WebP for 90% size reduction
    * Uses browser's native Canvas API (hardware accelerated, no libraries)
@@ -80,14 +85,14 @@ export function useGallerySharing() {
         return true;
       }
 
-      console.log(`[Gallery] Uploading ${unshared.length} cards...`);
+      logProgress(`Uploading ${unshared.length} cards...`);
 
       // Step 1: Initialize w3up client
-      setProgress('Initializing...');
+      logProgress('Initializing client...');
       const client = await Client.create();
 
       // Step 2: Request delegation from server
-      setProgress('Requesting authorization...');
+      logProgress('Requesting authorization...');
       const authResponse = await fetch('/api/auth/w3up', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,14 +100,25 @@ export function useGallerySharing() {
       });
 
       if (!authResponse.ok) {
-        const authError = await authResponse.json();
-        throw new Error(authError.error || 'Authorization failed');
+        // Try to extract a helpful message even if the body is empty/non-JSON
+        let authError = 'Authorization failed';
+        try {
+          const data = await authResponse.json();
+          authError = data?.error || authError;
+        } catch {
+          const text = await authResponse.text();
+          if (text) authError = text;
+        }
+        if (authResponse.status === 404) {
+          authError = 'Authorization endpoint not reachable (404). Is the API server running?';
+        }
+        throw new Error(authError);
       }
 
       const { delegation: delegationBase64, spaceDID } = await authResponse.json();
 
       // Step 3: Parse and activate delegation
-      setProgress('Activating delegation...');
+      logProgress('Activating delegation...');
       const delegationBytes = Uint8Array.from(atob(delegationBase64), (c) => c.charCodeAt(0));
       const reader = await CarReader.fromBytes(delegationBytes);
       const blocks: any[] = [];
@@ -110,19 +126,23 @@ export function useGallerySharing() {
         blocks.push(block);
       }
       const delegation = Delegation.importDAG(blocks as any);
-      const space = await client.addSpace(delegation);
-      await client.setCurrentSpace(space.did());
+      
+      // Add as proof (not as space) - this delegation grants capabilities, not space ownership
+      await client.addProof(delegation);
+      
+      // Set current space to the one we have permission for
+      await client.setCurrentSpace(spaceDID as `did:key:${string}`);
 
-      console.log(`[Gallery] Authorized to upload to space: ${spaceDID}`);
+      logProgress(`Authorized to upload to space: ${spaceDID}`);
 
       // Step 4: Process cards (download videos, convert images)
-      setProgress('Processing media...');
+      logProgress('Processing media...');
       const files: File[] = [];
       const cardData: IPFSCardPackage['cards'] = [];
 
       for (let i = 0; i < unshared.length; i++) {
         const card = unshared[i];
-        setProgress(`Processing card ${i + 1}/${unshared.length}...`);
+        logProgress(`Processing card ${i + 1}/${unshared.length}...`);
 
         // Convert image to WebP (90% size reduction)
         const imageBlob = await convertToWebP(card.frames[0]);
@@ -181,13 +201,13 @@ export function useGallerySharing() {
       console.log(`[Gallery] Prepared ${files.length} files for upload`);
 
       // Step 6: Upload to IPFS
-      setProgress('Uploading to IPFS...');
+      logProgress('Uploading to IPFS...');
       const cid = await client.uploadDirectory(files);
 
-      console.log(`[Gallery] Uploaded to IPFS: ${cid}`);
+      logProgress(`Uploaded to IPFS: ${cid}`);
 
       // Step 7: Register in Vercel KV
-      setProgress('Registering in gallery...');
+      logProgress('Registering in gallery...');
       const registerResponse = await fetch('/api/register-gallery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -207,7 +227,7 @@ export function useGallerySharing() {
       // Step 8: Mark cards as shared in IndexedDB
       await markCardsAsShared(unshared.map((c) => c.timestamp));
 
-      setProgress(`Upload complete! CID: ${cid.toString().slice(0, 16)}...`);
+      logProgress(`Upload complete! CID: ${cid.toString().slice(0, 16)}...`);
       console.log(`[Gallery] Success! ${unshared.length} cards shared`);
       return true;
     } catch (err) {

@@ -4,6 +4,21 @@ import type { Settings, GeneratedCard, TarotCard } from '../types';
 import tarotData from '../data/tarot-decks.json';
 import { getAllGeneratedCards, putGeneratedCard, clearGeneratedCardsStore } from '../utils/idb';
 
+// Prefer .env-provided keys/endpoints when available (for first-run defaults)
+const envOpenrouterKey = (import.meta as any).env?.OPENROUTER_API_KEY || (import.meta as any).env?.VITE_OPENROUTER_API_KEY;
+const envGeminiKey = (import.meta as any).env?.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+const envOpenrouterEndpoint = (import.meta as any).env?.OPENROUTER_API_ENDPOINT || (import.meta as any).env?.VITE_OPENROUTER_API_ENDPOINT;
+
+const applyEnvDefaults = (settings: Settings): Settings => {
+  const next = { ...settings };
+  if (envOpenrouterKey && next.apiKey === undefined) next.apiKey = envOpenrouterKey;
+  if (envGeminiKey && next.geminiApiKey === undefined) next.geminiApiKey = envGeminiKey;
+  if (envOpenrouterEndpoint && next.apiEndpoint === undefined) next.apiEndpoint = envOpenrouterEndpoint;
+  return next;
+};
+
+const defaultSettings = applyEnvDefaults(tarotData.defaultSettings as Settings);
+
 interface StoreState {
   // Settings
   settings: Settings;
@@ -44,7 +59,7 @@ export const useStore = create<StoreState>()(
 
       return {
         // Initial settings
-        settings: tarotData.defaultSettings as Settings,
+        settings: defaultSettings,
 
         updateSettings: (newSettings) =>
           set((state) => ({
@@ -114,6 +129,17 @@ export const useStore = create<StoreState>()(
     },
     {
       name: 'tarot-cards-storage',
+      merge: (persistedState, currentState) => {
+        const merged = { ...currentState, ...(persistedState as any) };
+        const persistedSettings = (persistedState as any)?.settings as Settings | undefined;
+
+        merged.settings = applyEnvDefaults({
+          ...currentState.settings,
+          ...(persistedSettings || {}),
+        });
+
+        return merged;
+      },
       partialize: (state) => ({
         // Keep only lightweight settings in localStorage; generated cards live in IndexedDB
         settings: state.settings,
