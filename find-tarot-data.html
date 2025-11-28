@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Tarot Data Across Origins</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #00ff00;
+    }
+    h1 {
+      color: #00ff00;
+    }
+    .instructions {
+      background: #2a2a2a;
+      padding: 20px;
+      border: 2px solid #00ff00;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .step {
+      margin: 15px 0;
+      padding: 10px;
+      background: #1a1a1a;
+      border-left: 3px solid #00ff00;
+    }
+    .current-origin {
+      background: #003300;
+      padding: 15px;
+      border: 2px solid #00ff00;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .success {
+      color: #00ff00;
+    }
+    .warning {
+      color: #ffff00;
+    }
+    .error {
+      color: #ff0000;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #333;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #00ff00;
+      color: #000;
+    }
+    #output {
+      white-space: pre-wrap;
+      background: #000;
+      padding: 15px;
+      border: 1px solid #00ff00;
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .port-link {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 5px;
+      background: #333;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      text-decoration: none;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    .port-link:hover {
+      background: #00ff00;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Find Tarot Cards Data Across Different Ports</h1>
+
+  <div class="current-origin">
+    <h3 class="success">Current Origin:</h3>
+    <div id="currentOrigin">Loading...</div>
+  </div>
+
+  <div class="instructions">
+    <h3>📋 How to Find Your Data:</h3>
+
+    <div class="step">
+      <strong>Step 1:</strong> Open Chrome DevTools (F12 or Right-click → Inspect)
+    </div>
+
+    <div class="step">
+      <strong>Step 2:</strong> Go to the <strong>Application</strong> tab
+    </div>
+
+    <div class="step">
+      <strong>Step 3:</strong> In the left sidebar, expand <strong>IndexedDB</strong>
+    </div>
+
+    <div class="step">
+      <strong>Step 4:</strong> Look for databases named <strong>"tarot-cards-idb"</strong> or similar
+      <br><span class="warning">⚠️ If you see multiple origins (like http://localhost:3000, http://localhost:5173), check each one!</span>
+    </div>
+
+    <div class="step">
+      <strong>Step 5:</strong> Click on each <strong>"tarot-cards-idb"</strong> database
+    </div>
+
+    <div class="step">
+      <strong>Step 6:</strong> Expand it and click on <strong>"generatedCards"</strong> store
+    </div>
+
+    <div class="step">
+      <strong>Step 7:</strong> You'll see all your cards listed in the right panel!
+      <br><span class="success">✅ If you see data, note which port/origin it's on!</span>
+    </div>
+  </div>
+
+  <div style="margin: 30px 0;">
+    <h3>🚀 Quick Test Links (Open these in new tabs):</h3>
+    <p class="warning">Click each link below to check that port's IndexedDB:</p>
+
+    <a href="http://localhost:3000" target="_blank" class="port-link">localhost:3000</a>
+    <a href="http://localhost:5173" target="_blank" class="port-link">localhost:5173</a>
+    <a href="http://localhost:5174" target="_blank" class="port-link">localhost:5174</a>
+    <a href="http://localhost:8080" target="_blank" class="port-link">localhost:8080</a>
+    <a href="http://localhost:8000" target="_blank" class="port-link">localhost:8000</a>
+    <a href="http://127.0.0.1:3000" target="_blank" class="port-link">127.0.0.1:3000</a>
+    <a href="http://127.0.0.1:5173" target="_blank" class="port-link">127.0.0.1:5173</a>
+  </div>
+
+  <div style="margin: 30px 0;">
+    <h3>🔎 Check Current Origin's Database:</h3>
+    <button onclick="checkCurrentOrigin()">Check This Origin</button>
+    <button onclick="listAllDBs()">List All Databases Here</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function log(message, type = 'info') {
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+      output.innerHTML += `<div class="${className}">${message}</div>`;
+    }
+
+    function clear() {
+      output.innerHTML = '';
+    }
+
+    // Display current origin
+    document.getElementById('currentOrigin').innerHTML = `
+      <strong>Protocol:</strong> ${window.location.protocol}<br>
+      <strong>Hostname:</strong> ${window.location.hostname}<br>
+      <strong>Port:</strong> ${window.location.port || '(default)'}<br>
+      <strong>Full Origin:</strong> <span class="success">${window.location.origin}</span>
+    `;
+
+    async function listAllDBs() {
+      clear();
+      log('🔍 Listing all IndexedDB databases at current origin...', 'info');
+      log(`Origin: ${window.location.origin}\n`, 'info');
+
+      try {
+        if (!('databases' in indexedDB)) {
+          log('⚠️  indexedDB.databases() not supported in this browser', 'warning');
+          log('Use DevTools Application tab instead.', 'warning');
+          return;
+        }
+
+        const databases = await indexedDB.databases();
+
+        if (databases.length === 0) {
+          log('❌ No IndexedDB databases found at this origin!', 'error');
+          log('\nTry checking other ports using the links above.', 'warning');
+          return;
+        }
+
+        log(`✅ Found ${databases.length} database(s) at this origin:\n`, 'success');
+
+        databases.forEach((db, index) => {
+          log(`${index + 1}. ${db.name} (version ${db.version})`, 'success');
+        });
+
+        const tarotDB = databases.find(db => db.name === 'tarot-cards-idb');
+        if (tarotDB) {
+          log(`\n🎉 FOUND: tarot-cards-idb at version ${tarotDB.version}!`, 'success');
+          log('Click "Check This Origin" to see the data.', 'success');
+        } else {
+          log('\n⚠️  No "tarot-cards-idb" database found here.', 'warning');
+          log('Try other ports using the links above.', 'warning');
+        }
+
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    async function checkCurrentOrigin() {
+      clear();
+      log(`🔍 Checking tarot-cards-idb at ${window.location.origin}...`, 'info');
+
+      try {
+        // Try to open the database
+        const db = await new Promise((resolve, reject) => {
+          const request = indexedDB.open('tarot-cards-idb');
+
+          request.onsuccess = () => {
+            log(`✅ Database found! Version: ${request.result.version}`, 'success');
+            resolve(request.result);
+          };
+
+          request.onerror = () => {
+            log(`❌ Failed to open database: ${request.error}`, 'error');
+            reject(request.error);
+          };
+
+          request.onupgradeneeded = () => {
+            log('⚠️  Database does not exist at this origin (upgrade triggered)', 'warning');
+            request.transaction?.abort();
+          };
+        });
+
+        const storeNames = Array.from(db.objectStoreNames);
+        log(`\n📦 Object Stores: ${storeNames.join(', ') || 'NONE'}`, 'info');
+
+        if (storeNames.includes('generatedCards')) {
+          const tx = db.transaction('generatedCards', 'readonly');
+          const store = tx.objectStore('generatedCards');
+          const countRequest = store.count();
+
+          countRequest.onsuccess = () => {
+            const count = countRequest.result;
+            log(`\n🎴 Cards in generatedCards store: ${count}`, count > 0 ? 'success' : 'warning');
+
+            if (count > 0) {
+              log(`\n🎉 FOUND YOUR DATA! ${count} cards at this origin!`, 'success');
+              log(`\nOrigin: ${window.location.origin}`, 'success');
+              log(`Port: ${window.location.port || '(default)'}`, 'success');
+            }
+          };
+
+          countRequest.onerror = () => {
+            log(`❌ Failed to count cards: ${countRequest.error}`, 'error');
+          };
+        } else {
+          log('\n⚠️  No generatedCards store found at this origin', 'warning');
+        }
+
+        db.close();
+
+      } catch (error) {
+        log(`\n❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    // Auto-check on load
+    window.addEventListener('load', () => {
+      listAllDBs();
+    });
+  </script>
+</body>
+</html>

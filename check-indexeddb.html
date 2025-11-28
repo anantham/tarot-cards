@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IndexedDB Inspector - Tarot Cards</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #00ff00;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #333;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #00ff00;
+      color: #000;
+    }
+    #output {
+      white-space: pre-wrap;
+      background: #000;
+      padding: 15px;
+      border: 1px solid #00ff00;
+      margin-top: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .card-item {
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+      margin: 10px 0;
+    }
+    .error {
+      color: #ff0000;
+    }
+    .success {
+      color: #00ff00;
+    }
+    .warning {
+      color: #ffff00;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 IndexedDB Inspector - Tarot Cards</h1>
+
+  <div>
+    <button onclick="checkDB()">Check Database</button>
+    <button onclick="listAllCards()">List All Cards</button>
+    <button onclick="checkSchema()">Check Schema</button>
+    <button onclick="exportData()">Export JSON</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    const DB_NAME = 'tarot-cards-idb';
+    const STORE_NAME = 'generatedCards';
+    const output = document.getElementById('output');
+
+    function log(message, type = 'info') {
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+      output.innerHTML += `<div class="${className}">${message}</div>`;
+    }
+
+    function clear() {
+      output.innerHTML = '';
+    }
+
+    async function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function checkDB() {
+      clear();
+      log('🔍 Checking IndexedDB...', 'info');
+
+      try {
+        // Check if IndexedDB exists
+        const databases = await indexedDB.databases();
+        const tarotDB = databases.find(db => db.name === DB_NAME);
+
+        if (!tarotDB) {
+          log(`❌ Database "${DB_NAME}" not found!`, 'error');
+          log(`Available databases: ${databases.map(db => db.name).join(', ')}`, 'warning');
+          return;
+        }
+
+        log(`✅ Database found: ${DB_NAME} (version ${tarotDB.version})`, 'success');
+
+        // Open DB and check store
+        const db = await openDB();
+        const storeExists = db.objectStoreNames.contains(STORE_NAME);
+
+        if (!storeExists) {
+          log(`❌ Store "${STORE_NAME}" not found!`, 'error');
+          log(`Available stores: ${Array.from(db.objectStoreNames).join(', ')}`, 'warning');
+          db.close();
+          return;
+        }
+
+        log(`✅ Store found: ${STORE_NAME}`, 'success');
+
+        // Count records
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const countRequest = store.count();
+
+        countRequest.onsuccess = () => {
+          const count = countRequest.result;
+          log(`\n📊 Total cards in database: ${count}`, 'success');
+
+          if (count === 0) {
+            log('⚠️  No cards found in database', 'warning');
+          }
+        };
+
+        db.close();
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    async function listAllCards() {
+      clear();
+      log('📋 Listing all cards...', 'info');
+
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          const cards = request.result || [];
+          log(`\n✅ Found ${cards.length} cards\n`, 'success');
+
+          if (cards.length === 0) {
+            log('⚠️  No cards in database', 'warning');
+          } else {
+            cards.forEach((card, index) => {
+              log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'info');
+              log(`Card ${index + 1}:`, 'success');
+              log(`  Number: ${card.cardNumber}`);
+              log(`  Deck Type: ${card.deckType}`);
+              log(`  Timestamp: ${card.timestamp} (${new Date(card.timestamp).toLocaleString()})`);
+              log(`  Has Image: ${card.imageDataUrl ? '✅' : '❌'}`);
+              log(`  Has Video: ${card.videoDataUrl ? '✅' : '❌'}`);
+              log(`  Shared: ${card.shared !== undefined ? card.shared : 'undefined'}`);
+              log(`  Source: ${card.source || 'undefined'}`);
+
+              if (card.imageDataUrl) {
+                const imgSize = Math.round(card.imageDataUrl.length / 1024);
+                log(`  Image Size: ~${imgSize} KB`);
+              }
+
+              if (card.videoDataUrl) {
+                const vidSize = Math.round(card.videoDataUrl.length / 1024);
+                log(`  Video Size: ~${vidSize} KB`);
+              }
+            });
+          }
+        };
+
+        request.onerror = () => {
+          log(`❌ Failed to get cards: ${request.error}`, 'error');
+        };
+
+        db.close();
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    async function checkSchema() {
+      clear();
+      log('🏗️  Checking database schema...', 'info');
+
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+
+        log(`\n✅ Store: ${STORE_NAME}`, 'success');
+        log(`  Key Path: ${store.keyPath}`);
+        log(`  Auto Increment: ${store.autoIncrement}`);
+
+        log(`\n📑 Indexes:`, 'info');
+        const indexNames = Array.from(store.indexNames);
+
+        if (indexNames.length === 0) {
+          log('  ⚠️  No indexes found', 'warning');
+        } else {
+          indexNames.forEach(indexName => {
+            const index = store.index(indexName);
+            log(`  - ${indexName}:`);
+            log(`      Key Path: ${JSON.stringify(index.keyPath)}`);
+            log(`      Unique: ${index.unique}`);
+            log(`      Multi Entry: ${index.multiEntry}`);
+          });
+        }
+
+        db.close();
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    async function exportData() {
+      clear();
+      log('💾 Exporting data...', 'info');
+
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          const cards = request.result || [];
+
+          // Create sanitized export (without large base64 data)
+          const exportData = cards.map(card => ({
+            cardNumber: card.cardNumber,
+            deckType: card.deckType,
+            timestamp: card.timestamp,
+            date: new Date(card.timestamp).toISOString(),
+            hasImage: !!card.imageDataUrl,
+            hasVideo: !!card.videoDataUrl,
+            shared: card.shared,
+            source: card.source,
+            imageSizeKB: card.imageDataUrl ? Math.round(card.imageDataUrl.length / 1024) : 0,
+            videoSizeKB: card.videoDataUrl ? Math.round(card.videoDataUrl.length / 1024) : 0,
+          }));
+
+          const json = JSON.stringify(exportData, null, 2);
+
+          // Download
+          const blob = new Blob([json], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `tarot-cards-export-${Date.now()}.json`;
+          a.click();
+
+          log(`✅ Exported ${cards.length} cards`, 'success');
+          log('\n📄 Preview:', 'info');
+          log(json);
+        };
+
+        request.onerror = () => {
+          log(`❌ Failed to export: ${request.error}`, 'error');
+        };
+
+        db.close();
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    // Auto-run check on load
+    window.addEventListener('load', () => {
+      checkDB();
+    });
+  </script>
+</body>
+</html>
