@@ -33,3 +33,5 @@ public/generated
 styles/
 src/data/tarot-decks.json.backup
 .vercel
+*.car
+delegation.car
