@@ -1,11 +1,11 @@
 {
-  "name": "tarot-cards",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "git": {
-    "deploymentEnabled": true
-  }
+  "functions": {
+    "api/proxy.ts": {
+      "maxDuration": 60
+    },
+    "api/auth/w3up.ts": {
+      "maxDuration": 10
+    }
+  },
+  "devCommand": ""
 }
