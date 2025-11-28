@@ -85,16 +85,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Transform results into GalleryBundle objects
     const galleries: GalleryBundle[] = results
       .map((result: any) => {
-        if (!result || !result.cid) return null;
+        const data = (result as any)?.result ?? result;
+        if (!data || !data.cid) return null;
         return {
-          cid: result.cid,
-          author: result.author || undefined,
-          cardCount: parseInt(result.cardCount, 10),
-          deckTypes: JSON.parse(result.deckTypes),
-          timestamp: parseInt(result.timestamp, 10),
+          cid: data.cid,
+          author: data.author || undefined,
+          cardCount: parseInt(data.cardCount, 10),
+          deckTypes: JSON.parse(data.deckTypes),
+          timestamp: parseInt(data.timestamp, 10),
         };
       })
-      .filter((bundle): bundle is GalleryBundle => bundle !== null);
+      .filter((bundle): bundle is NonNullable<typeof bundle> => bundle !== null) as GalleryBundle[];
 
     return res.status(200).json({
       galleries,

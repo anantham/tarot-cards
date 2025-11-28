@@ -3,17 +3,19 @@ import * as Client from '@web3-storage/w3up-client';
 import * as Signer from '@ucanto/principal/ed25519';
 import * as Delegation from '@ucanto/core/delegation';
 import { CarReader } from '@ipld/car';
+import { base58btc } from 'multiformats/bases/base58';
 
 /**
  * Parse Base64-encoded CAR delegation proof
  */
-async function parseProof(data: string): Promise<Delegation.Delegation> {
+async function parseProof(data: string): Promise<Delegation.Delegation<any>> {
   const blocks = [];
   const reader = await CarReader.fromBytes(Buffer.from(data, 'base64'));
   for await (const block of reader.blocks()) {
     blocks.push(block);
   }
-  return Delegation.importDAG(blocks);
+  // Force-cast due to upstream typing differences
+  return Delegation.importDAG(blocks as any) as Delegation.Delegation<any>;
 }
 
 /**
@@ -45,11 +47,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid DID format (must start with did:key:)' });
     }
 
-    // Check environment variables
-    const agentKey = process.env.WEB3_STORAGE_AGENT_KEY;
+    // Normalize environment variables
+    const agentKeyRaw = process.env.WEB3_STORAGE_AGENT_KEY;
     const delegationProof = process.env.WEB3_STORAGE_DELEGATION_PROOF;
 
-    if (!agentKey) {
+    if (!agentKeyRaw) {
       throw new Error('WEB3_STORAGE_AGENT_KEY not configured');
     }
 
@@ -58,6 +60,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Initialize server agent with master key
+    const normalizeAgentKey = (key: string): string => {
+      // Already valid multibase: z=base58btc, M=base64pad, m=base64
+      if (/^[zmM]/.test(key)) return key;
+
+      // Keys like Ed25519PrivateKey:<encoding>:<payload>
+      if (key.startsWith('Ed25519PrivateKey:')) {
+        const payload = key.split(':').pop() || '';
+
+        // If payload is already a valid multibase string (M=base64pad, m=base64, z=base58btc)
+        // This is the common case: w3 CLI outputs base64pad multibase strings starting with 'M'
+        if (/^[Mmz]/.test(payload)) {
+          return payload;
+        }
+
+        // Try base58btc payload (no multibase prefix)
+        try {
+          const decoded = base58btc.decode(`z${payload}`);
+          return `z${base58btc.encode(decoded)}`;
+        } catch {
+          // If it looks like base64 (contains + / =), wrap as base64pad multibase
+          if (/[+/=]/.test(payload)) {
+            return `M${payload}`;
+          }
+          // Last fallback: treat as base64 anyway
+          try {
+            Buffer.from(payload, 'base64');
+            return `M${payload}`;
+          } catch {
+            throw new Error('WEB3_STORAGE_AGENT_KEY payload is neither base58 nor base64');
+          }
+        }
+      }
+
+      // Fallback: plain base64 string -> base64pad multibase
+      try {
+        Buffer.from(key, 'base64');
+        return `M${key}`;
+      } catch {
+        return key; // Last resort
+      }
+    };
+
+    const agentKey = normalizeAgentKey(agentKeyRaw);
     const principal = Signer.parse(agentKey);
     const client = await Client.create({ principal });
 
@@ -66,21 +111,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
 
-    // Create scoped delegation for client
-    // Abilities: store/add (raw data), upload/add (CAR files)
-    // Does NOT include: space/*, store/remove, upload/remove
-    const delegation = await client.createDelegation(clientDID, {
-      abilities: ['store/add', 'upload/add'],
+    // Create scoped delegation for client using explicit Delegation.delegate()
+    // This pattern gives more control and avoids internal encoding issues
+    const spaceDID = space.did();
+    const delegation = await Delegation.delegate({
+      issuer: principal,
+      audience: { did: () => clientDID as `did:${string}` },
+      capabilities: [
+        { can: 'store/add', with: spaceDID },
+        { can: 'upload/add', with: spaceDID },
+      ],
+      proofs: client.proofs([
+        { can: 'store/add', with: spaceDID },
+        { can: 'upload/add', with: spaceDID },
+      ]),
+      expiration: Math.floor(Date.now() / 1000) + (60 * 60 * 24), // 24 hours
     });
 
     // Serialize delegation as Base64 CAR for transport
     const archive = await delegation.archive();
-    const delegationBytes = new Uint8Array(await archive.arrayBuffer());
-    const delegationBase64 = Buffer.from(delegationBytes).toString('base64');
+    // archive may be Result-like; normalize to Uint8Array
+    const archiveBytes: Uint8Array =
+      (archive as any)?.ok instanceof Uint8Array
+        ? (archive as any).ok
+        : (archive as any) instanceof Uint8Array
+          ? (archive as any)
+          : new Uint8Array(await (archive as any).arrayBuffer?.());
+    const delegationBase64 = Buffer.from(archiveBytes).toString('base64');
 
     return res.status(200).json({
       delegation: delegationBase64,
-      spaceDID: space.did(),
+      spaceDID: spaceDID,
       expiresAt: null, // Delegations don't expire by default (session-scoped)
     });
   } catch (error) {
