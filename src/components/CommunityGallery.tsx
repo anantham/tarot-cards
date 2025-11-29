@@ -200,19 +200,6 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
           </div>
         )}
 
-        {error && (
-          <div style={{
-            padding: '1rem',
-            marginBottom: '1rem',
-            background: 'rgba(255, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 0, 0, 0.3)',
-            borderRadius: '8px',
-            color: '#ff6b6b',
-          }}>
-            Error: {error}
-          </div>
-        )}
-
         {galleries.length === 0 ? (
           <div
             style={{
