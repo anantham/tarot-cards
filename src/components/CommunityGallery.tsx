@@ -33,25 +33,30 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
 
       rows.forEach((row: any) => {
         const deckId = row.deck_id || row.deckId;
+        const deckType = row.deck_type || row.deckType || 'community';
+        const deckName = row.deck_name || row.deckName || deckType || 'Community Deck';
+        const deckDescription = row.deck_description || row.deckDescription || '';
+        const author = row.author || 'Anonymous';
+
         if (!deckId) {
           // No deck id: keep separate so they don't mix with real decks
-          uncategorized.push(row);
+          uncategorized.push({ ...row, deckType, deckName, deckDescription, author });
           return;
         }
 
-        const deckType = row.deck_type || row.deckType || 'community';
         if (!byDeck[deckId]) {
           byDeck[deckId] = {
             id: deckId,
             deckId,
-            deckName: row.deck_name || row.deckName || deckType || 'Community Deck',
-            deckDescription: row.deck_description || row.deckDescription || '',
-            author: row.author || 'Anonymous',
+            deckType,
+            deckName,
+            deckDescription,
+            author,
             timestamp: row.timestamp || Date.now(),
             cards: [],
           };
         }
-        byDeck[deckId].cards.push(row);
+        byDeck[deckId].cards.push({ ...row, deckType, deckName, deckDescription, author });
       });
 
       const groups = Object.values(byDeck);
@@ -59,6 +64,7 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
         groups.push({
           id: 'uncategorized',
           deckId: null,
+          deckType: 'community',
           deckName: 'Uncategorized (no deck id)',
           deckDescription: 'These uploads were missing a deck id; import individually or re-upload with a deck id.',
           author: 'Unknown',
@@ -67,7 +73,25 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
         });
       }
 
-      setGalleries(groups);
+      // Merge decks that share the same name/type/author (helps when earlier uploads had different deckIds)
+      const merged: Record<string, any> = {};
+      groups.forEach((deck: any) => {
+        const mergeKey = `${deck.deckName || ''}::${deck.deckType || ''}::${deck.author || ''}`;
+        if (!merged[mergeKey]) {
+          merged[mergeKey] = {
+            ...deck,
+            id: mergeKey,
+            deckId: deck.deckId ?? mergeKey,
+            cards: [...(deck.cards || [])],
+          };
+        } else {
+          merged[mergeKey].cards.push(...(deck.cards || []));
+          // Keep earliest timestamp for ordering
+          merged[mergeKey].timestamp = Math.min(merged[mergeKey].timestamp, deck.timestamp || Date.now());
+        }
+      });
+
+      setGalleries(Object.values(merged));
     } catch (err) {
       console.error('[CommunityGallery] Fetch failed:', err);
       setFetchError(err instanceof Error ? err.message : 'Failed to load community galleries');
