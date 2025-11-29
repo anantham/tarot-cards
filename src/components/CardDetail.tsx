@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
 import type { CardInterpretation } from '../types';
@@ -13,6 +13,7 @@ export default function CardDetail() {
     settings,
     getAllGenerationsForCard,
     deleteGeneratedCard,
+    generatedCards,
     isGenerating,
     returnToSettingsOnClose,
     setReturnToSettingsOnClose,
@@ -54,7 +55,16 @@ export default function CardDetail() {
   };
 
   const interpretation = getInterpretation();
-  const allGenerations = getAllGenerationsForCard(selectedCard.number, settings.selectedDeckType);
+  // Prefer generations for the selected deck; fall back to any deck that has this card number
+  const primaryGenerations = getAllGenerationsForCard(selectedCard.number, settings.selectedDeckType);
+  const fallbackGenerations = useMemo(() => {
+    if (primaryGenerations.length > 0) return primaryGenerations;
+    return generatedCards
+      .filter((c) => c.cardNumber === selectedCard.number)
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [primaryGenerations, generatedCards, selectedCard.number]);
+
+  const allGenerations = primaryGenerations.length > 0 ? primaryGenerations : fallbackGenerations;
   const generatedCard = allGenerations[currentGenerationIndex];
 
   useEffect(() => {
