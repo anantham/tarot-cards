@@ -818,6 +818,29 @@ export default function Settings() {
               </label>
             </div>
 
+            {/* Show card numbers toggle */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Card Number Display
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={settings.showCardNumbers !== false}
+                  onChange={(e) => updateSettings({ showCardNumbers: e.target.checked })}
+                  style={{ width: '18px', height: '18px' }}
+                />
+                <div>
+                  <div style={{ fontSize: '0.95rem' }}>
+                    Show card numbers on cards
+                  </div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
+                    Toggle off to show mystical symbol (✦) instead—for truly random selection.
+                  </div>
+                </div>
+              </label>
+            </div>
+
             {/* Arrow navigation */}
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>

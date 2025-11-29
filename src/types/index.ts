@@ -64,6 +64,7 @@ export interface Settings {
   showCardInfo?: boolean;
   animateCards?: boolean;
   navigateWithArrows?: boolean;
+  showCardNumbers?: boolean;      // NEW: toggle between card numbers and symbols
   autoShareEnabled?: boolean;     // NEW
   displayName?: string;           // NEW
   lastSharedTimestamp?: number;   // NEW

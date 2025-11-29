@@ -358,7 +358,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         />
       </mesh>
 
-      {/* Card number */}
+      {/* Card number or symbol */}
       {showInfo && (
         <Text
           position={[0, 0.5, 0.03]}
@@ -367,7 +367,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
           anchorX="center"
           anchorY="middle"
         >
-          {card.number === 0 ? '0' : card.number}
+          {settings.showCardNumbers !== false ? (card.number === 0 ? '0' : card.number) : '✦'}
         </Text>
       )}
 
@@ -490,6 +490,7 @@ export default function CardDeck() {
 
     // Detect phase change
     if (phaseRef.currentPhase !== targetPhase) {
+      console.log(`[Animation] Phase change: ${phaseRef.currentPhase} → ${targetPhase} at ${phaseRef.elapsedTime.toFixed(2)}s`);
       phaseRef.currentPhase = targetPhase;
       phaseRef.transitionProgress = 0; // Start 1.5s fade
     }
