@@ -31,12 +31,14 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
       // Group by deck_id; fallback to timestamp-based id if missing
       const byDeck: Record<string, any> = {};
       rows.forEach((row: any) => {
-        const id = row.deck_id || row.deckId || `deck-${row.timestamp}`;
+        const deckType = row.deck_type || row.deckType || 'community';
+        // Group by deck_id if present, otherwise by deck type to avoid one card per deck.
+        const id = row.deck_id || row.deckId || `deck-${deckType}`;
         if (!byDeck[id]) {
           byDeck[id] = {
             id,
             deckId: id,
-            deckName: row.deck_name || row.deckName || 'Community Deck',
+            deckName: row.deck_name || row.deckName || deckType || 'Community Deck',
             deckDescription: row.deck_description || row.deckDescription || '',
             author: row.author || 'Anonymous',
             timestamp: row.timestamp || Date.now(),
