@@ -41,6 +41,9 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
   const handleLoadSupabaseCard = async (bundle: any) => {
     try {
       setLoadingCID(bundle.id || bundle.cid || `${bundle.card_number}-${bundle.timestamp}`);
+      const prompt = bundle.prompt || null;
+      const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
+
       // Build a GeneratedCard from Supabase metadata
       const generated: GeneratedCard = {
         cardNumber: bundle.card_number ?? bundle.cardNumber,
@@ -52,6 +55,8 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
         shared: true,
         source: 'community',
         bundleCID: bundle.cid || undefined,
+        prompt: prompt || undefined,
+        deckPromptSuffix: deckPromptSuffix || undefined,
       };
       addGeneratedCard(generated);
       setSelectedCard(null);

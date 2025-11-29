@@ -24,6 +24,7 @@ Enable user‑scoped, server‑signed / client‑executed uploads to Web3.Storag
 - Optional encryption (password-protected exports).
 - Pagination/filtering for community gallery from KV/IPFS.
 - CLI/script to re-pin existing CIDs to new providers (migration).
+- Share prompt metadata alongside media so downloads can recreate local prompts.
 
 ## If Delegation Remains Blocked
 - Use pinning service with server-side token as interim.

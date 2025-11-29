@@ -139,6 +139,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         author: card.author || null,
         timestamp: card.timestamp || Date.now(),
         model: card.model || null,
+        prompt: (card as any).prompt || null,
+        deck_prompt_suffix: (card as any).deckPromptSuffix || null,
       });
       if (insertError) throw insertError;
 

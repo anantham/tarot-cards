@@ -130,6 +130,8 @@ export function useGallerySharing() {
               timestamp: card.timestamp,
               model: card.source || 'local',
               author: displayName || 'anonymous',
+              prompt: (card as any).prompt || null,
+              deckPromptSuffix: (card as any).deckPromptSuffix || null,
             })),
           };
 
