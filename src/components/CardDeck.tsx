@@ -39,17 +39,6 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const showInfo = settings.showCardInfo !== false;
   const { camera, pointer, raycaster } = useThree();
 
-  // DIAGNOSTIC: Track if useFrame ever runs
-  const frameCountRef = useRef(0);
-
-  // DIAGNOSTIC: Log initial state for card 0
-  if (index === 0 && !groupRef.current) {
-    console.log(`[INIT] Card 0 mounting`);
-    console.log(`  Initial position prop: (${initialPosition[0].toFixed(2)}, ${initialPosition[1].toFixed(2)}, ${initialPosition[2].toFixed(2)})`);
-    console.log(`  Physics ref position: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
-    console.log(`  Physics ref velocity: (${physics.current.velocity.x.toFixed(4)}, ${physics.current.velocity.y.toFixed(4)}, ${physics.current.velocity.z.toFixed(4)})`);
-  }
-
   // Change cursor to grab hand when hovering, grabbing hand when dragging
   useCursor(hovered && !dragging, 'grab');
   useCursor(dragging, 'grabbing');
@@ -146,14 +135,6 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     const time = state.clock.elapsedTime;
     // Ensure minimum dt of 0.016 (~60fps) to prevent zero-dt frames
     const dt = Math.max(Math.min(state.clock.getDelta(), 0.1), 0.016);
-
-    // DIAGNOSTIC: Count frames for card 0
-    if (index === 0) {
-      frameCountRef.current++;
-      if (frameCountRef.current <= 30) {
-        console.log(`[Frame ${frameCountRef.current}] useFrame executing, time=${time.toFixed(3)}s, dt=${dt.toFixed(4)}s`);
-      }
-    }
 
     if (dragging) {
       // Update drag position
@@ -287,14 +268,6 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 
       // Apply to group
       group.position.copy(physics.current.position);
-
-      // DIAGNOSTIC: Log physics state for card 0, first 10 frames
-      if (index === 0 && frameCountRef.current <= 10) {
-        console.log(`  Physics pos: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
-        console.log(`  Velocity mag: ${physics.current.velocity.length().toFixed(4)}`);
-        console.log(`  Accel mag: ${physics.current.acceleration.length().toFixed(4)}`);
-        console.log(`  Group pos: (${group.position.x.toFixed(2)}, ${group.position.y.toFixed(2)}, ${group.position.z.toFixed(2)})`);
-      }
     }
 
     // Multi-axis rotation with a bit of wobble
