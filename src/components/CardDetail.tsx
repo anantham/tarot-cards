@@ -41,6 +41,9 @@ export default function CardDetail() {
   // Get the correct interpretation based on selected deck type
   const getInterpretation = (): CardInterpretation => {
     const deckType = settings.selectedDeckType;
+    if (deckType === 'lord-of-mysteries-masterpiece') {
+      return selectedCard.lordOfMysteriesMasterpiece || selectedCard.lordOfMysteries;
+    }
     if (deckType === 'lord-of-mysteries') return selectedCard.lordOfMysteries;
     if (deckType === 'traditional-rider-waite') return selectedCard.traditional;
     if (deckType === 'egyptian-tarot') return selectedCard.egyptian;

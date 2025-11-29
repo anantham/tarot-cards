@@ -6,6 +6,11 @@
       "description": "The 22 Beyonder pathways from Lord of the Mysteries, depicting you in each divine role"
     },
     {
+      "id": "lord-of-mysteries-masterpiece",
+      "name": "Lord of the Mysteries - Masterpiece",
+      "description": "Eldritch Victorian tarot masterpieces with cinematic, lore-rich prompts"
+    },
+    {
       "id": "traditional-rider-waite",
       "name": "Traditional Rider-Waite Tarot",
       "description": "Classic tarot symbolism with historical accuracy"
@@ -60,7 +65,7 @@
           "fooling"
         ],
         "abilities": "Grafting, Historical Void Projection, Miracle Invocation",
-        "prompt": "Tarot card: 0 \u2013 THE FOOL (Lord of the Mysteries). Render the title '0 \u2013 THE FOOL' on the card using Arabic numeral 0. A vagabond/jester/seer at the brink of a precipice, one foot lifted toward the void; carries a small bag or staff, simple/torn clothes, maybe a jester hat. Facets of the Fool pathway: faceless trickster, subtle marionette strings/control, seer/clown motifs, freedom from constraints. Ethereal void with cosmic symbols; feel like first and last, outside the sequence."
+        "prompt": "Tarot card: 0 - THE FOOL (Lord of the Mysteries). Render the title. A vagabond/seer at the edge of a precipice, one foot into the void, torn clothes, small bundle. The apex Fool carries all lower-sequence tricks: divination tools, warped illusions, faceless mask, clown's grin, marionette strings tugging reality, muscle and expression control. Miracles crackle, duplicates peel off, objects from the past appear. The air is a mysterious field of tampering and concealment, black eyes glinting, cosmic symbols around an impossible cliff."
       },
       "egyptian": {
         "deity": "Ra - The Sun God",
@@ -111,6 +116,18 @@
         "stance": "Alone with the world as witness; environment bigger than the figure.",
         "scene": "Mid-step off an impossible ledge, cliff bending toward their foot as if reality wants to catch them.",
         "question": "What are you willing to risk not understanding, if it means truly living?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Fool Pathway",
+        "sequence": "Sequence 0: The Fool",
+        "keywords": [
+          "miracles",
+          "impossibility",
+          "grafting",
+          "fooling"
+        ],
+        "abilities": "Grafting, Historical Void Projection, Miracle Invocation",
+        "prompt": "Tarot card masterpiece, 0 - THE FOOL. A mysterious figure in a Victorian tuxedo and top hat stands at the edge of a gray fog cliff, face obscured by a spiritual blur and a clown mask held in hand. Under his long trench coat, subtle translucent spirit tentacles and worms of time extend into the void. Background features the grayish-white fog of history and a clock face with symbols of the cowardly trio. Atmospheric lighting, eldritch Victorian style, intricate details, oil painting texture, divine aura of 'Fooling' reality."
       }
     },
     {
@@ -136,7 +153,7 @@
           "mysteries"
         ],
         "abilities": "Knowledge Projection, Perfect Replication, Mystery Enhancement",
-        "prompt": "A scholar surrounded by floating ancient tomes and mystical symbols, reality itself being written and rewritten, geometric patterns forming and dissolving, intense study and mastery"
+        "prompt": "Sequence 0 - PARAGON. A master inventor-scholar in a workshop-temple where floating tomes, star charts, gears, and alchemical glassware fuse with runes. They wield perfect scientific and historical knowledge, craft living artifacts, pour spirit into machines, alter the laws of physics, and blend mysticism with technology. Tools, weapon schematics, and glowing formulae orbit them as reality is rewritten."
       },
       "egyptian": {
         "deity": "Thoth - God of Wisdom",
@@ -187,6 +204,18 @@
         "stance": "Between above and below, half priest, half performer; power flows through and draws eyes.",
         "scene": "One hand to sky, one to earth; tools half sacred, half stage props, miracle blurring with trick.",
         "question": "Are you serving something larger than yourself, or just bending appearances to your will?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Savant Pathway",
+        "sequence": "Sequence 0: Paragon",
+        "keywords": [
+          "knowledge",
+          "learning",
+          "perfection",
+          "mysteries"
+        ],
+        "abilities": "Knowledge Projection, Perfect Replication, Mystery Enhancement",
+        "prompt": "Tarot card masterpiece, 1 - THE PARAGON. A divine artificer stands within a cathedral of brass gears, steam pipes, and impossible machinery. They hold a scroll of civilization in one hand and a glowing mechanical heart in the other. The background is a fusion of alchemy and industrial revolution, illuminated scrolls floating in mid-air, transmutation circles glowing gold. High contrast, steampunk aesthetic, intricate mechanical details, majestic and intellectual."
       }
     },
     {
@@ -212,7 +241,7 @@
           "revelation"
         ],
         "abilities": "Secret Keeping, Knowledge Theft, Mystic Revelation",
-        "prompt": "A mysterious hooded figure in library of infinite secrets, books whispering forbidden knowledge, reality veiled in shadows, glowing eyes seeing all hidden truths"
+        "prompt": "Hidden Sage in a shadowed infinite library of whispered secrets, listening to entities beyond sight. Shelves vanish into darkness; spirit threads carry murmurs. The sage veils reality, steals and reveals truths, grazes souls for knowledge, and hides within moving shadows. Glowing runes for concealment, half-seen figures eavesdropping, a sense of forbidden knowing kept perfectly still."
       },
       "egyptian": {
         "deity": "Isis - Goddess of Magic",
@@ -263,6 +292,18 @@
         "stance": "Turned slightly away, seated at the threshold; guardian of a veil, not its owner.",
         "scene": "Between two pillars with a veiled backdrop of stars and deep water; a closed book rests on their lap.",
         "question": "What truth are you pretending you do not already feel in your bones?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Mystery Pryer Pathway",
+        "sequence": "Sequence 0: The Hidden Sage",
+        "keywords": [
+          "secrets",
+          "knowledge",
+          "concealment",
+          "revelation"
+        ],
+        "abilities": "Secret Keeping, Knowledge Theft, Mystic Revelation",
+        "prompt": "Tarot card masterpiece, 2 - THE HIDDEN SAGE. A formless entity composed of pure information and knowledge, manifesting as a hooded figure in a dark library that stretches to infinity. The figure has no face, only a swarm of glowing eyes and mystical symbols. Surrounded by floating books with eyes, whispers visualized as smoke, and the feeling of forbidden knowledge looking back at you. Dark purple and black color palette, mystical, ominous, highly detailed."
       }
     },
     {
@@ -288,7 +329,7 @@
           "transformation"
         ],
         "abilities": "Beauty Manipulation, Dream Weaving, Psychological Corruption",
-        "prompt": "An impossibly beautiful yet terrifying figure bathed in crimson moonlight, reality warping around them in beautiful nightmares, roses with thorns of madness"
+        "prompt": "Mother Goddess of Depravity, sovereign of all feminine forces, bathed in crimson moonlight. Reality warps into beautiful nightmares; roses with thorny madness curl around her. Echoes of banshees and decadent madames, mirror-world allure, corruption presented as desire. Soft hands cradle and ruin at once; the atmosphere is luxurious, dangerous, and inescapably enchanting."
       },
       "egyptian": {
         "deity": "Hathor - Goddess of Love",
@@ -338,6 +379,18 @@
         "stance": "Surrounded by others, plants, textures, sounds; everything wants to grow closer.",
         "scene": "Reclining on vines and cushions, fruits and flowers spilling over; a wilted bloom hints at unpruned abundance.",
         "question": "Where does true nourishment end and overindulgence begin in how you treat yourself and others?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Moon Pathway",
+        "sequence": "Sequence 0: Mother Goddess of Depravity",
+        "keywords": [
+          "beauty",
+          "deception",
+          "corruption",
+          "transformation"
+        ],
+        "abilities": "Beauty Manipulation, Dream Weaving, Psychological Corruption",
+        "prompt": "Tarot card masterpiece, 3 - MOTHER GODDESS OF DEPRAVITY. A colossal, terrifyingly beautiful female silhouette bathed in crimson moonlight. She is surrounded by twisted, reproductive imagery\u2014fleshy vines, blooming roses with teeth, and distorted life forms. A large crimson moon hangs heavy in the background. The atmosphere is oppressive, seductive, and corrupt. Dark fantasy art style, deep reds and blacks, detailed organic textures."
       }
     },
     {
@@ -363,7 +416,7 @@
           "dominion"
         ],
         "abilities": "Order Bestowal, Rule Enforcement, Parasitic Control",
-        "prompt": "A dark emperor in obsidian throne, crown of black flames, reality itself bowing to their laws, fortress of absolute order, commanding presence"
+        "prompt": "Black Emperor on an obsidian throne, crown of black flames, fortress bending to their will. Laws twist visibly: contracts and verdicts float, gold coins for bribery, strings of authority circle like chains. Abstract rules become sigils, the environment isolates under their order, and every decree magnifies in power. A sense of endless resurrection so long as their command stands."
       },
       "egyptian": {
         "deity": "Horus - God of Kingship",
@@ -413,6 +466,18 @@
         "stance": "Elevated above others but facing them; responsible for them yet tempted to be above them.",
         "scene": "Stone throne carved into a mountainside; a glowing city below, stable but unmoving.",
         "question": "Where are you building solid ground\u2014and where are you turning living beings into bricks?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Lawyer Pathway",
+        "sequence": "Sequence 0: Black Emperor",
+        "keywords": [
+          "order",
+          "rules",
+          "control",
+          "dominion"
+        ],
+        "abilities": "Order Bestowal, Rule Enforcement, Parasitic Control",
+        "prompt": "Tarot card masterpiece, 4 - THE BLACK EMPEROR. A towering, majestic figure seated on a chaotic iron throne, wearing majestic black armor and a crown of shadows. He holds a scepter that distorts the space around it. Three gigantic shadow illusions stand behind him. The background is a distorted court of law where rules are visible chains connecting reality. Authoritative, imposing, dark grandiose style, heavy shadows, metallic textures."
       }
     },
     {
@@ -438,7 +503,7 @@
           "tyranny"
         ],
         "abilities": "Weather Control, Ocean Dominion, Calamity Bringing",
-        "prompt": "A figure commanding tempestuous seas and lightning storms, hovering above raging waters, trident of power, absolute control over natural disasters"
+        "prompt": "Tyrant towering over tempestuous seas and lightning-streaked skies, omnipotent across sea, land, and air. Water, wind, and electricity coil around; a trident raised as sea creatures heed the call. Stormsong disables foes; gusts lift them; earthquakes rumble. Moves at lightning speed, generating star-level electrical fury, hair streaming with salt and stormlight."
       },
       "egyptian": {
         "deity": "Osiris - God of Afterlife",
@@ -489,6 +554,18 @@
         "stance": "Between unseen source and gathered group, translating something old into something usable.",
         "scene": "Teacher on temple steps, students at varying distances; some awake, others glazed in motion without meaning.",
         "question": "Which of your \"shoulds\" are wise inheritance\u2014and which are habits you are afraid to outgrow?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Sailor Pathway",
+        "sequence": "Sequence 0: The Tyrant",
+        "keywords": [
+          "sea",
+          "storms",
+          "calamity",
+          "tyranny"
+        ],
+        "abilities": "Weather Control, Ocean Dominion, Calamity Bringing",
+        "prompt": "Tarot card masterpiece, 5 - THE TYRANT. A muscular deity suspended in a violent hurricane, hair turning into lightning bolts, eyes glowing pure electric blue. He holds a trident made of thunder. Below him, a raging ocean with gigantic sea monsters bowing in submission. The sky is torn apart by storms. Intense energy, dynamic composition, cool blues and purples, terrifying power, hyper-realistic water and lightning effects."
       }
     },
     {
@@ -514,7 +591,7 @@
           "provocation"
         ],
         "abilities": "War Declaration, Strategic Foresight, Provocation Mastery",
-        "prompt": "A crimson-clad priest of war standing on battlefield, armies clashing in background, strategic brilliance visible in their eyes, banners of conquest"
+        "prompt": "Red Priest amid a war-torn battlefield, crimson vestments and iron-black eyes. Fire traps and banners blaze; conspiratorial diagrams and provoke-hexes hang in the air. Enhanced strength and agility fuel decisive strikes; weather bends, meteoric fire trails from their form. Represents the masculine catastrophe: war liturgy, provocation, and strategic carnage."
       },
       "egyptian": {
         "deity": "Nut and Geb - Sky and Earth",
@@ -564,6 +641,18 @@
         "stance": "At least two beings with a third presence of fate or value hovering between.",
         "scene": "Two figures reach toward each other while a constellation above forms a third shape they must also embrace.",
         "question": "Who are you becoming by choosing this bond\u2014or by refusing to choose?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Hunter Pathway",
+        "sequence": "Sequence 0: Red Priest",
+        "keywords": [
+          "war",
+          "conquest",
+          "strategy",
+          "provocation"
+        ],
+        "abilities": "War Declaration, Strategic Foresight, Provocation Mastery",
+        "prompt": "Tarot card masterpiece, 6 - THE RED PRIEST. A purely masculine, androgynous figure of war clad in blood-red armor, standing amidst an endless battlefield of iron and fire. A banner of war flames behind them. Their hands wield a flaming sword that dictates the strategy of the war. The ground is scorched earth and steel. Aggressive, burning atmosphere, vibrant reds and oranges, smoke and ember effects, heavy metal aesthetic."
       }
     },
     {
@@ -589,7 +678,7 @@
           "chance"
         ],
         "abilities": "Probability Manipulation, Fate Weaving, Luck Stealing",
-        "prompt": "A figure surrounded by spinning wheels of fate and probability, stars aligning at their command, reality branching into favorable outcomes, cosmic dice rolling"
+        "prompt": "Key of Stars standing among spinning wheels of fate and probability, cosmic dice rolling. Hands trace sigils that store and release luck, turning certainties uncertain. Threads of destiny loop opponents into endless cycles; divination circles predict outcomes before they unfold. A door of stars hints at space-walking travel between worlds."
       },
       "egyptian": {
         "deity": "Montu - God of War",
@@ -639,6 +728,18 @@
         "stance": "Ahead of the crowd, pulled by forces that must be steered.",
         "scene": "Chariot pulled by two creatures veering apart, driver calm with loose but intentional reins; road ahead splits.",
         "question": "Are you steering your momentum\u2014or letting speed decide where you end up?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Door Pathway",
+        "sequence": "Sequence 0: Key of Stars",
+        "keywords": [
+          "fate",
+          "probability",
+          "luck",
+          "chance"
+        ],
+        "abilities": "Probability Manipulation, Fate Weaving, Luck Stealing",
+        "prompt": "Tarot card masterpiece, 7 - KEY OF STARS. A figure composed of starlight and crystal, holding an ornate key, stepping through a door that opens into the deep cosmos. Surrounding them are countless floating doors and monocles. The background is the vast, swirling darkness of space filled with colorful nebulas. Ethereal, mysterious, crystal textures, deep space lighting, surreal composition."
       }
     },
     {
@@ -664,7 +765,7 @@
           "divine"
         ],
         "abilities": "Purification, Divine Light, Restraint of Evil",
-        "prompt": "A radiant figure blazing with holy light, wings of pure flame, purifying darkness, divine restraint over chaos, eternal and magnificent"
+        "prompt": "Eternal Blazing Sun radiant with holy light, wings and corona forming an ocean of brilliance. Traditional priestly chants buff allies and weaken foes; light and fire spells purify and exorcise. In a single gesture they can lower an enemy's Sequence, create an area of relentless light, and seal contracts of truth. Gold-white glow, scales of justice hinted in the halo."
       },
       "egyptian": {
         "deity": "Sekhmet - Lioness Goddess",
@@ -714,6 +815,18 @@
         "stance": "Close to something wild, choosing to soothe rather than dominate.",
         "scene": "Hand on the muzzle of a roaring beast; broken chains in grass, eyes softening.",
         "question": "What happens when you stop gripping so hard and trust you are strong enough to stay open?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Sun Pathway",
+        "sequence": "Sequence 0: Eternal Blazing Sun",
+        "keywords": [
+          "purification",
+          "light",
+          "restraint",
+          "divine"
+        ],
+        "abilities": "Purification, Divine Light, Restraint of Evil",
+        "prompt": "Tarot card masterpiece, 8 - ETERNAL BLAZING SUN. A perfect, idealized golden figure hovering in the sky, radiating blindingly holy light. A golden sun disk acts as a halo. White feathers fall like rain. Beneath, shadows are burned away by the purification. The art style is reminiscent of high renaissance religious art but with an intense, almost blinding brightness. Gold and white color palette, divine majesty."
       }
     },
     {
@@ -739,7 +852,7 @@
           "wisdom"
         ],
         "abilities": "Perfect Calculation, Future Sight, Knowledge Accumulation",
-        "prompt": "A solitary figure with third eye blazing, surrounded by infinite calculations and prophecies, seeing all possible futures, isolated in omniscience"
+        "prompt": "Eye of Wisdom solitary on a peak of calculations and constellations. This Hermit of the occult conjures star maps, divines, casts ritual spells, and scribes scrolls. At apex they hear hidden existences, travel the spirit world, self-create spells, drain power from knowledge itself, and foresee woven fate. Lantern of insight, staff of a sage, cosmic equations around them."
       },
       "egyptian": {
         "deity": "Anubis - Guide of Souls",
@@ -789,6 +902,18 @@
         "stance": "Distant from the crowd but not against it; watcher on the hill.",
         "scene": "Lone figure on a high path, lantern over a drop; town lights below, path turns further inward.",
         "question": "Are you stepping away to see clearly\u2014or hiding because the world is looking back?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Reader Pathway",
+        "sequence": "Sequence 0: White Tower",
+        "keywords": [
+          "knowledge",
+          "calculation",
+          "foresight",
+          "wisdom"
+        ],
+        "abilities": "Perfect Calculation, Future Sight, Knowledge Accumulation",
+        "prompt": "Tarot card masterpiece, 9 - WHITE TOWER. An omniscient figure with eyes of pure wisdom, standing atop a towering ivory spire that pierces the clouds. They hold an open book where the pages are forming the reality around them. In the sky, a giant eye looks down. Symbols of logic, deduction, and omniscience float in the air. Clean lines, bright lighting, scholarly and detached atmosphere, architectural grandeur."
       }
     },
     {
@@ -814,7 +939,7 @@
           "transformation"
         ],
         "abilities": "Desire Amplification, Mutation Granting, Wish Twisting",
-        "prompt": "A vast tree-like being of desire and transformation, granting twisted wishes, reality mutating around them, beautiful corruption, endless hunger"
+        "prompt": "Mother Tree of Desire as a colossal, beautiful yet corrupt tree-being. Roots clutch treasure and skulls, branches drip with tempting fruit and seductive flowers. Grants twisted wishes, mutates reality, births chimeras and crossbreeds, and exudes overwhelming desire. Vines coil like serpents; a patriarchal trunk pulses with hunger beneath a crimson moon."
       },
       "egyptian": {
         "deity": "Khepri - God of Rebirth",
@@ -864,6 +989,18 @@
         "stance": "Entangled with forces larger than will\u2014systems, timing, others.",
         "scene": "Great wheel turning in the sky with figures rising, falling, climbing back by choice.",
         "question": "Where are you mistaking a temporary position on the wheel for your identity?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Chained Pathway",
+        "sequence": "Sequence 0: Mother Tree of Desire",
+        "keywords": [
+          "desire",
+          "mutation",
+          "evolution",
+          "transformation"
+        ],
+        "abilities": "Desire Amplification, Mutation Granting, Wish Twisting",
+        "prompt": "Tarot card masterpiece, 10 - MOTHER TREE OF DESIRE. A grotesque yet hypnotic giant tree made of flesh and twisted limbs instead of wood. Its roots dig into a dark abyss. Strange, mutated fruits hang from branches, resembling human desires and organs. A pale, eerie light illuminates the scene. Disturbing, surreal horror art style, visceral textures, themes of restraint and overwhelming indulgence."
       }
     },
     {
@@ -889,7 +1026,7 @@
           "punishment"
         ],
         "abilities": "Crime Detection, Punishment Execution, Law Enforcement",
-        "prompt": "A stern judge in divine court, scales of cosmic justice, sword of judgment, all crimes visible before them, absolute fairness and inevitable punishment"
+        "prompt": "Adjudicator in a divine court, balanced scales and upright sword glowing. They defend Order itself: setting rules that punish when broken, striking minds and souls, detecting anomalies, and negating Beyonder powers. Verdicts spoken become binding laws; chaos is forced into obedience. Law sigils, explosive seals, and an unblinking gaze of absolute justice."
       },
       "egyptian": {
         "deity": "Ma'at - Goddess of Truth",
@@ -939,6 +1076,18 @@
         "stance": "Between parties or timelines, responsible to something beyond preference.",
         "scene": "Sword and scales; a feather on one side, tangled threads on the other.",
         "question": "If every voice\u2014including your shadow\u2014testified, what verdict would you reach?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Justiciar Pathway",
+        "sequence": "Sequence 0: The Adjudicator",
+        "keywords": [
+          "judgment",
+          "law",
+          "balance",
+          "punishment"
+        ],
+        "abilities": "Crime Detection, Punishment Execution, Law Enforcement",
+        "prompt": "Tarot card masterpiece, 11 - THE ADJUDICATOR. A stern figure cast in bronze, holding a giant sword of balance and a rulebook made of gold. They sit on a throne of symmetry. The background is a rigid geometric grid representing absolute order, forbidding any chaos. The atmosphere is cold, metallic, and unyielding. Art deco influences, sharp lines, gold and bronze metallic textures."
       }
     },
     {
@@ -964,7 +1113,7 @@
           "night"
         ],
         "abilities": "Death Bringing, Peaceful Rest, Dream Walking",
-        "prompt": "A compassionate figure cloaked in eternal night, bringing peaceful death and rest, crimson moon above, gentle release from suffering"
+        "prompt": "Evernight Goddess cloaked in eternal night over a silent graveyard. Death pathway apex: summons and commands spirits, raises and stills the dead, walks the spirit world, resists cold and decay. A crimson moon above, black flag of death unfurled; with a gesture she resurrects or ends life instantly. Lanterns of soul-fire line the path to the underworld."
       },
       "egyptian": {
         "deity": "Bes - Protector Through Sacrifice",
@@ -1014,6 +1163,18 @@
         "stance": "Suspended between action and outcome; spectators misread the pause.",
         "scene": "Hanging upside down from a living tree, calm face with halo of realization; onlookers think defeat.",
         "question": "What might you see differently if you stopped trying to fix anything at all?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Sleepless Pathway",
+        "sequence": "Sequence 0: Evernight Goddess",
+        "keywords": [
+          "rest",
+          "death",
+          "comfort",
+          "night"
+        ],
+        "abilities": "Death Bringing, Peaceful Rest, Dream Walking",
+        "prompt": "Tarot card masterpiece, 12 - EVERNIGHT GODDESS. A beautiful woman with four arms, wearing a star-spangled black dress that merges with the night sky. Her feet tread on a river of darkness. She holds a scythe, a lantern, and a bird-shaped accessory. The background is a peaceful yet terrifying eternal night, soft starlight, and moonflowers. Gothic fantasy style, serene, mysterious, deep blues and velvety blacks."
       }
     },
     {
@@ -1039,7 +1200,7 @@
           "catastrophe"
         ],
         "abilities": "Catastrophe Weaving, Disease Spreading, Unnatural Beauty",
-        "prompt": "An incomprehensibly beautiful yet terrifying figure, endings and new corrupt beginnings, weaving catastrophes like art, transformation through desire"
+        "prompt": "Primordial Demoness, cataclysm made seductive. Moves like an assassin, casts ritual curses, manipulates invisible threads, incites crime and plague. Mirrors shimmer with alternate worlds; natural disasters gather at her whim; petrification and disease spread like art. The feminine catastrophe of the Original Creator, alluring and deadly."
       },
       "egyptian": {
         "deity": "Anput - Death and Rebirth",
@@ -1089,6 +1250,18 @@
         "stance": "Walking through a door that cannot be shut; leaving roles behind.",
         "scene": "Cloaked figure through a field where old structures crumble into soil; green shoots breaking through.",
         "question": "What are you keeping alive that has already finished its work?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Demoness Pathway",
+        "sequence": "Sequence 0: Primordial Demoness",
+        "keywords": [
+          "desire",
+          "corruption",
+          "beauty",
+          "catastrophe"
+        ],
+        "abilities": "Catastrophe Weaving, Disease Spreading, Unnatural Beauty",
+        "prompt": "Tarot card masterpiece, 13 - PRIMORDIAL DEMONESS. A figure of transcendent, dangerous beauty that blurs the line between pleasure and horror. Her hair transforms into spider silk and snakes. She stands amidst a plague-ridden, frozen wasteland. Mirror shards float around her, reflecting different distorted faces. The vibe is catastrophic allure. Cold colors, icy blues and poisonous purples, sharp details."
       }
     },
     {
@@ -1114,7 +1287,7 @@
           "balance"
         ],
         "abilities": "Life Granting, Harvest Blessing, Natural Balance",
-        "prompt": "A nurturing figure surrounded by abundant harvest and flowing life energy, perfect balance of nature, seasons bowing to their will"
+        "prompt": "Mother Goddess of Harvest overflowing with plant and earth authority. Fields surge to life, vines and roots obey, chimeras and golems take form. She heals flesh and soul, splices genetics, and can drain life force back to the soil. Verdant aura with herbal tools and earthen crowns; abundance and deprivation in the same hand."
       },
       "egyptian": {
         "deity": "Hapi - God of the Nile",
@@ -1164,6 +1337,18 @@
         "stance": "Between extremes, mediating without erasing difference.",
         "scene": "Pouring liquid between cups, one foot on land and one on water, path winding toward dawn.",
         "question": "Where could gentler mixing serve you better than a hard either-or?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Planter Pathway",
+        "sequence": "Sequence 0: Mother Goddess of Harvest",
+        "keywords": [
+          "life",
+          "growth",
+          "abundance",
+          "balance"
+        ],
+        "abilities": "Life Granting, Harvest Blessing, Natural Balance",
+        "prompt": "Tarot card masterpiece, 14 - MOTHER GODDESS OF HARVEST. An immense, life-giving figure composed of fertile earth and lush vegetation. She creates life with a touch; plants grow wildly around her feet, reclaiming a ruined city. She holds a cornucopia that spills both grain and monstrous biological hybrids. Vibrant greens and browns, sense of overwhelming vitality, nature reclaiming civilization."
       }
     },
     {
@@ -1189,7 +1374,7 @@
           "desire"
         ],
         "abilities": "Theft Mastery, Chain Manipulation, Desire Liberation",
-        "prompt": "A bound deity breaking chains of reality itself, stealing concepts and possibilities, imprisoned yet free, paradoxical liberation"
+        "prompt": "Chained God bound in cursed iron yet seething with mutant power. Summons zombies and ghosts, slips through reflections, shrugs bullets with unnatural flesh, possesses others, hexes targets into harmless animals. Regenerates while sacrificing rationality; full-moon loss of control hinted. All nonliving things in a radius twitch under their command."
       },
       "egyptian": {
         "deity": "Set - God of Chaos",
@@ -1239,6 +1424,18 @@
         "stance": "Bound to something once comforting now demanding obedience.",
         "scene": "Horned figure above two chained beings; chains are loose enough to slip but heads stay bowed.",
         "question": "What are you calling \"just how things are\" that is actually a choice you keep making?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Criminal Pathway",
+        "sequence": "Sequence 0: Chained God",
+        "keywords": [
+          "bondage",
+          "theft",
+          "freedom",
+          "desire"
+        ],
+        "abilities": "Theft Mastery, Chain Manipulation, Desire Liberation",
+        "prompt": "Tarot card masterpiece, 15 - THE CHAINED GOD. A cursed entity wrapped entirely in tattered bloody bandages, bound by thick, cursed chains that seem to be part of his body. He radiates an aura of malice and suppressed madness. The background is a dark, jagged abyss. The chains glow with sinister runes. Horror aesthetic, gritty textures, dark crimsons and grays, feeling of pain and restraint."
       }
     },
     {
@@ -1264,7 +1461,7 @@
           "upheaval"
         ],
         "abilities": "Lightning Control, Storm Summoning, Destruction Bringing",
-        "prompt": "A storm lord commanding lightning and tempests, towers crumbling before divine fury, absolute upheaval and revelation through destruction"
+        "prompt": "Lord of Storms atop a crumbling tower as lightning shreds the sky. Water, wind, and thunder obey; sea kingship and stormsong bend ships. Earthquakes shake foundations; air gliding and tidal surges crash upward. Moves at the speed of lightning, wielding enough electric fury to rival a star, revealing truths through destruction."
       },
       "egyptian": {
         "deity": "Sekhmet Unleashed",
@@ -1314,6 +1511,18 @@
         "stance": "Many people and beliefs shaken; no one fully outside the blast.",
         "scene": "Lightning splits a tower; stones and old certainties tumble, revealing open sky.",
         "question": "What have you built on that cannot bear the weight you put on it?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Tyrant Pathway",
+        "sequence": "Sequence 0: Lord of Storms",
+        "keywords": [
+          "lightning",
+          "storms",
+          "destruction",
+          "upheaval"
+        ],
+        "abilities": "Lightning Control, Storm Summoning, Destruction Bringing",
+        "prompt": "Tarot card masterpiece, 16 - LORD OF STORMS. An irascible deity standing on the prow of a gigantic, ancient spectral ship. He screams at the heavens, commanding wind and rain. A massive tidal wave curls behind him, threatening to swallow the world. The art captures the moment of a thunderclap. High energy, chaotic composition, seafoam and rain textures, dark stormy palette."
       }
     },
     {
@@ -1339,7 +1548,7 @@
           "creation"
         ],
         "abilities": "Dream Creation, Reality Writing, Hope Manifestation",
-        "prompt": "A visionary creating new realities from pure imagination, stars of possibility shining above, dreams becoming real, infinite hope"
+        "prompt": "Visionary weaving dreams and minds into reality. Reads thoughts, discerns emotions, hypnotizes with a pendulum, and strolls through others' dreams. An actor's perfect expressions hide power; at apex they enter the Mind World, weave vivid illusions, control without notice, and let thoughts reshape reality. Draconic irises flash, pages of scripts orbit."
       },
       "egyptian": {
         "deity": "Sopdet - Star Goddess",
@@ -1389,6 +1598,18 @@
         "stance": "Alone with the night sky but not lonely; guided by something vast.",
         "scene": "Kneeling by water, pouring from two vessels, anchored by a single bright star.",
         "question": "What small act of faith are you ready to take now, even if unsure it is enough?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Spectator Pathway",
+        "sequence": "Sequence 0: Visionary",
+        "keywords": [
+          "dreams",
+          "hope",
+          "imagination",
+          "creation"
+        ],
+        "abilities": "Dream Creation, Reality Writing, Hope Manifestation",
+        "prompt": "Tarot card masterpiece, 17 - THE VISIONARY. A figure sitting calmly at a table, writing in a quill. Behind them, the reality they write manifests as a golden dragon and a sea of collective subconsciousness. The line between the writer and the world blurs. The background is a psychedelic 'Sea of Subconsciousness' with floating islands and mental projections. Dreamlike, surreal, soft focus, golden and pastel hues."
       }
     },
     {
@@ -1414,7 +1635,7 @@
           "concealment"
         ],
         "abilities": "Nightmare Weaving, Fear Manipulation, Darkness Control",
-        "prompt": "A figure of pure darkness under crimson moon, nightmares made manifest, fear and illusion as weapons, unsleeping terror"
+        "prompt": "Darkness figure under a crimson moon, domain of night, soul, and sleep. Gains strength at night, casts area sleep, pacifies souls, walks dreams, and hosts evil spirits. Controls darkness as a veil of secrecy, erases or hides things, suppresses desire, and inflicts misfortune. Shadows thicken around a hidden, unsleeping terror."
       },
       "egyptian": {
         "deity": "Khonsu - Moon God",
@@ -1464,6 +1685,18 @@
         "stance": "Between tame and wild, conscious and unconscious; pulled by tides unseen.",
         "scene": "Path between a wolf and a dog howling at a huge moon; road toward strange towers, water hides depths.",
         "question": "Which fears are intuitions twisted by old wounds\u2014and which are real warnings to honor?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Darkness Pathway",
+        "sequence": "Sequence 0: The Moon",
+        "keywords": [
+          "night",
+          "fear",
+          "nightmares",
+          "concealment"
+        ],
+        "abilities": "Nightmare Weaving, Fear Manipulation, Darkness Control",
+        "prompt": "Tarot card masterpiece, 18 - THE MOON. A vampire ancestor figure standing under a giant, bleeding red moon. Bats and shadows swirl around their cape. They hold a goblet of blood wine. The landscape is a gothic castle with distorted geometry. The atmosphere is eerie, silent, and filled with spirituality. Red and black color dominance, gothic horror style."
       }
     },
     {
@@ -1489,7 +1722,7 @@
           "revelation"
         ],
         "abilities": "Perfect Observation, Mind Reading, Truth Seeing",
-        "prompt": "An all-seeing figure in brilliant clarity, every truth revealed under their gaze, perfect understanding, illuminating observation"
+        "prompt": "Evernight as an all-seeing shroud of night that reveals then veils every truth. Hair like living shadow, eyes that bore through lies; evil spirits coil nearby. Suppresses emotions and desires, blankets regions in secrecy, and shifts entire areas into hidden states. Misfortune radiates like a crown; silence and clarity coexist in the endless night."
       },
       "egyptian": {
         "deity": "Ra at Zenith",
@@ -1539,6 +1772,18 @@
         "stance": "Out in the open, visible; no curtains, no shadows.",
         "scene": "Child on a white horse beneath a huge sun, arms wide; wall crumbled to let light pour in.",
         "question": "Where could honest joy shine more\u2014and where are you using positivity to avoid a harder truth?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Bard Pathway",
+        "sequence": "Sequence 0: The Sun",
+        "keywords": [
+          "observation",
+          "clarity",
+          "truth",
+          "revelation"
+        ],
+        "abilities": "Perfect Observation, Mind Reading, Truth Seeing",
+        "prompt": "Tarot card masterpiece, 19 - THE SUN. A choir of angels circling a central, pure ball of light that sings the praises of the light. A golden bard stands below, playing a lyre that emits visible waves of courage and purification. Evil shadows flee from the edges of the card. Extremely bright, high exposure style, lens flares, warm golden tones, triumphant atmosphere."
       }
     },
     {
@@ -1564,7 +1809,7 @@
           "endings"
         ],
         "abilities": "Death Judgment, Undead Control, Resurrection",
-        "prompt": "A figure judging souls and granting resurrection, the dead rising at their call, ultimate judgment between rest and return"
+        "prompt": "Death presiding in a hall of spirits, black flag with white rose unfurled. Commands zombies and wraiths, summons dead to fight, crosses freely into the spirit world. In one breath resurrects, in another annihilates; cold and decay bend around them. Keys of the gate hang at their belt; souls queue for judgment."
       },
       "egyptian": {
         "deity": "Osiris Judging",
@@ -1614,6 +1859,18 @@
         "stance": "Among others who are also called; judged as part of a wider unfolding.",
         "scene": "Figures rise from open coffins as a horn sounds; terrified and relieved, seeing clearly.",
         "question": "If you answered the call to become who you secretly know you are, what life must you leave behind?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Death Pathway",
+        "sequence": "Sequence 0: Death",
+        "keywords": [
+          "judgment",
+          "rebirth",
+          "resurrection",
+          "endings"
+        ],
+        "abilities": "Death Judgment, Undead Control, Resurrection",
+        "prompt": "Tarot card masterpiece, 20 - DEATH. An Azik-like figure with pale skin and melancholic eyes, wearing a black tailcoat, standing on a boat traversing the River Styx. Skeletal hands reach up from the water. A giant feather floats in the background. The gate to the Underworld stands open behind him. Somber, quiet, cold colors, mist and fog, oil painting style, solemn atmosphere."
       }
     },
     {
@@ -1639,7 +1896,7 @@
           "fulfillment"
         ],
         "abilities": "Knowledge Preservation, History Recording, Complete Understanding",
-        "prompt": "A figure at the center of all accumulated knowledge and history, complete understanding achieved, cycles completed, ultimate fulfillment"
+        "prompt": "Hermit of the White Tower at the center of all knowledge, both scientific and mystical. Analytic diagrams and spell arrays float; they mimic powers by observation, see futures and deduce pasts, observe and use the laws of reality directly. Every hidden datum about a person glows around them. Wreath of constellations, books and devices in orbit, perfect fulfillment."
       },
       "egyptian": {
         "deity": "Atum - The Complete One",
@@ -1689,6 +1946,18 @@
         "stance": "In harmony with many circles; not needing to be the center.",
         "scene": "Figure dances within a wreath, one foot about to step out; four elements watch as witnesses.",
         "question": "Now that you have arrived, what new journey are you willing to begin as a beginner again?"
+      },
+      "lordOfMysteriesMasterpiece": {
+        "pathway": "Hermit Pathway",
+        "sequence": "Sequence 0: The Hermit",
+        "keywords": [
+          "completion",
+          "accumulation",
+          "preservation",
+          "fulfillment"
+        ],
+        "abilities": "Knowledge Preservation, History Recording, Complete Understanding",
+        "prompt": "Tarot card masterpiece, 21 - THE HERMIT. A sage with starlight swirling in their eyes, interpreting the secrets of the cosmos. They are connected to the world by intricate, glowing threads of fate and information. They stand before a pair of mysterious, heavy doors (The Door of All Mysteries). Scrolls of prophecy surround them. Mystical, deep purple and starry blue colors, intricate magical circles, wise and detached."
       }
     }
   ],

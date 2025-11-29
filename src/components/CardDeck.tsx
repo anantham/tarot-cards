@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, useCursor } from '@react-three/drei';
+import { Text, useCursor, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import tarotData from '../data/tarot-decks.json';
@@ -22,26 +22,31 @@ interface CardProps {
   physics: React.MutableRefObject<CardPhysics>;
   allPhysics: React.MutableRefObject<CardPhysics[]>;
   currentlyDraggingRef: React.MutableRefObject<number | null>;
+  phaseStateRef: React.MutableRefObject<{
+    elapsedTime: number;
+    currentPhase: 'fast' | 'slow';
+    velocityMultiplier: number;
+    transitionProgress: number;
+  }>;
+  isInjected: boolean;
 }
 
-function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef }: CardProps) {
+function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected }: CardProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
   const { setSelectedCard, settings } = useStore();
   const showInfo = settings.showCardInfo !== false;
   const { camera, pointer, raycaster } = useThree();
+  const cardBackTexture = useTexture('/card-back.png');
 
-  // DIAGNOSTIC: Track if useFrame ever runs
-  const frameCountRef = useRef(0);
-
-  // DIAGNOSTIC: Log initial state for card 0
-  if (index === 0 && !groupRef.current) {
-    console.log(`[INIT] Card 0 mounting`);
-    console.log(`  Initial position prop: (${initialPosition[0].toFixed(2)}, ${initialPosition[1].toFixed(2)}, ${initialPosition[2].toFixed(2)})`);
-    console.log(`  Physics ref position: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
-    console.log(`  Physics ref velocity: (${physics.current.velocity.x.toFixed(4)}, ${physics.current.velocity.y.toFixed(4)}, ${physics.current.velocity.z.toFixed(4)})`);
-  }
+  useEffect(() => {
+    if (cardBackTexture) {
+      cardBackTexture.wrapS = THREE.ClampToEdgeWrapping;
+      cardBackTexture.wrapT = THREE.ClampToEdgeWrapping;
+      cardBackTexture.flipY = false;
+    }
+  }, [cardBackTexture]);
 
   // Change cursor to grab hand when hovering, grabbing hand when dragging
   useCursor(hovered && !dragging, 'grab');
@@ -139,14 +144,6 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     const time = state.clock.elapsedTime;
     // Ensure minimum dt of 0.016 (~60fps) to prevent zero-dt frames
     const dt = Math.max(Math.min(state.clock.getDelta(), 0.1), 0.016);
-
-    // DIAGNOSTIC: Count frames for card 0
-    if (index === 0) {
-      frameCountRef.current++;
-      if (frameCountRef.current <= 30) {
-        console.log(`[Frame ${frameCountRef.current}] useFrame executing, time=${time.toFixed(3)}s, dt=${dt.toFixed(4)}s`);
-      }
-    }
 
     if (dragging) {
       // Update drag position
@@ -267,9 +264,10 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       // Apply damping
       physics.current.velocity.multiplyScalar(DAMPING);
 
-      // Limit velocity
-      if (physics.current.velocity.length() > MAX_VELOCITY) {
-        physics.current.velocity.normalize().multiplyScalar(MAX_VELOCITY);
+      // Limit velocity (phase-modulated)
+      const effectiveMaxVelocity = MAX_VELOCITY * phaseStateRef.current.velocityMultiplier;
+      if (physics.current.velocity.length() > effectiveMaxVelocity) {
+        physics.current.velocity.normalize().multiplyScalar(effectiveMaxVelocity);
       }
 
       // Update position
@@ -279,14 +277,6 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 
       // Apply to group
       group.position.copy(physics.current.position);
-
-      // DIAGNOSTIC: Log physics state for card 0, first 10 frames
-      if (index === 0 && frameCountRef.current <= 10) {
-        console.log(`  Physics pos: (${physics.current.position.x.toFixed(2)}, ${physics.current.position.y.toFixed(2)}, ${physics.current.position.z.toFixed(2)})`);
-        console.log(`  Velocity mag: ${physics.current.velocity.length().toFixed(4)}`);
-        console.log(`  Accel mag: ${physics.current.acceleration.length().toFixed(4)}`);
-        console.log(`  Group pos: (${group.position.x.toFixed(2)}, ${group.position.y.toFixed(2)}, ${group.position.z.toFixed(2)})`);
-      }
     }
 
     // Multi-axis rotation with a bit of wobble
@@ -310,6 +300,9 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   // Get the card name based on selected deck type
   const getCardName = () => {
     const deckType = settings.selectedDeckType;
+    if (deckType === 'lord-of-mysteries-masterpiece') {
+      return (card.lordOfMysteriesMasterpiece && card.lordOfMysteriesMasterpiece.pathway) || card.traditional.name;
+    }
     if (deckType === 'lord-of-mysteries') return card.lordOfMysteries.pathway || card.traditional.name;
     if (deckType === 'traditional-rider-waite') return card.traditional.name;
     if (deckType === 'egyptian-tarot') return card.egyptian.deity || card.traditional.name;
@@ -324,7 +317,8 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     const deckType = settings.selectedDeckType;
     let keywords: string[] = [];
 
-    if (deckType === 'lord-of-mysteries') keywords = card.lordOfMysteries.keywords;
+    if (deckType === 'lord-of-mysteries-masterpiece') keywords = card.lordOfMysteriesMasterpiece?.keywords || card.lordOfMysteries.keywords;
+    else if (deckType === 'lord-of-mysteries') keywords = card.lordOfMysteries.keywords;
     else if (deckType === 'traditional-rider-waite') keywords = card.traditional.keywords;
     else if (deckType === 'egyptian-tarot') keywords = card.egyptian.keywords;
     else if (deckType === 'celtic-tarot') keywords = card.celtic.keywords;
@@ -351,28 +345,57 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         }
       }}
     >
+      {/* Glow outline */}
+      <mesh
+        scale={[1.05, 1.05, 0.07]}
+        position={[0, 0, 0]}
+      >
+        <boxGeometry args={[0.8, 1.2, 0.05]} />
+        <meshStandardMaterial
+          color="#ffffff"
+          emissive={hovered || dragging ? '#ffffff' : isInjected ? '#ff8a50' : '#ffffff'}
+          emissiveIntensity={hovered ? 1.0 : dragging ? 1.1 : isInjected ? 1.2 : 0.5}
+          transparent
+          opacity={hovered || dragging ? 0.5 : 0.35}
+          metalness={0.8}
+          roughness={0.2}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
       <mesh>
         {/* Card body */}
         <boxGeometry args={[0.8, 1.2, 0.05]} />
         <meshStandardMaterial
-          color={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#1a1a2e'}
-          emissive={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#000000'}
-          emissiveIntensity={dragging ? 0.8 : hovered ? 0.5 : 0}
+          map={cardBackTexture}
+          color={dragging ? '#ffffff' : hovered ? '#dddddd' : '#ffffff'}
+          emissive={
+            dragging ? '#7c3aed' :
+            hovered ? '#9333ea' :
+            isInjected ? '#ff6b35' :
+            '#000000'
+          }
+          emissiveIntensity={
+            dragging ? 0.8 :
+            hovered ? 0.5 :
+            isInjected ? 0.9 :
+            0
+          }
           metalness={0.3}
           roughness={0.7}
         />
       </mesh>
 
-      {/* Card number */}
+      {/* Card number or symbol */}
       {showInfo && (
         <Text
           position={[0, 0.5, 0.03]}
-          fontSize={0.15}
-          color="#d4af37"
+          fontSize={settings.showCardNumbers !== false ? 0.15 : 0.25}
+          color={settings.showCardNumbers !== false ? "#d4af37" : "#ffffff"}
           anchorX="center"
           anchorY="middle"
         >
-          {card.number === 0 ? '0' : card.number}
+          {settings.showCardNumbers !== false ? (card.number === 0 ? '0' : card.number) : '☆'}
         </Text>
       )}
 
@@ -409,6 +432,22 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 export default function CardDeck() {
   const cards = tarotData.cards as TarotCard[];
   const currentlyDraggingRef = useRef<number | null>(null); // Track which card is being dragged
+
+  // Phase cycling state (continuous, no re-renders)
+  const phaseStateRef = useRef({
+    elapsedTime: 0,           // 0-20s cycle counter
+    currentPhase: 'fast' as 'fast' | 'slow',
+    velocityMultiplier: 1.0,  // Interpolates 1.0 ↔ 0.5
+    transitionProgress: 1.0,  // 0-1 during fade
+  });
+
+  // Injection timing state
+  const injectionStateRef = useRef({
+    timeSinceLastInjection: 0,  // 0-60s counter
+  });
+
+  // Injection visual feedback (discrete events, triggers re-renders)
+  const [injectedCardIndices, setInjectedCardIndices] = useState<Set<number>>(new Set());
 
   // Initialize physics for all cards
   const allPhysicsRef = useRef<CardPhysics[]>(
@@ -464,6 +503,78 @@ export default function CardDeck() {
     }))
   );
 
+  // Phase cycling logic
+  useFrame((_state, dt) => {
+    const phaseRef = phaseStateRef.current;
+    phaseRef.elapsedTime += dt;
+
+    // 20-second cycle: 0-10s fast, 10-20s slow
+    if (phaseRef.elapsedTime >= 20) {
+      phaseRef.elapsedTime = 0;
+    }
+
+    const targetPhase = phaseRef.elapsedTime < 10 ? 'fast' : 'slow';
+    const targetMultiplier = targetPhase === 'fast' ? 1.0 : 0.5;
+
+    // Detect phase change
+    if (phaseRef.currentPhase !== targetPhase) {
+      console.log(`[Animation] Phase change: ${phaseRef.currentPhase} → ${targetPhase} at ${phaseRef.elapsedTime.toFixed(2)}s`);
+      phaseRef.currentPhase = targetPhase;
+      phaseRef.transitionProgress = 0; // Start 1.5s fade
+    }
+
+    // Smooth interpolation (smoothstep easing)
+    if (phaseRef.transitionProgress < 1.0) {
+      phaseRef.transitionProgress = Math.min(1.0, phaseRef.transitionProgress + dt / 1.5);
+      const t = phaseRef.transitionProgress;
+      const smoothT = t * t * (3 - 2 * t); // smoothstep function
+      phaseRef.velocityMultiplier = THREE.MathUtils.lerp(
+        phaseRef.velocityMultiplier,
+        targetMultiplier,
+        smoothT
+      );
+    } else {
+      phaseRef.velocityMultiplier = targetMultiplier;
+    }
+
+    // Velocity injection every 60 seconds
+    const injRef = injectionStateRef.current;
+    injRef.timeSinceLastInjection += dt;
+
+    if (injRef.timeSinceLastInjection >= 60) {
+      injRef.timeSinceLastInjection = 0;
+
+      // Select 10 random cards (no duplicates)
+      const totalCards = allPhysicsRef.current.length; // 78
+      const selectedIndices = new Set<number>();
+      while (selectedIndices.size < 10) {
+        selectedIndices.add(Math.floor(Math.random() * totalCards));
+      }
+
+      // Apply strong random impulses
+      selectedIndices.forEach(index => {
+        const physics = allPhysicsRef.current[index];
+
+        // Random direction + magnitude (0.3-0.5)
+        const magnitude = 0.3 + Math.random() * 0.2;
+        const direction = new THREE.Vector3(
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5
+        ).normalize();
+
+        const impulse = direction.multiplyScalar(magnitude);
+        physics.velocity.add(impulse); // Additive to existing velocity
+      });
+
+      // Trigger visual feedback (causes re-render of 10 cards)
+      setInjectedCardIndices(selectedIndices);
+
+      // Clear glow after 500ms
+      setTimeout(() => setInjectedCardIndices(new Set()), 500);
+    }
+  });
+
   return (
     <group>
       {cards.map((card, index) => (
@@ -476,6 +587,8 @@ export default function CardDeck() {
           physics={physicsRefs.current[index]}
           allPhysics={allPhysicsRef}
           currentlyDraggingRef={currentlyDraggingRef}
+          phaseStateRef={phaseStateRef}
+          isInjected={injectedCardIndices.has(index)}
         />
       ))}
     </group>

@@ -21,6 +21,7 @@ export interface TarotCard {
   number: number;
   traditional: CardInterpretation;
   lordOfMysteries: CardInterpretation;
+  lordOfMysteriesMasterpiece?: CardInterpretation;
   egyptian: CardInterpretation;
   celtic: CardInterpretation;
   shinto: CardInterpretation;
@@ -63,9 +64,15 @@ export interface Settings {
   showCardInfo?: boolean;
   animateCards?: boolean;
   navigateWithArrows?: boolean;
+  showCardNumbers?: boolean;      // NEW: toggle between card numbers and symbols
   autoShareEnabled?: boolean;     // NEW
   displayName?: string;           // NEW
   lastSharedTimestamp?: number;   // NEW
+  deckName?: string;              // NEW: custom deck metadata
+  deckDescription?: string;       // NEW: custom deck metadata
+  deckNameMap?: Record<string, string>; // NEW: per-deck names
+  deckDescriptionMap?: Record<string, string>; // NEW: per-deck descriptions
+  deckIdMap?: Record<string, string>; // NEW: per-deck upload ids to keep sessions together
 }
 
 export interface GeneratedCard {
@@ -78,6 +85,12 @@ export interface GeneratedCard {
   shared: boolean;         // NEW: has been uploaded to IPFS
   source: 'local' | 'community';  // NEW: origin of card
   bundleCID?: string;      // NEW: IPFS bundle CID if from community
+  prompt?: string;         // NEW: prompt used for the card
+  deckPromptSuffix?: string; // NEW: deck-level prompt suffix
+  deckId?: string;         // NEW: deck identifier for community import
+  deckName?: string;       // NEW: deck display name
+  deckDescription?: string; // NEW: deck description
+  author?: string;         // NEW: uploader display name
 }
 
 export interface TarotDeckData {

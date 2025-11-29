@@ -35,3 +35,7 @@ src/data/tarot-decks.json.backup
 .vercel
 *.car
 delegation.car
+agent.json
+*.b64
+tmp/
+src/pages/

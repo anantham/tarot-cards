@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { getUnsharedCards, markCardsAsShared } from '../utils/idb';
 import * as Client from '@web3-storage/w3up-client';
-import * as Delegation from '@ucanto/core/delegation';
-import { CarReader } from '@ipld/car';
+import * as Proof from '@web3-storage/w3up-client/proof';
 import type { GeneratedCard, IPFSCardPackage } from '../types';
 
 /**
@@ -16,7 +15,8 @@ export function useGallerySharing() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
-  const { addGeneratedCard } = useStore();
+  const { addGeneratedCard, settings, updateSettings } = useStore();
+  const useSupabase = true; // interim path
 
   const logProgress = (message: string) => {
     console.log(`[Gallery] ${message}`);
@@ -79,6 +79,27 @@ export function useGallerySharing() {
       setUploading(true);
       setError(null);
 
+      const base64Bytes = (b64: string) => {
+        const pad = (b64.match(/=*$/)?.[0].length ?? 0);
+        return (b64.length * 3) / 4 - pad;
+      };
+
+      const dataUrlBytes = (url: string) => {
+        if (!url.startsWith('data:')) return 0;
+        const [, b64] = url.split(',');
+        return base64Bytes(b64 || '');
+      };
+
+      const estimateCardSize = (card: typeof unshared[number]) => {
+        let total = 0;
+        card.frames.forEach((f) => {
+          total += dataUrlBytes(f);
+        });
+        if (card.gifUrl?.startsWith('data:')) total += dataUrlBytes(card.gifUrl);
+        if (card.videoUrl?.startsWith('data:')) total += dataUrlBytes(card.videoUrl);
+        return total;
+      };
+
       const unshared = await getUnsharedCards();
       if (unshared.length === 0) {
         setProgress('No cards to share');
@@ -87,6 +108,84 @@ export function useGallerySharing() {
 
       logProgress(`Uploading ${unshared.length} cards...`);
 
+      // Supabase interim path: skip w3up
+      if (useSupabase) {
+        // Vercel body limit is ~4.5MB; upload in small batches to avoid 500s.
+        const MAX_CARDS_PER_BATCH = 1;
+        const batches: typeof unshared[] = [];
+        for (let i = 0; i < unshared.length; i += MAX_CARDS_PER_BATCH) {
+          batches.push(unshared.slice(i, i + MAX_CARDS_PER_BATCH));
+        }
+
+        const deckIdFromMap = settings.deckIdMap?.[settings.selectedDeckType];
+        const deckId = deckIdFromMap || crypto.randomUUID();
+        const deckName =
+          settings.deckNameMap?.[settings.selectedDeckType] ||
+          settings.deckName ||
+          displayName ||
+          settings.selectedDeckType ||
+          'Community Deck';
+        const deckDescription =
+          settings.deckDescriptionMap?.[settings.selectedDeckType] ||
+          settings.deckDescription ||
+          '';
+
+        // Persist deckId for this deck type so subsequent uploads stay in one deck
+        if (!deckIdFromMap) {
+          updateSettings({
+            deckIdMap: {
+              ...(settings.deckIdMap || {}),
+              [settings.selectedDeckType]: deckId,
+            },
+          });
+        }
+        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+          const batch = batches[batchIndex];
+          logProgress(`Uploading batch ${batchIndex + 1}/${batches.length} via Supabase...`);
+          const payload = {
+            cards: batch.map((card) => ({
+              cardNumber: card.cardNumber,
+              deckType: card.deckType,
+              frames: card.frames,
+              gifUrl: card.gifUrl,
+              videoUrl: card.videoUrl,
+              timestamp: card.timestamp,
+              model: card.source || 'local',
+              author: displayName || 'anonymous',
+              prompt: (card as any).prompt || null,
+              deckPromptSuffix: (card as any).deckPromptSuffix || null,
+              deckId,
+              deckName,
+              deckDescription,
+            })),
+          };
+
+          // Estimate batch size (bytes) to avoid ~4.5MB Vercel body limit
+          const batchBytes = batch.reduce((sum, c) => sum + estimateCardSize(c), 0);
+          console.log(`[Gallery] Batch ${batchIndex + 1} estimated size: ${(batchBytes / 1024 / 1024).toFixed(2)} MB`);
+          if (batchBytes > 4_500_000) {
+            throw new Error(`Batch too large (${(batchBytes / 1024 / 1024).toFixed(2)} MB). Reduce frames or batch size.`);
+          }
+
+          const resp = await fetch('/api/upload-supabase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data?.error || `Supabase upload failed: ${resp.status}`);
+          }
+
+          // Mark this batch as shared
+          await markCardsAsShared(batch.map((c) => c.timestamp));
+        }
+
+        logProgress('Upload complete (Supabase)');
+        return true;
+      }
+
+      // w3up path (currently blocked by key issues)
       // Step 1: Initialize w3up client
       logProgress('Initializing client...');
       const client = await Client.create();
@@ -119,18 +218,18 @@ export function useGallerySharing() {
 
       // Step 3: Parse and activate delegation
       logProgress('Activating delegation...');
-      const delegationBytes = Uint8Array.from(atob(delegationBase64), (c) => c.charCodeAt(0));
-      const reader = await CarReader.fromBytes(delegationBytes);
-      const blocks: any[] = [];
-      for await (const block of reader.blocks()) {
-        blocks.push(block);
-      }
-      const delegation = Delegation.importDAG(blocks as any);
       
-      // Add as proof (not as space) - this delegation grants capabilities, not space ownership
+      // Convert base64 to base64url (UCAN JWTs use base64url internally)
+      const b64url = delegationBase64
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+      
+      // Parse the delegation using the official Proof parser
+      const delegation = await Proof.parse(b64url);
+      
+      // Add as proof and set the space
       await client.addProof(delegation);
-      
-      // Set current space to the one we have permission for
       await client.setCurrentSpace(spaceDID as `did:key:${string}`);
 
       logProgress(`Authorized to upload to space: ${spaceDID}`);

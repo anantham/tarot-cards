@@ -39,6 +39,20 @@ export default function Settings() {
   const [galleryDeckFilter, setGalleryDeckFilter] = useState<string>('all');
   const [dismissedError, setDismissedError] = useState(false);
   const [showCommunityGallery, setShowCommunityGallery] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string>('');
+  const [deckName, setDeckName] = useState(settings.deckName || settings.selectedDeckType || '');
+  const [deckDescription, setDeckDescription] = useState(settings.deckDescription || '');
+
+  const selectedDeck = settings.selectedDeckType;
+
+  // Keep local deck metadata in sync with selected deck and persisted maps
+  useEffect(() => {
+    const name = settings.deckNameMap?.[selectedDeck] ?? settings.deckName ?? selectedDeck ?? '';
+    const desc = settings.deckDescriptionMap?.[selectedDeck] ?? settings.deckDescription ?? '';
+    setDeckName(name);
+    setDeckDescription(desc);
+  }, [selectedDeck, settings.deckNameMap, settings.deckDescriptionMap, settings.deckName, settings.deckDescription]);
 
   // Shared generation state
   const showCardInfo = settings.showCardInfo !== false;
@@ -153,6 +167,120 @@ export default function Settings() {
         return 'Custom instruction...';
       default:
         return '';
+    }
+  };
+
+  // Export all generated cards (frames/videos) as a zip with manifest
+  const handleExportAll = async () => {
+    try {
+      if (generatedCards.length === 0) {
+        alert('No generated cards to export.');
+        return;
+      }
+      setExporting(true);
+      setExportStatus('Loading zip library...');
+
+      // @ts-expect-error - Dynamic CDN import without type definitions
+      const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+      const zip = new JSZip();
+
+      // Manifest for re-import/interoperability
+      const manifest = generatedCards.map((card) => ({
+        cardNumber: card.cardNumber,
+        deckType: card.deckType,
+        timestamp: card.timestamp,
+        shared: card.shared,
+        source: card.source,
+        frames: [] as string[],
+        gifUrl: undefined as string | undefined,
+        videoUrl: undefined as string | undefined,
+      }));
+
+      zip.file('manifest.json', JSON.stringify(manifest, null, 2));
+
+      let processed = 0;
+      const totalAssets = generatedCards.reduce((sum, card) => sum + card.frames.length + (card.gifUrl ? 1 : 0) + (card.videoUrl ? 1 : 0), 0);
+
+      const fetchAsArrayBuffer = async (url: string): Promise<{ data: ArrayBuffer; ext: string }> => {
+        // Handle data URLs directly
+        if (url.startsWith('data:')) {
+          const [meta, data] = url.split(',');
+          const mime = meta.split(';')[0].replace('data:', '') || 'application/octet-stream';
+          const ext = mimeToExtension(mime);
+          const buffer = Uint8Array.from(atob(data), (c) => c.charCodeAt(0)).buffer;
+          return { data: buffer, ext };
+        }
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`Failed to fetch ${url}`);
+        const blob = await resp.blob();
+        const ext = mimeToExtension(blob.type) || getExtensionFromUrl(url);
+        const buffer = await blob.arrayBuffer();
+        return { data: buffer, ext };
+      };
+
+      // Helper: derive extension from URL or mime
+      function getExtensionFromUrl(url: string): string {
+        const match = url.split('.').pop();
+        if (!match) return '.bin';
+        const ext = match.split('?')[0].split('#')[0];
+        return ext ? `.${ext}` : '.bin';
+      }
+
+      function mimeToExtension(mime: string): string {
+        if (mime.includes('png')) return '.png';
+        if (mime.includes('jpeg') || mime.includes('jpg')) return '.jpg';
+        if (mime.includes('gif')) return '.gif';
+        if (mime.includes('mp4')) return '.mp4';
+        if (mime.includes('webm')) return '.webm';
+        if (mime.includes('octet-stream')) return '.bin';
+        return '';
+      }
+
+      for (let cardIndex = 0; cardIndex < generatedCards.length; cardIndex++) {
+        const card = generatedCards[cardIndex];
+        // Frames
+        for (let i = 0; i < card.frames.length; i++) {
+          setExportStatus(`Exporting card ${card.cardNumber} frame ${i + 1}/${card.frames.length}...`);
+          const { data, ext } = await fetchAsArrayBuffer(card.frames[i]);
+          const path = `media/card-${card.cardNumber}-frame-${i}${ext}`;
+          zip.file(path, data);
+          manifest[cardIndex].frames.push(path);
+          processed++;
+        }
+        // GIF
+        if (card.gifUrl) {
+          setExportStatus(`Exporting card ${card.cardNumber} gif...`);
+          const { data, ext } = await fetchAsArrayBuffer(card.gifUrl);
+          const path = `media/card-${card.cardNumber}-gif${ext}`;
+          zip.file(path, data);
+          manifest[cardIndex].gifUrl = path;
+          processed++;
+        }
+        // Video
+        if (card.videoUrl) {
+          setExportStatus(`Exporting card ${card.cardNumber} video...`);
+          const { data, ext } = await fetchAsArrayBuffer(card.videoUrl);
+          const path = `media/card-${card.cardNumber}-video${ext}`;
+          zip.file(path, data);
+          manifest[cardIndex].videoUrl = path;
+          processed++;
+        }
+      }
+
+      setExportStatus(`Bundling ${processed}/${totalAssets} assets...`);
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tarot-cards-export-${Date.now()}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportStatus('Export complete. Zip downloaded.');
+    } catch (err) {
+      console.error('Export error:', err);
+      alert(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -667,11 +795,11 @@ export default function Settings() {
               </div>
             )}
 
-          {/* Card info visibility */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-              Card Info on Hover
-            </label>
+            {/* Card info visibility */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Card Info on Hover
+              </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
@@ -685,6 +813,29 @@ export default function Settings() {
                   </div>
                   <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
                     Toggle off for surprise mode—cards stay mysterious until you open them.
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            {/* Show card numbers toggle */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Card Number Display
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={settings.showCardNumbers !== false}
+                  onChange={(e) => updateSettings({ showCardNumbers: e.target.checked })}
+                  style={{ width: '18px', height: '18px' }}
+                />
+                <div>
+                  <div style={{ fontSize: '0.95rem' }}>
+                    Show card numbers on cards
+                  </div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
+                    Toggle off to show mystical symbol (✦) instead—for truly random selection.
                   </div>
                 </div>
               </label>
@@ -736,6 +887,7 @@ export default function Settings() {
                 }}
               />
             </div>
+
           </section>
 
           {/* Community Sharing */}
@@ -805,6 +957,73 @@ export default function Settings() {
               <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', opacity: 0.7 }}>
                 Your name will appear on shared galleries. Leave blank to share anonymously.
               </p>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+                Deck Name
+              </label>
+              <input
+                type="text"
+                value={deckName}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setDeckName(next);
+                  updateSettings({
+                    deckName: next,
+                    deckNameMap: {
+                      ...(settings.deckNameMap || {}),
+                      [selectedDeck]: next,
+                    },
+                  });
+                }}
+                placeholder="e.g. Cosmic Wanderer"
+                maxLength={80}
+                disabled={isUploading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+                Deck Description
+              </label>
+              <textarea
+                value={deckDescription}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setDeckDescription(next);
+                  updateSettings({
+                    deckDescription: next,
+                    deckDescriptionMap: {
+                      ...(settings.deckDescriptionMap || {}),
+                      [selectedDeck]: next,
+                    },
+                  });
+                }}
+                placeholder="Short summary of this deck's vibe and prompt."
+                maxLength={300}
+                disabled={isUploading}
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                  resize: 'vertical',
+                }}
+              />
             </div>
 
             {settings.autoShareEnabled && (
@@ -1129,6 +1348,44 @@ export default function Settings() {
                 }}
               >
                 <CommunityGallery embedded />
+              </div>
+            )}
+          </section>
+
+          {/* Export / Backup */}
+          <section>
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '0.75rem', color: '#d4af37' }}>
+              Export / Backup
+            </h3>
+            <p style={{ fontSize: '0.9rem', marginBottom: '0.75rem', opacity: 0.75 }}>
+              Download all generated cards (images/videos) plus a manifest as a zip file you can keep or import elsewhere.
+            </p>
+            <button
+              onClick={handleExportAll}
+              disabled={exporting || generatedCards.length === 0}
+              style={{
+                padding: '0.9rem 1.5rem',
+                background: exporting || generatedCards.length === 0 ? 'rgba(100, 100, 100, 0.5)' : 'linear-gradient(135deg, #d4af37 0%, #b98c28 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: exporting || generatedCards.length === 0 ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 15px rgba(212, 175, 55, 0.35)',
+                opacity: exporting || generatedCards.length === 0 ? 0.6 : 1,
+              }}
+            >
+              {exporting ? '⏳ Exporting...' : '⬇️ Export All Cards (Zip)'}
+            </button>
+            {exportStatus && (
+              <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#e8e8e8', opacity: 0.8 }}>
+                {exportStatus}
+              </div>
+            )}
+            {generatedCards.length === 0 && !exporting && (
+              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>
+                Generate a card first to enable export.
               </div>
             )}
           </section>
