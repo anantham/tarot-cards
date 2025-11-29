@@ -1355,9 +1355,14 @@ export default function Settings() {
                   <div><strong>Center Attraction:</strong> Cards are pulled back toward center when they drift too far</div>
                   <div><strong>Random Drift:</strong> Each card follows unique wandering trajectories</div>
                   <div><strong>Boundary Forces:</strong> Soft walls keep cards visible within the scene</div>
-                </div>
-              </div>
-            )}
+          </div>
+        </div>
+      )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
           </section>
 
           {/* Test Generation */}
