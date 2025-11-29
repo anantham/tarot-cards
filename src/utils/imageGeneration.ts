@@ -170,7 +170,7 @@ export async function generateCardFrames(
 
   // LOTM lore if using lord-of-mysteries deck
   let lotm = '';
-  if (deckType === 'lord-of-mysteries') {
+  if (deckType === 'lord-of-mysteries' || deckType === 'lord-of-mysteries-masterpiece') {
     const entry = (lotmLore as any).cards?.find((e: any) => e.number === card.number);
     if (entry) {
       const status = entry.status ? ` (${entry.status})` : '';
@@ -250,6 +250,8 @@ function getInterpretationForDeck(
   deckType: string
 ): CardInterpretation {
   switch (deckType) {
+    case 'lord-of-mysteries-masterpiece':
+      return card.lordOfMysteriesMasterpiece || card.lordOfMysteries;
     case 'lord-of-mysteries':
       return card.lordOfMysteries;
     case 'traditional-rider-waite':

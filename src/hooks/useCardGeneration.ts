@@ -5,6 +5,29 @@ import { generateVideoFromImage } from '../utils/videoGeneration';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard, GeneratedCard } from '../types';
 
+const getInterpretationForDeck = (card: TarotCard, deckType: string) => {
+  switch (deckType) {
+    case 'lord-of-mysteries-masterpiece':
+      return (card as any).lordOfMysteriesMasterpiece || card.lordOfMysteries;
+    case 'lord-of-mysteries':
+      return card.lordOfMysteries;
+    case 'traditional-rider-waite':
+      return card.traditional;
+    case 'egyptian-tarot':
+      return card.egyptian;
+    case 'celtic-tarot':
+      return card.celtic;
+    case 'japanese-shinto':
+      return card.shinto;
+    case 'advaita-vedanta':
+      return card.advaita;
+    case 'buddhist':
+      return card.traditional;
+    default:
+      return card.traditional;
+  }
+};
+
 export function useCardGeneration() {
   const {
     settings,
@@ -112,10 +135,12 @@ export function useCardGeneration() {
         throw new Error('No reference image found. Please generate the card image first.');
       }
 
-      const title = card.number === 0 ? '0 – THE FOOL' : `${card.traditional.name}`;
+      const interpretation = getInterpretationForDeck(card, settings.selectedDeckType);
+      const title =
+        card.number === 0 ? '0 – THE FOOL' : (interpretation.name || interpretation.pathway || card.traditional.name);
       const basePrompt =
         `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
-        `${card.lordOfMysteries.prompt} Render the title clearly on the card. ` +
+        `${interpretation.prompt} Render the title clearly on the card. ` +
         'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
 
       setGenerationProgress({
@@ -209,17 +234,18 @@ export function useCardGeneration() {
 
       for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
+        const interpretation = getInterpretationForDeck(card, settings.selectedDeckType);
         const existing = getGeneratedCard(card.number, settings.selectedDeckType);
         const referenceImage = existing?.frames?.[0];
 
         setGenerationProgress({
           current: i,
           total: cards.length,
-          status: `Generating video ${i + 1}/${cards.length}: ${card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`}`,
+          status: `Generating video ${i + 1}/${cards.length}: ${card.traditional.name || interpretation.pathway || `Card ${card.number}`}`,
         });
 
         if (!referenceImage) {
-          failures.push(`${card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`} (no image yet)`);
+          failures.push(`${card.traditional.name || interpretation.pathway || `Card ${card.number}`} (no image yet)`);
           continue;
         }
 
@@ -231,10 +257,11 @@ export function useCardGeneration() {
 
         let requestedVideo = false;
         try {
-          const title = card.number === 0 ? '0 – THE FOOL' : (card.traditional.name || card.lordOfMysteries.pathway || `Card ${card.number}`);
+          const title =
+            card.number === 0 ? '0 – THE FOOL' : (card.traditional.name || interpretation.pathway || `Card ${card.number}`);
           const basePrompt =
             `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
-            `${card.lordOfMysteries.prompt} Render the title clearly on the card. ` +
+            `${interpretation.prompt} Render the title clearly on the card. ` +
             'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
 
           const videoResult = await generateVideoFromImage(basePrompt, referenceImage as string, settings);

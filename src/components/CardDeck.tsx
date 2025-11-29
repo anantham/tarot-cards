@@ -310,6 +310,9 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   // Get the card name based on selected deck type
   const getCardName = () => {
     const deckType = settings.selectedDeckType;
+    if (deckType === 'lord-of-mysteries-masterpiece') {
+      return (card.lordOfMysteriesMasterpiece && card.lordOfMysteriesMasterpiece.pathway) || card.traditional.name;
+    }
     if (deckType === 'lord-of-mysteries') return card.lordOfMysteries.pathway || card.traditional.name;
     if (deckType === 'traditional-rider-waite') return card.traditional.name;
     if (deckType === 'egyptian-tarot') return card.egyptian.deity || card.traditional.name;
@@ -324,7 +327,8 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     const deckType = settings.selectedDeckType;
     let keywords: string[] = [];
 
-    if (deckType === 'lord-of-mysteries') keywords = card.lordOfMysteries.keywords;
+    if (deckType === 'lord-of-mysteries-masterpiece') keywords = card.lordOfMysteriesMasterpiece?.keywords || card.lordOfMysteries.keywords;
+    else if (deckType === 'lord-of-mysteries') keywords = card.lordOfMysteries.keywords;
     else if (deckType === 'traditional-rider-waite') keywords = card.traditional.keywords;
     else if (deckType === 'egyptian-tarot') keywords = card.egyptian.keywords;
     else if (deckType === 'celtic-tarot') keywords = card.celtic.keywords;
@@ -482,6 +486,40 @@ export default function CardDeck() {
       current: allPhysicsRef.current[index],
     }))
   );
+
+  // Phase cycling logic
+  useFrame((state, dt) => {
+    const phaseRef = phaseStateRef.current;
+    phaseRef.elapsedTime += dt;
+
+    // 20-second cycle: 0-10s fast, 10-20s slow
+    if (phaseRef.elapsedTime >= 20) {
+      phaseRef.elapsedTime = 0;
+    }
+
+    const targetPhase = phaseRef.elapsedTime < 10 ? 'fast' : 'slow';
+    const targetMultiplier = targetPhase === 'fast' ? 1.0 : 0.5;
+
+    // Detect phase change
+    if (phaseRef.currentPhase !== targetPhase) {
+      phaseRef.currentPhase = targetPhase;
+      phaseRef.transitionProgress = 0; // Start 1.5s fade
+    }
+
+    // Smooth interpolation (smoothstep easing)
+    if (phaseRef.transitionProgress < 1.0) {
+      phaseRef.transitionProgress = Math.min(1.0, phaseRef.transitionProgress + dt / 1.5);
+      const t = phaseRef.transitionProgress;
+      const smoothT = t * t * (3 - 2 * t); // smoothstep function
+      phaseRef.velocityMultiplier = THREE.MathUtils.lerp(
+        phaseRef.velocityMultiplier,
+        targetMultiplier,
+        smoothT
+      );
+    } else {
+      phaseRef.velocityMultiplier = targetMultiplier;
+    }
+  });
 
   return (
     <group>
