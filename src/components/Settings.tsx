@@ -1563,13 +1563,6 @@ export default function Settings() {
                   </ul>
                 </div>
               )}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
             {/* Deck metadata for sharing */}
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
