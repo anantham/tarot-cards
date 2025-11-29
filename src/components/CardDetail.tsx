@@ -83,12 +83,19 @@ export default function CardDetail() {
   }, [generatedCard?.videoUrl, settings.apiProvider, settings.geminiApiKey]);
 
   const handleDeleteCurrent = () => {
-    if (generatedCard) {
-      deleteGeneratedCard(generatedCard.timestamp);
-      // Reset to first generation or stay at current if it was last
-      if (currentGenerationIndex >= allGenerations.length - 1) {
-        setCurrentGenerationIndex(Math.max(0, currentGenerationIndex - 1));
-      }
+    if (!generatedCard) return;
+    const ok = window.confirm('Delete this card from your gallery?');
+    if (!ok) return;
+    deleteGeneratedCard(generatedCard.timestamp);
+
+    // After deletion, adjust index or close if none remain
+    const remaining = allGenerations.filter((c) => c.timestamp !== generatedCard.timestamp);
+    if (remaining.length === 0) {
+      setSelectedCard(null);
+      return;
+    }
+    if (currentGenerationIndex >= remaining.length) {
+      setCurrentGenerationIndex(remaining.length - 1);
     }
   };
 
@@ -279,7 +286,7 @@ export default function CardDetail() {
           position: 'relative',
         }}
       >
-        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem' }}>
+        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', gap: '0.35rem' }}>
           <button
             onClick={() => setShowDetails((prev) => !prev)}
             style={{
@@ -305,6 +312,33 @@ export default function CardDetail() {
           >
             👁
           </button>
+          {generatedCard && (
+            <button
+              onClick={handleDeleteCurrent}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: 'none',
+                background: 'rgba(255,0,0,0.12)',
+                color: '#ffb4b4',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              aria-label="Delete this card"
+              title="Delete this card"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,0,0,0.25)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,0,0,0.12)';
+                e.currentTarget.style.color = '#ffb4b4';
+              }}
+            >
+              🗑
+            </button>
+          )}
         </div>
 
         {!showDetails && (
