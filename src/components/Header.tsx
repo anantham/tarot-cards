@@ -48,14 +48,13 @@ export default function Header() {
         <button
           onClick={() => setShowSettings(!showSettings)}
           style={{
-            padding: '0.75rem 1.5rem',
+            padding: '0.75rem',
             background: showSettings ? 'rgba(147, 51, 234, 0.3)' : 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '8px',
             color: '#e8e8e8',
             cursor: 'pointer',
-            fontSize: '0.95rem',
-            fontWeight: '500',
+            fontSize: '1.1rem',
             transition: 'all 0.3s ease',
           }}
           onMouseEnter={(e) => {
@@ -67,7 +66,7 @@ export default function Header() {
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          ⚙️ Settings
+          ⚙️
         </button>
       </div>
     </header>

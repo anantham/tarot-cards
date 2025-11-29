@@ -390,8 +390,8 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       {showInfo && (
         <Text
           position={[0, 0.5, 0.03]}
-          fontSize={settings.showCardNumbers !== false ? 0.15 : 0.25}
-          color={settings.showCardNumbers !== false ? "#d4af37" : "#ffffff"}
+            fontSize={settings.showCardNumbers !== false ? 0.15 : 0.13}
+            color={settings.showCardNumbers !== false ? "#d4af37" : "#ffffff"}
           anchorX="center"
           anchorY="middle"
         >
