@@ -32,8 +32,6 @@ interface CardProps {
 }
 
 function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected }: CardProps) {
-  // Mark as intentionally unused for now - will be used in Task 6
-  void isInjected;
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -370,8 +368,18 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         <boxGeometry args={[0.8, 1.2, 0.05]} />
         <meshStandardMaterial
           color={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#1a1a2e'}
-          emissive={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#000000'}
-          emissiveIntensity={dragging ? 0.8 : hovered ? 0.5 : 0}
+          emissive={
+            dragging ? '#7c3aed' :
+            hovered ? '#9333ea' :
+            isInjected ? '#ff6b35' :
+            '#000000'
+          }
+          emissiveIntensity={
+            dragging ? 0.8 :
+            hovered ? 0.5 :
+            isInjected ? 0.9 :
+            0
+          }
           metalness={0.3}
           roughness={0.7}
         />
