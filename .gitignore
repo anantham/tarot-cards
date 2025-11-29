@@ -37,3 +37,5 @@ src/data/tarot-decks.json.backup
 delegation.car
 agent.json
 *.b64
+tmp/
+src/pages/

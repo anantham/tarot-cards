@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGallerySharing } from '../hooks/useGallerySharing';
-import type { GalleryBundle } from '../types';
+import { useStore } from '../store/useStore';
+import type { GeneratedCard, GalleryBundle } from '../types';
 
 interface CommunityGalleryProps {
   embedded?: boolean;
@@ -13,6 +14,7 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
   const [loadingCID, setLoadingCID] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const { downloadGallery, error } = useGallerySharing();
+  const { addGeneratedCard, setSelectedCard, setReturnToSettingsOnClose } = useStore();
 
   useEffect(() => {
     fetchGalleries();
@@ -22,7 +24,7 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     try {
       setLoading(true);
       setFetchError(null);
-      const response = await fetch('/api/galleries?limit=50&offset=0');
+      const response = await fetch('/api/community-supabase');
       if (!response.ok) {
         throw new Error(`Fetch failed (${response.status} ${response.statusText})`);
       }
@@ -36,13 +38,30 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     }
   };
 
-  const handleLoadGallery = async (cid: string) => {
-    setLoadingCID(cid);
-    const count = await downloadGallery(cid);
-    setLoadingCID(null);
-
-    if (count > 0) {
-      alert(`Successfully loaded ${count} cards from the community!`);
+  const handleLoadSupabaseCard = async (bundle: any) => {
+    try {
+      setLoadingCID(bundle.id || bundle.cid || `${bundle.card_number}-${bundle.timestamp}`);
+      // Build a GeneratedCard from Supabase metadata
+      const generated: GeneratedCard = {
+        cardNumber: bundle.card_number ?? bundle.cardNumber,
+        deckType: bundle.deck_type ?? bundle.deckType,
+        frames: bundle.frames || [],
+        gifUrl: bundle.gif_url ?? bundle.gifUrl,
+        videoUrl: bundle.video_url ?? bundle.videoUrl,
+        timestamp: bundle.timestamp || Date.now(),
+        shared: true,
+        source: 'community',
+        bundleCID: bundle.cid || undefined,
+      };
+      addGeneratedCard(generated);
+      setSelectedCard(null);
+      setReturnToSettingsOnClose(true);
+      alert(`Imported card ${generated.cardNumber} from community.`);
+    } catch (err) {
+      console.error('[CommunityGallery] Import error:', err);
+      alert('Failed to import this card.');
+    } finally {
+      setLoadingCID(null);
     }
   };
 
@@ -156,12 +175,12 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
               gap: '1.25rem',
             }}
           >
-            {galleries.map((bundle) => (
-              <motion.div
-                key={bundle.cid}
-                whileHover={{ scale: embedded ? 1.01 : 1.02 }}
-                style={{
-                  padding: '1.25rem',
+                {galleries.map((bundle) => (
+                  <motion.div
+                    key={bundle.cid}
+                    whileHover={{ scale: embedded ? 1.01 : 1.02 }}
+                    style={{
+                      padding: '1.25rem',
                   background: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: '12px',
@@ -221,22 +240,22 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
                 </div>
 
                 <button
-                  onClick={() => handleLoadGallery(bundle.cid)}
-                  disabled={loadingCID === bundle.cid}
+                  onClick={() => handleLoadSupabaseCard(bundle)}
+                  disabled={loadingCID === (bundle.id || bundle.cid)}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    background: loadingCID === bundle.cid
+                    background: loadingCID === (bundle.id || bundle.cid)
                       ? 'rgba(147, 51, 234, 0.3)'
                       : 'rgba(147, 51, 234, 0.5)',
                     border: '1px solid rgba(147, 51, 234, 0.7)',
                     borderRadius: '6px',
                     color: '#e8e8e8',
                     fontSize: '0.9rem',
-                    cursor: loadingCID === bundle.cid ? 'wait' : 'pointer',
+                    cursor: loadingCID === (bundle.id || bundle.cid) ? 'wait' : 'pointer',
                   }}
                 >
-                  {loadingCID === bundle.cid ? '⏳ Loading...' : '📥 Load Gallery'}
+                  {loadingCID === (bundle.id || bundle.cid) ? '⏳ Loading...' : '📥 Import to My Deck'}
                 </button>
 
                 <div
