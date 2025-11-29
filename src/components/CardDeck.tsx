@@ -336,6 +336,24 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         }
       }}
     >
+      {/* Glow outline */}
+      <mesh
+        scale={[1.05, 1.05, 0.07]}
+        position={[0, 0, 0]}
+      >
+        <boxGeometry args={[0.8, 1.2, 0.05]} />
+        <meshStandardMaterial
+          color="#5b21b6"
+          emissive={hovered || dragging ? '#c084fc' : isInjected ? '#ff8a50' : '#7c3aed'}
+          emissiveIntensity={hovered ? 1.0 : dragging ? 1.1 : isInjected ? 1.2 : 0.35}
+          transparent
+          opacity={hovered || dragging ? 0.4 : 0.28}
+          metalness={0.8}
+          roughness={0.2}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
       <mesh>
         {/* Card body */}
         <boxGeometry args={[0.8, 1.2, 0.05]} />
@@ -362,12 +380,12 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       {showInfo && (
         <Text
           position={[0, 0.5, 0.03]}
-          fontSize={0.15}
-          color="#d4af37"
+          fontSize={settings.showCardNumbers !== false ? 0.15 : 0.25}
+          color={settings.showCardNumbers !== false ? "#d4af37" : "#ffffff"}
           anchorX="center"
           anchorY="middle"
         >
-          {settings.showCardNumbers !== false ? (card.number === 0 ? '0' : card.number) : '✦'}
+          {settings.showCardNumbers !== false ? (card.number === 0 ? '0' : card.number) : '☆'}
         </Text>
       )}
 
