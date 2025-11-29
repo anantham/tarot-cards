@@ -410,6 +410,25 @@ export default function CardDeck() {
   const cards = tarotData.cards as TarotCard[];
   const currentlyDraggingRef = useRef<number | null>(null); // Track which card is being dragged
 
+  // Phase cycling state (continuous, no re-renders)
+  // @ts-expect-error - Will be used in Task 2
+  const phaseStateRef = useRef({
+    elapsedTime: 0,           // 0-20s cycle counter
+    currentPhase: 'fast' as 'fast' | 'slow',
+    velocityMultiplier: 1.0,  // Interpolates 1.0 ↔ 0.5
+    transitionProgress: 1.0,  // 0-1 during fade
+  });
+
+  // Injection timing state
+  // @ts-expect-error - Will be used in Task 3
+  const injectionStateRef = useRef({
+    timeSinceLastInjection: 0,  // 0-60s counter
+  });
+
+  // Injection visual feedback (discrete events, triggers re-renders)
+  // @ts-expect-error - Will be used in Task 4
+  const [injectedCardIndices, setInjectedCardIndices] = useState<Set<number>>(new Set());
+
   // Initialize physics for all cards
   const allPhysicsRef = useRef<CardPhysics[]>(
     cards.map((_, index) => {
