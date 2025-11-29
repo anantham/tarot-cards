@@ -60,7 +60,7 @@
           "fooling"
         ],
         "abilities": "Grafting, Historical Void Projection, Miracle Invocation",
-        "prompt": "Tarot card: 0 \u2013 THE FOOL (Lord of the Mysteries). Render the title '0 \u2013 THE FOOL' on the card using Arabic numeral 0. A vagabond/jester/seer at the brink of a precipice, one foot lifted toward the void; carries a small bag or staff, simple/torn clothes, maybe a jester hat. Facets of the Fool pathway: faceless trickster, subtle marionette strings/control, seer/clown motifs, freedom from constraints. Ethereal void with cosmic symbols; feel like first and last, outside the sequence."
+        "prompt": "Tarot card: 0 - THE FOOL (Lord of the Mysteries). Render the title. A vagabond/seer at the edge of a precipice, one foot into the void, torn clothes, small bundle. The apex Fool carries all lower-sequence tricks: divination tools, warped illusions, faceless mask, clown's grin, marionette strings tugging reality, muscle and expression control. Miracles crackle, duplicates peel off, objects from the past appear. The air is a mysterious field of tampering and concealment, black eyes glinting, cosmic symbols around an impossible cliff."
       },
       "egyptian": {
         "deity": "Ra - The Sun God",
@@ -136,7 +136,7 @@
           "mysteries"
         ],
         "abilities": "Knowledge Projection, Perfect Replication, Mystery Enhancement",
-        "prompt": "A scholar surrounded by floating ancient tomes and mystical symbols, reality itself being written and rewritten, geometric patterns forming and dissolving, intense study and mastery"
+        "prompt": "Sequence 0 - PARAGON. A master inventor-scholar in a workshop-temple where floating tomes, star charts, gears, and alchemical glassware fuse with runes. They wield perfect scientific and historical knowledge, craft living artifacts, pour spirit into machines, alter the laws of physics, and blend mysticism with technology. Tools, weapon schematics, and glowing formulae orbit them as reality is rewritten."
       },
       "egyptian": {
         "deity": "Thoth - God of Wisdom",
@@ -212,7 +212,7 @@
           "revelation"
         ],
         "abilities": "Secret Keeping, Knowledge Theft, Mystic Revelation",
-        "prompt": "A mysterious hooded figure in library of infinite secrets, books whispering forbidden knowledge, reality veiled in shadows, glowing eyes seeing all hidden truths"
+        "prompt": "Hidden Sage in a shadowed infinite library of whispered secrets, listening to entities beyond sight. Shelves vanish into darkness; spirit threads carry murmurs. The sage veils reality, steals and reveals truths, grazes souls for knowledge, and hides within moving shadows. Glowing runes for concealment, half-seen figures eavesdropping, a sense of forbidden knowing kept perfectly still."
       },
       "egyptian": {
         "deity": "Isis - Goddess of Magic",
@@ -288,7 +288,7 @@
           "transformation"
         ],
         "abilities": "Beauty Manipulation, Dream Weaving, Psychological Corruption",
-        "prompt": "An impossibly beautiful yet terrifying figure bathed in crimson moonlight, reality warping around them in beautiful nightmares, roses with thorns of madness"
+        "prompt": "Mother Goddess of Depravity, sovereign of all feminine forces, bathed in crimson moonlight. Reality warps into beautiful nightmares; roses with thorny madness curl around her. Echoes of banshees and decadent madames, mirror-world allure, corruption presented as desire. Soft hands cradle and ruin at once; the atmosphere is luxurious, dangerous, and inescapably enchanting."
       },
       "egyptian": {
         "deity": "Hathor - Goddess of Love",
@@ -363,7 +363,7 @@
           "dominion"
         ],
         "abilities": "Order Bestowal, Rule Enforcement, Parasitic Control",
-        "prompt": "A dark emperor in obsidian throne, crown of black flames, reality itself bowing to their laws, fortress of absolute order, commanding presence"
+        "prompt": "Black Emperor on an obsidian throne, crown of black flames, fortress bending to their will. Laws twist visibly: contracts and verdicts float, gold coins for bribery, strings of authority circle like chains. Abstract rules become sigils, the environment isolates under their order, and every decree magnifies in power. A sense of endless resurrection so long as their command stands."
       },
       "egyptian": {
         "deity": "Horus - God of Kingship",
@@ -438,7 +438,7 @@
           "tyranny"
         ],
         "abilities": "Weather Control, Ocean Dominion, Calamity Bringing",
-        "prompt": "A figure commanding tempestuous seas and lightning storms, hovering above raging waters, trident of power, absolute control over natural disasters"
+        "prompt": "Tyrant towering over tempestuous seas and lightning-streaked skies, omnipotent across sea, land, and air. Water, wind, and electricity coil around; a trident raised as sea creatures heed the call. Stormsong disables foes; gusts lift them; earthquakes rumble. Moves at lightning speed, generating star-level electrical fury, hair streaming with salt and stormlight."
       },
       "egyptian": {
         "deity": "Osiris - God of Afterlife",
@@ -514,7 +514,7 @@
           "provocation"
         ],
         "abilities": "War Declaration, Strategic Foresight, Provocation Mastery",
-        "prompt": "A crimson-clad priest of war standing on battlefield, armies clashing in background, strategic brilliance visible in their eyes, banners of conquest"
+        "prompt": "Red Priest amid a war-torn battlefield, crimson vestments and iron-black eyes. Fire traps and banners blaze; conspiratorial diagrams and provoke-hexes hang in the air. Enhanced strength and agility fuel decisive strikes; weather bends, meteoric fire trails from their form. Represents the masculine catastrophe: war liturgy, provocation, and strategic carnage."
       },
       "egyptian": {
         "deity": "Nut and Geb - Sky and Earth",
@@ -589,7 +589,7 @@
           "chance"
         ],
         "abilities": "Probability Manipulation, Fate Weaving, Luck Stealing",
-        "prompt": "A figure surrounded by spinning wheels of fate and probability, stars aligning at their command, reality branching into favorable outcomes, cosmic dice rolling"
+        "prompt": "Key of Stars standing among spinning wheels of fate and probability, cosmic dice rolling. Hands trace sigils that store and release luck, turning certainties uncertain. Threads of destiny loop opponents into endless cycles; divination circles predict outcomes before they unfold. A door of stars hints at space-walking travel between worlds."
       },
       "egyptian": {
         "deity": "Montu - God of War",
@@ -664,7 +664,7 @@
           "divine"
         ],
         "abilities": "Purification, Divine Light, Restraint of Evil",
-        "prompt": "A radiant figure blazing with holy light, wings of pure flame, purifying darkness, divine restraint over chaos, eternal and magnificent"
+        "prompt": "Eternal Blazing Sun radiant with holy light, wings and corona forming an ocean of brilliance. Traditional priestly chants buff allies and weaken foes; light and fire spells purify and exorcise. In a single gesture they can lower an enemy's Sequence, create an area of relentless light, and seal contracts of truth. Gold-white glow, scales of justice hinted in the halo."
       },
       "egyptian": {
         "deity": "Sekhmet - Lioness Goddess",
@@ -739,7 +739,7 @@
           "wisdom"
         ],
         "abilities": "Perfect Calculation, Future Sight, Knowledge Accumulation",
-        "prompt": "A solitary figure with third eye blazing, surrounded by infinite calculations and prophecies, seeing all possible futures, isolated in omniscience"
+        "prompt": "Eye of Wisdom solitary on a peak of calculations and constellations. This Hermit of the occult conjures star maps, divines, casts ritual spells, and scribes scrolls. At apex they hear hidden existences, travel the spirit world, self-create spells, drain power from knowledge itself, and foresee woven fate. Lantern of insight, staff of a sage, cosmic equations around them."
       },
       "egyptian": {
         "deity": "Anubis - Guide of Souls",
@@ -814,7 +814,7 @@
           "transformation"
         ],
         "abilities": "Desire Amplification, Mutation Granting, Wish Twisting",
-        "prompt": "A vast tree-like being of desire and transformation, granting twisted wishes, reality mutating around them, beautiful corruption, endless hunger"
+        "prompt": "Mother Tree of Desire as a colossal, beautiful yet corrupt tree-being. Roots clutch treasure and skulls, branches drip with tempting fruit and seductive flowers. Grants twisted wishes, mutates reality, births chimeras and crossbreeds, and exudes overwhelming desire. Vines coil like serpents; a patriarchal trunk pulses with hunger beneath a crimson moon."
       },
       "egyptian": {
         "deity": "Khepri - God of Rebirth",
@@ -889,7 +889,7 @@
           "punishment"
         ],
         "abilities": "Crime Detection, Punishment Execution, Law Enforcement",
-        "prompt": "A stern judge in divine court, scales of cosmic justice, sword of judgment, all crimes visible before them, absolute fairness and inevitable punishment"
+        "prompt": "Adjudicator in a divine court, balanced scales and upright sword glowing. They defend Order itself: setting rules that punish when broken, striking minds and souls, detecting anomalies, and negating Beyonder powers. Verdicts spoken become binding laws; chaos is forced into obedience. Law sigils, explosive seals, and an unblinking gaze of absolute justice."
       },
       "egyptian": {
         "deity": "Ma'at - Goddess of Truth",
@@ -964,7 +964,7 @@
           "night"
         ],
         "abilities": "Death Bringing, Peaceful Rest, Dream Walking",
-        "prompt": "A compassionate figure cloaked in eternal night, bringing peaceful death and rest, crimson moon above, gentle release from suffering"
+        "prompt": "Evernight Goddess cloaked in eternal night over a silent graveyard. Death pathway apex: summons and commands spirits, raises and stills the dead, walks the spirit world, resists cold and decay. A crimson moon above, black flag of death unfurled; with a gesture she resurrects or ends life instantly. Lanterns of soul-fire line the path to the underworld."
       },
       "egyptian": {
         "deity": "Bes - Protector Through Sacrifice",
@@ -1039,7 +1039,7 @@
           "catastrophe"
         ],
         "abilities": "Catastrophe Weaving, Disease Spreading, Unnatural Beauty",
-        "prompt": "An incomprehensibly beautiful yet terrifying figure, endings and new corrupt beginnings, weaving catastrophes like art, transformation through desire"
+        "prompt": "Primordial Demoness, cataclysm made seductive. Moves like an assassin, casts ritual curses, manipulates invisible threads, incites crime and plague. Mirrors shimmer with alternate worlds; natural disasters gather at her whim; petrification and disease spread like art. The feminine catastrophe of the Original Creator, alluring and deadly."
       },
       "egyptian": {
         "deity": "Anput - Death and Rebirth",
@@ -1114,7 +1114,7 @@
           "balance"
         ],
         "abilities": "Life Granting, Harvest Blessing, Natural Balance",
-        "prompt": "A nurturing figure surrounded by abundant harvest and flowing life energy, perfect balance of nature, seasons bowing to their will"
+        "prompt": "Mother Goddess of Harvest overflowing with plant and earth authority. Fields surge to life, vines and roots obey, chimeras and golems take form. She heals flesh and soul, splices genetics, and can drain life force back to the soil. Verdant aura with herbal tools and earthen crowns; abundance and deprivation in the same hand."
       },
       "egyptian": {
         "deity": "Hapi - God of the Nile",
@@ -1189,7 +1189,7 @@
           "desire"
         ],
         "abilities": "Theft Mastery, Chain Manipulation, Desire Liberation",
-        "prompt": "A bound deity breaking chains of reality itself, stealing concepts and possibilities, imprisoned yet free, paradoxical liberation"
+        "prompt": "Chained God bound in cursed iron yet seething with mutant power. Summons zombies and ghosts, slips through reflections, shrugs bullets with unnatural flesh, possesses others, hexes targets into harmless animals. Regenerates while sacrificing rationality; full-moon loss of control hinted. All nonliving things in a radius twitch under their command."
       },
       "egyptian": {
         "deity": "Set - God of Chaos",
@@ -1264,7 +1264,7 @@
           "upheaval"
         ],
         "abilities": "Lightning Control, Storm Summoning, Destruction Bringing",
-        "prompt": "A storm lord commanding lightning and tempests, towers crumbling before divine fury, absolute upheaval and revelation through destruction"
+        "prompt": "Lord of Storms atop a crumbling tower as lightning shreds the sky. Water, wind, and thunder obey; sea kingship and stormsong bend ships. Earthquakes shake foundations; air gliding and tidal surges crash upward. Moves at the speed of lightning, wielding enough electric fury to rival a star, revealing truths through destruction."
       },
       "egyptian": {
         "deity": "Sekhmet Unleashed",
@@ -1339,7 +1339,7 @@
           "creation"
         ],
         "abilities": "Dream Creation, Reality Writing, Hope Manifestation",
-        "prompt": "A visionary creating new realities from pure imagination, stars of possibility shining above, dreams becoming real, infinite hope"
+        "prompt": "Visionary weaving dreams and minds into reality. Reads thoughts, discerns emotions, hypnotizes with a pendulum, and strolls through others' dreams. An actor's perfect expressions hide power; at apex they enter the Mind World, weave vivid illusions, control without notice, and let thoughts reshape reality. Draconic irises flash, pages of scripts orbit."
       },
       "egyptian": {
         "deity": "Sopdet - Star Goddess",
@@ -1414,7 +1414,7 @@
           "concealment"
         ],
         "abilities": "Nightmare Weaving, Fear Manipulation, Darkness Control",
-        "prompt": "A figure of pure darkness under crimson moon, nightmares made manifest, fear and illusion as weapons, unsleeping terror"
+        "prompt": "Darkness figure under a crimson moon, domain of night, soul, and sleep. Gains strength at night, casts area sleep, pacifies souls, walks dreams, and hosts evil spirits. Controls darkness as a veil of secrecy, erases or hides things, suppresses desire, and inflicts misfortune. Shadows thicken around a hidden, unsleeping terror."
       },
       "egyptian": {
         "deity": "Khonsu - Moon God",
@@ -1489,7 +1489,7 @@
           "revelation"
         ],
         "abilities": "Perfect Observation, Mind Reading, Truth Seeing",
-        "prompt": "An all-seeing figure in brilliant clarity, every truth revealed under their gaze, perfect understanding, illuminating observation"
+        "prompt": "Evernight as an all-seeing shroud of night that reveals then veils every truth. Hair like living shadow, eyes that bore through lies; evil spirits coil nearby. Suppresses emotions and desires, blankets regions in secrecy, and shifts entire areas into hidden states. Misfortune radiates like a crown; silence and clarity coexist in the endless night."
       },
       "egyptian": {
         "deity": "Ra at Zenith",
@@ -1564,7 +1564,7 @@
           "endings"
         ],
         "abilities": "Death Judgment, Undead Control, Resurrection",
-        "prompt": "A figure judging souls and granting resurrection, the dead rising at their call, ultimate judgment between rest and return"
+        "prompt": "Death presiding in a hall of spirits, black flag with white rose unfurled. Commands zombies and wraiths, summons dead to fight, crosses freely into the spirit world. In one breath resurrects, in another annihilates; cold and decay bend around them. Keys of the gate hang at their belt; souls queue for judgment."
       },
       "egyptian": {
         "deity": "Osiris Judging",
@@ -1639,7 +1639,7 @@
           "fulfillment"
         ],
         "abilities": "Knowledge Preservation, History Recording, Complete Understanding",
-        "prompt": "A figure at the center of all accumulated knowledge and history, complete understanding achieved, cycles completed, ultimate fulfillment"
+        "prompt": "Hermit of the White Tower at the center of all knowledge, both scientific and mystical. Analytic diagrams and spell arrays float; they mimic powers by observation, see futures and deduce pasts, observe and use the laws of reality directly. Every hidden datum about a person glows around them. Wreath of constellations, books and devices in orbit, perfect fulfillment."
       },
       "egyptian": {
         "deity": "Atum - The Complete One",
