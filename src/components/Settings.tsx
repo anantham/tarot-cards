@@ -44,6 +44,16 @@ export default function Settings() {
   const [deckName, setDeckName] = useState(settings.deckName || settings.selectedDeckType || '');
   const [deckDescription, setDeckDescription] = useState(settings.deckDescription || '');
 
+  const selectedDeck = settings.selectedDeckType;
+
+  // Keep local deck metadata in sync with selected deck and persisted maps
+  useEffect(() => {
+    const name = settings.deckNameMap?.[selectedDeck] ?? settings.deckName ?? selectedDeck ?? '';
+    const desc = settings.deckDescriptionMap?.[selectedDeck] ?? settings.deckDescription ?? '';
+    setDeckName(name);
+    setDeckDescription(desc);
+  }, [selectedDeck, settings.deckNameMap, settings.deckDescriptionMap, settings.deckName, settings.deckDescription]);
+
   // Shared generation state
   const showCardInfo = settings.showCardInfo !== false;
   const navWithArrows = settings.navigateWithArrows === true;
@@ -926,6 +936,73 @@ export default function Settings() {
               </p>
             </div>
 
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+                Deck Name
+              </label>
+              <input
+                type="text"
+                value={deckName}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setDeckName(next);
+                  updateSettings({
+                    deckName: next,
+                    deckNameMap: {
+                      ...(settings.deckNameMap || {}),
+                      [selectedDeck]: next,
+                    },
+                  });
+                }}
+                placeholder="e.g. Cosmic Wanderer"
+                maxLength={80}
+                disabled={isUploading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+                Deck Description
+              </label>
+              <textarea
+                value={deckDescription}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setDeckDescription(next);
+                  updateSettings({
+                    deckDescription: next,
+                    deckDescriptionMap: {
+                      ...(settings.deckDescriptionMap || {}),
+                      [selectedDeck]: next,
+                    },
+                  });
+                }}
+                placeholder="Short summary of this deck's vibe and prompt."
+                maxLength={300}
+                disabled={isUploading}
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+
             {settings.autoShareEnabled && (
               <div style={{
                 padding: '1rem 1.25rem',
@@ -1355,14 +1432,9 @@ export default function Settings() {
                   <div><strong>Center Attraction:</strong> Cards are pulled back toward center when they drift too far</div>
                   <div><strong>Random Drift:</strong> Each card follows unique wandering trajectories</div>
                   <div><strong>Boundary Forces:</strong> Soft walls keep cards visible within the scene</div>
-          </div>
-        </div>
-      )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+                </div>
+              </div>
+            )}
           </section>
 
           {/* Test Generation */}
@@ -1569,3 +1641,10 @@ export default function Settings() {
                   </ul>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}

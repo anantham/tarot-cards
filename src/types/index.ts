@@ -69,6 +69,8 @@ export interface Settings {
   lastSharedTimestamp?: number;   // NEW
   deckName?: string;              // NEW: custom deck metadata
   deckDescription?: string;       // NEW: custom deck metadata
+  deckNameMap?: Record<string, string>; // NEW: per-deck names
+  deckDescriptionMap?: Record<string, string>; // NEW: per-deck descriptions
 }
 
 export interface GeneratedCard {
@@ -81,6 +83,12 @@ export interface GeneratedCard {
   shared: boolean;         // NEW: has been uploaded to IPFS
   source: 'local' | 'community';  // NEW: origin of card
   bundleCID?: string;      // NEW: IPFS bundle CID if from community
+  prompt?: string;         // NEW: prompt used for the card
+  deckPromptSuffix?: string; // NEW: deck-level prompt suffix
+  deckId?: string;         // NEW: deck identifier for community import
+  deckName?: string;       // NEW: deck display name
+  deckDescription?: string; // NEW: deck description
+  author?: string;         // NEW: uploader display name
 }
 
 export interface TarotDeckData {

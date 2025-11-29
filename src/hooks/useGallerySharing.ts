@@ -15,7 +15,7 @@ export function useGallerySharing() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
-  const { addGeneratedCard } = useStore();
+  const { addGeneratedCard, settings } = useStore();
   const useSupabase = true; // interim path
 
   const logProgress = (message: string) => {
@@ -118,8 +118,16 @@ export function useGallerySharing() {
         }
 
         const deckId = crypto.randomUUID();
-        const deckName = (settings.deckName || displayName || settings.selectedDeckType || 'Community Deck') as string;
-        const deckDescription = settings.deckDescription || '';
+        const deckName =
+          settings.deckNameMap?.[settings.selectedDeckType] ||
+          settings.deckName ||
+          displayName ||
+          settings.selectedDeckType ||
+          'Community Deck';
+        const deckDescription =
+          settings.deckDescriptionMap?.[settings.selectedDeckType] ||
+          settings.deckDescription ||
+          '';
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
           logProgress(`Uploading batch ${batchIndex + 1}/${batches.length} via Supabase...`);
