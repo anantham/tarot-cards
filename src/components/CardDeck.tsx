@@ -32,8 +32,7 @@ interface CardProps {
 }
 
 function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected }: CardProps) {
-  // Mark as intentionally unused for now - will be used in Tasks 5-6
-  void phaseStateRef;
+  // Mark as intentionally unused for now - will be used in Task 6
   void isInjected;
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -277,9 +276,10 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       // Apply damping
       physics.current.velocity.multiplyScalar(DAMPING);
 
-      // Limit velocity
-      if (physics.current.velocity.length() > MAX_VELOCITY) {
-        physics.current.velocity.normalize().multiplyScalar(MAX_VELOCITY);
+      // Limit velocity (phase-modulated)
+      const effectiveMaxVelocity = MAX_VELOCITY * phaseStateRef.current.velocityMultiplier;
+      if (physics.current.velocity.length() > effectiveMaxVelocity) {
+        physics.current.velocity.normalize().multiplyScalar(effectiveMaxVelocity);
       }
 
       // Update position
