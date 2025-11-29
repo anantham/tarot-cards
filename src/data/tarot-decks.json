@@ -1970,7 +1970,8 @@
     "promptSuffix": ", highly detailed, cinematic lighting, tarot card art style, masterpiece quality",
     "apiProvider": "gemini",
     "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
-    "showCardInfo": true,
+    "showCardInfo": false,
+    "showCardNumbers": false,
     "animateCards": true,
     "navigateWithArrows": false
   },
