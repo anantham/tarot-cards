@@ -22,9 +22,19 @@ interface CardProps {
   physics: React.MutableRefObject<CardPhysics>;
   allPhysics: React.MutableRefObject<CardPhysics[]>;
   currentlyDraggingRef: React.MutableRefObject<number | null>;
+  phaseStateRef: React.MutableRefObject<{
+    elapsedTime: number;
+    currentPhase: 'fast' | 'slow';
+    velocityMultiplier: number;
+    transitionProgress: number;
+  }>;
+  isInjected: boolean;
 }
 
-function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef }: CardProps) {
+function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected }: CardProps) {
+  // Mark as intentionally unused for now - will be used in Tasks 5-6
+  void phaseStateRef;
+  void isInjected;
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -428,7 +438,6 @@ export default function CardDeck() {
   });
 
   // Injection visual feedback (discrete events, triggers re-renders)
-  // @ts-expect-error - Will be used in Task 4 to pass to Card components
   const [injectedCardIndices, setInjectedCardIndices] = useState<Set<number>>(new Set());
 
   // Initialize physics for all cards
@@ -568,6 +577,8 @@ export default function CardDeck() {
           physics={physicsRefs.current[index]}
           allPhysics={allPhysicsRef}
           currentlyDraggingRef={currentlyDraggingRef}
+          phaseStateRef={phaseStateRef}
+          isInjected={injectedCardIndices.has(index)}
         />
       ))}
     </group>
