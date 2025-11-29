@@ -70,6 +70,40 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     }
   };
 
+  const handleImportAll = async () => {
+    try {
+      if (galleries.length === 0) return;
+      setLoadingCID('all');
+      galleries.forEach((bundle) => {
+        const prompt = bundle.prompt || null;
+        const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
+
+        const generated: GeneratedCard = {
+          cardNumber: bundle.card_number ?? bundle.cardNumber,
+          deckType: bundle.deck_type ?? bundle.deckType,
+          frames: bundle.frames || [],
+          gifUrl: bundle.gif_url ?? bundle.gifUrl,
+          videoUrl: bundle.video_url ?? bundle.videoUrl,
+          timestamp: bundle.timestamp || Date.now(),
+          shared: true,
+          source: 'community',
+          bundleCID: bundle.cid || undefined,
+          prompt: prompt || undefined,
+          deckPromptSuffix: deckPromptSuffix || undefined,
+        };
+        addGeneratedCard(generated);
+      });
+      setSelectedCard(null);
+      setReturnToSettingsOnClose(true);
+      alert(`Imported ${galleries.length} cards from community.`);
+    } catch (err) {
+      console.error('[CommunityGallery] Import all error:', err);
+      alert('Failed to import community deck.');
+    } finally {
+      setLoadingCID(null);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -180,105 +214,57 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
               gap: '1.25rem',
             }}
           >
-                {galleries.map((bundle) => (
-                  <motion.div
-                    key={bundle.cid}
-                    whileHover={{ scale: embedded ? 1.01 : 1.02 }}
-                    style={{
-                      padding: '1.25rem',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ marginBottom: '0.75rem' }}>
-                  <div
-                    style={{
-                      fontSize: '1.1rem',
-                      color: '#ffd1d1',
-                      marginBottom: '0.35rem',
-                    }}
-                  >
-                    {bundle.author || 'Anonymous'}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '0.85rem',
-                      color: '#e8e8e8',
-                      opacity: 0.7,
-                    }}
-                  >
-                    {bundle.cardCount} card{bundle.cardCount !== 1 ? 's' : ''}
-                    {' • '}
-                    {new Date(bundle.timestamp).toLocaleDateString()}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '0.75rem' }}>
-                  <div
-                    style={{
-                      fontSize: '0.8rem',
-                      color: '#e8e8e8',
-                      opacity: 0.6,
-                      marginBottom: '0.25rem',
-                    }}
-                  >
-                    Decks:
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {(bundle.deckTypes || (bundle.deck_type ? [bundle.deck_type] : [])).map((deck: string) => (
-                      <span
-                        key={deck}
-                        style={{
-                          padding: '0.25rem 0.5rem',
-                          background: 'rgba(147, 51, 234, 0.2)',
-                          borderRadius: '4px',
-                          fontSize: '0.75rem',
-                          color: '#e8e8e8',
-                        }}
-                      >
-                        {deck}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleLoadSupabaseCard(bundle)}
-                  disabled={loadingCID === (bundle.id || bundle.cid)}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: loadingCID === (bundle.id || bundle.cid)
-                      ? 'rgba(147, 51, 234, 0.3)'
-                      : 'rgba(147, 51, 234, 0.5)',
-                    border: '1px solid rgba(147, 51, 234, 0.7)',
-                    borderRadius: '6px',
-                    color: '#e8e8e8',
-                    fontSize: '0.9rem',
-                    cursor: loadingCID === (bundle.id || bundle.cid) ? 'wait' : 'pointer',
-                  }}
-                >
-                  {loadingCID === (bundle.id || bundle.cid) ? '⏳ Loading...' : '📥 Import to My Deck'}
-                </button>
-
+            <motion.div
+              key="community-deck"
+              whileHover={{ scale: embedded ? 1.01 : 1.02 }}
+              style={{
+                padding: '1.25rem',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                cursor: loadingCID === 'all' ? 'wait' : 'pointer',
+              }}
+            >
+              <div style={{ marginBottom: '0.75rem' }}>
                 <div
                   style={{
-                    marginTop: '0.5rem',
-                    fontSize: '0.7rem',
-                    color: '#e8e8e8',
-                    opacity: 0.5,
-                    fontFamily: 'monospace',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    fontSize: '1.1rem',
+                    color: '#ffd1d1',
+                    marginBottom: '0.35rem',
                   }}
                 >
-                  {bundle.cid}
+                  Community Deck
                 </div>
-              </motion.div>
-            ))}
+                <div
+                  style={{
+                    fontSize: '0.85rem',
+                    color: '#e8e8e8',
+                    opacity: 0.7,
+                  }}
+                >
+                  {galleries.length} card{galleries.length !== 1 ? 's' : ''} available
+                </div>
+              </div>
+
+              <button
+                onClick={handleImportAll}
+                disabled={loadingCID === 'all'}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: loadingCID === 'all'
+                    ? 'rgba(147, 51, 234, 0.3)'
+                    : 'rgba(147, 51, 234, 0.5)',
+                  border: '1px solid rgba(147, 51, 234, 0.7)',
+                  borderRadius: '6px',
+                  color: '#e8e8e8',
+                  fontSize: '0.9rem',
+                  cursor: loadingCID === 'all' ? 'wait' : 'pointer',
+                }}
+              >
+                {loadingCID === 'all' ? '⏳ Importing…' : '📥 Import Deck'}
+              </button>
+            </motion.div>
           </div>
         )}
       </div>
