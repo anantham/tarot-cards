@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Text, useCursor } from '@react-three/drei';
+import { Text, useCursor, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import tarotData from '../data/tarot-decks.json';
@@ -38,6 +38,15 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const { setSelectedCard, settings } = useStore();
   const showInfo = settings.showCardInfo !== false;
   const { camera, pointer, raycaster } = useThree();
+  const cardBackTexture = useTexture('/card-back.png');
+
+  useEffect(() => {
+    if (cardBackTexture) {
+      cardBackTexture.wrapS = THREE.ClampToEdgeWrapping;
+      cardBackTexture.wrapT = THREE.ClampToEdgeWrapping;
+      cardBackTexture.flipY = false;
+    }
+  }, [cardBackTexture]);
 
   // Change cursor to grab hand when hovering, grabbing hand when dragging
   useCursor(hovered && !dragging, 'grab');
@@ -358,7 +367,8 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         {/* Card body */}
         <boxGeometry args={[0.8, 1.2, 0.05]} />
         <meshStandardMaterial
-          color={dragging ? '#7c3aed' : hovered ? '#9333ea' : '#1a1a2e'}
+          map={cardBackTexture}
+          color={dragging ? '#ffffff' : hovered ? '#dddddd' : '#ffffff'}
           emissive={
             dragging ? '#7c3aed' :
             hovered ? '#9333ea' :

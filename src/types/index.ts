@@ -72,6 +72,7 @@ export interface Settings {
   deckDescription?: string;       // NEW: custom deck metadata
   deckNameMap?: Record<string, string>; // NEW: per-deck names
   deckDescriptionMap?: Record<string, string>; // NEW: per-deck descriptions
+  deckIdMap?: Record<string, string>; // NEW: per-deck upload ids to keep sessions together
 }
 
 export interface GeneratedCard {
