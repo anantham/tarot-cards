@@ -28,16 +28,22 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
       }
       const data = await response.json();
       const rows = data.galleries || [];
-      // Group by deck_id; fallback to timestamp-based id if missing
       const byDeck: Record<string, any> = {};
+      const uncategorized: any[] = [];
+
       rows.forEach((row: any) => {
+        const deckId = row.deck_id || row.deckId;
+        if (!deckId) {
+          // No deck id: keep separate so they don't mix with real decks
+          uncategorized.push(row);
+          return;
+        }
+
         const deckType = row.deck_type || row.deckType || 'community';
-        // Group by deck_id if present, otherwise by deck type to avoid one card per deck.
-        const id = row.deck_id || row.deckId || `deck-${deckType}`;
-        if (!byDeck[id]) {
-          byDeck[id] = {
-            id,
-            deckId: id,
+        if (!byDeck[deckId]) {
+          byDeck[deckId] = {
+            id: deckId,
+            deckId,
             deckName: row.deck_name || row.deckName || deckType || 'Community Deck',
             deckDescription: row.deck_description || row.deckDescription || '',
             author: row.author || 'Anonymous',
@@ -45,9 +51,23 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
             cards: [],
           };
         }
-        byDeck[id].cards.push(row);
+        byDeck[deckId].cards.push(row);
       });
-      setGalleries(Object.values(byDeck));
+
+      const groups = Object.values(byDeck);
+      if (uncategorized.length > 0) {
+        groups.push({
+          id: 'uncategorized',
+          deckId: null,
+          deckName: 'Uncategorized (no deck id)',
+          deckDescription: 'These uploads were missing a deck id; import individually or re-upload with a deck id.',
+          author: 'Unknown',
+          timestamp: Date.now(),
+          cards: uncategorized,
+        });
+      }
+
+      setGalleries(groups);
     } catch (err) {
       console.error('[CommunityGallery] Fetch failed:', err);
       setFetchError(err instanceof Error ? err.message : 'Failed to load community galleries');
@@ -56,7 +76,7 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     }
   };
 
-  const handleLoadSupabaseCard = async (bundle: any) => {
+  const handleLoadSupabaseCard = async (bundle: any): Promise<boolean> => {
     try {
       setLoadingCID(bundle.id || bundle.cid || `${bundle.card_number}-${bundle.timestamp}`);
       const prompt = bundle.prompt || null;
@@ -75,50 +95,16 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
         bundleCID: bundle.cid || undefined,
         prompt: prompt || undefined,
         deckPromptSuffix: deckPromptSuffix || undefined,
+        deckId: bundle.deck_id ?? bundle.deckId,
+        deckName: bundle.deck_name ?? bundle.deckName,
+        deckDescription: bundle.deck_description ?? bundle.deckDescription,
+        author: bundle.author || bundle.display_name || bundle.displayName,
       };
       addGeneratedCard(generated);
-      setSelectedCard(null);
-      setReturnToSettingsOnClose(true);
-      alert(`Imported card ${generated.cardNumber} from community.`);
+      return true;
     } catch (err) {
       console.error('[CommunityGallery] Import error:', err);
-      alert('Failed to import this card.');
-    } finally {
-      setLoadingCID(null);
-    }
-  };
-
-  const handleImportAll = async () => {
-    try {
-      if (galleries.length === 0) return;
-      setLoadingCID('all');
-      galleries.forEach((deck) => {
-        (deck.cards || []).forEach((bundle: any) => {
-          const prompt = bundle.prompt || null;
-          const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
-
-          const generated: GeneratedCard = {
-            cardNumber: bundle.card_number ?? bundle.cardNumber,
-            deckType: bundle.deck_type ?? bundle.deckType,
-            frames: bundle.frames || [],
-            gifUrl: bundle.gif_url ?? bundle.gifUrl,
-            videoUrl: bundle.video_url ?? bundle.videoUrl,
-            timestamp: bundle.timestamp || Date.now(),
-            shared: true,
-            source: 'community',
-            bundleCID: bundle.cid || bundle.deck_id || undefined,
-            prompt: prompt || undefined,
-            deckPromptSuffix: deckPromptSuffix || undefined,
-          };
-          addGeneratedCard(generated);
-        });
-      });
-      setSelectedCard(null);
-      setReturnToSettingsOnClose(true);
-      alert(`Imported ${galleries.reduce((sum, d) => sum + (d.cards?.length || 0), 0)} cards from community.`);
-    } catch (err) {
-      console.error('[CommunityGallery] Import all error:', err);
-      alert('Failed to import community deck.');
+      return false;
     } finally {
       setLoadingCID(null);
     }
@@ -260,10 +246,19 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
                 </div>
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setLoadingCID(deck.id);
-                    deck.cards?.forEach((bundle: any) => handleLoadSupabaseCard(bundle));
+                    let imported = 0;
+                    for (const bundle of deck.cards || []) {
+                      const ok = await handleLoadSupabaseCard(bundle);
+                      if (ok) imported += 1;
+                    }
+                    setSelectedCard(null);
+                    setReturnToSettingsOnClose(true);
                     setLoadingCID(null);
+                    if (imported > 0) {
+                      alert(`Imported ${imported} cards from "${deck.deckName || 'Community Deck'}".`);
+                    }
                   }}
                   disabled={loadingCID === deck.id}
                   style={{
