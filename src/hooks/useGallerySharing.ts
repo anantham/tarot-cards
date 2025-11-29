@@ -117,6 +117,7 @@ export function useGallerySharing() {
           batches.push(unshared.slice(i, i + MAX_CARDS_PER_BATCH));
         }
 
+        const deckId = crypto.randomUUID();
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
           logProgress(`Uploading batch ${batchIndex + 1}/${batches.length} via Supabase...`);
@@ -132,6 +133,9 @@ export function useGallerySharing() {
               author: displayName || 'anonymous',
               prompt: (card as any).prompt || null,
               deckPromptSuffix: (card as any).deckPromptSuffix || null,
+              deckId,
+              deckName: settings.selectedDeckType,
+              deckDescription: `Shared deck: ${settings.selectedDeckType}`,
             })),
           };
 

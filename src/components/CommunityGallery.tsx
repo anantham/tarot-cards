@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useGallerySharing } from '../hooks/useGallerySharing';
 import { useStore } from '../store/useStore';
-import type { GeneratedCard, GalleryBundle } from '../types';
+import type { GeneratedCard } from '../types';
 
 interface CommunityGalleryProps {
   embedded?: boolean;
 }
 
 export default function CommunityGallery({ embedded = false }: CommunityGalleryProps) {
-  const [galleries, setGalleries] = useState<GalleryBundle[]>([]);
+  const [galleries, setGalleries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCID, setLoadingCID] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const { downloadGallery, error } = useGallerySharing();
   const { addGeneratedCard, setSelectedCard, setReturnToSettingsOnClose } = useStore();
 
   useEffect(() => {
@@ -29,7 +27,25 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
         throw new Error(`Fetch failed (${response.status} ${response.statusText})`);
       }
       const data = await response.json();
-      setGalleries(data.galleries || []);
+      const rows = data.galleries || [];
+      // Group by deck_id; fallback to timestamp-based id if missing
+      const byDeck: Record<string, any> = {};
+      rows.forEach((row: any) => {
+        const id = row.deck_id || row.deckId || `deck-${row.timestamp}`;
+        if (!byDeck[id]) {
+          byDeck[id] = {
+            id,
+            deckId: id,
+            deckName: row.deck_name || row.deckName || 'Community Deck',
+            deckDescription: row.deck_description || row.deckDescription || '',
+            author: row.author || 'Anonymous',
+            timestamp: row.timestamp || Date.now(),
+            cards: [],
+          };
+        }
+        byDeck[id].cards.push(row);
+      });
+      setGalleries(Object.values(byDeck));
     } catch (err) {
       console.error('[CommunityGallery] Fetch failed:', err);
       setFetchError(err instanceof Error ? err.message : 'Failed to load community galleries');
@@ -74,28 +90,30 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     try {
       if (galleries.length === 0) return;
       setLoadingCID('all');
-      galleries.forEach((bundle) => {
-        const prompt = bundle.prompt || null;
-        const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
+      galleries.forEach((deck) => {
+        (deck.cards || []).forEach((bundle: any) => {
+          const prompt = bundle.prompt || null;
+          const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
 
-        const generated: GeneratedCard = {
-          cardNumber: bundle.card_number ?? bundle.cardNumber,
-          deckType: bundle.deck_type ?? bundle.deckType,
-          frames: bundle.frames || [],
-          gifUrl: bundle.gif_url ?? bundle.gifUrl,
-          videoUrl: bundle.video_url ?? bundle.videoUrl,
-          timestamp: bundle.timestamp || Date.now(),
-          shared: true,
-          source: 'community',
-          bundleCID: bundle.cid || undefined,
-          prompt: prompt || undefined,
-          deckPromptSuffix: deckPromptSuffix || undefined,
-        };
-        addGeneratedCard(generated);
+          const generated: GeneratedCard = {
+            cardNumber: bundle.card_number ?? bundle.cardNumber,
+            deckType: bundle.deck_type ?? bundle.deckType,
+            frames: bundle.frames || [],
+            gifUrl: bundle.gif_url ?? bundle.gifUrl,
+            videoUrl: bundle.video_url ?? bundle.videoUrl,
+            timestamp: bundle.timestamp || Date.now(),
+            shared: true,
+            source: 'community',
+            bundleCID: bundle.cid || bundle.deck_id || undefined,
+            prompt: prompt || undefined,
+            deckPromptSuffix: deckPromptSuffix || undefined,
+          };
+          addGeneratedCard(generated);
+        });
       });
       setSelectedCard(null);
       setReturnToSettingsOnClose(true);
-      alert(`Imported ${galleries.length} cards from community.`);
+      alert(`Imported ${galleries.reduce((sum, d) => sum + (d.cards?.length || 0), 0)} cards from community.`);
     } catch (err) {
       console.error('[CommunityGallery] Import all error:', err);
       alert('Failed to import community deck.');
@@ -214,57 +232,68 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
               gap: '1.25rem',
             }}
           >
-            <motion.div
-              key="community-deck"
-              whileHover={{ scale: embedded ? 1.01 : 1.02 }}
-              style={{
-                padding: '1.25rem',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                cursor: loadingCID === 'all' ? 'wait' : 'pointer',
-              }}
-            >
-              <div style={{ marginBottom: '0.75rem' }}>
-                <div
-                  style={{
-                    fontSize: '1.1rem',
-                    color: '#ffd1d1',
-                    marginBottom: '0.35rem',
-                  }}
-                >
-                  Community Deck
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.85rem',
-                    color: '#e8e8e8',
-                    opacity: 0.7,
-                  }}
-                >
-                  {galleries.length} card{galleries.length !== 1 ? 's' : ''} available
-                </div>
-              </div>
-
-              <button
-                onClick={handleImportAll}
-                disabled={loadingCID === 'all'}
+            {galleries.map((deck) => (
+              <motion.div
+                key={deck.id}
+                whileHover={{ scale: embedded ? 1.01 : 1.02 }}
                 style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  background: loadingCID === 'all'
-                    ? 'rgba(147, 51, 234, 0.3)'
-                    : 'rgba(147, 51, 234, 0.5)',
-                  border: '1px solid rgba(147, 51, 234, 0.7)',
-                  borderRadius: '6px',
-                  color: '#e8e8e8',
-                  fontSize: '0.9rem',
-                  cursor: loadingCID === 'all' ? 'wait' : 'pointer',
+                  padding: '1.25rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  cursor: loadingCID === deck.id ? 'wait' : 'pointer',
                 }}
               >
-                {loadingCID === 'all' ? '⏳ Importing…' : '📥 Import Deck'}
-              </button>
-            </motion.div>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <div
+                    style={{
+                      fontSize: '1.1rem',
+                      color: '#ffd1d1',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
+                    {deck.deckName || 'Community Deck'}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#e8e8e8',
+                      opacity: 0.7,
+                    }}
+                  >
+                    {deck.cards?.length || 0} card{(deck.cards?.length || 0) !== 1 ? 's' : ''} • {deck.author || 'Anonymous'}
+                  </div>
+                  {deck.deckDescription && (
+                    <div style={{ marginTop: '0.35rem', fontSize: '0.85rem', color: '#e8e8e8', opacity: 0.7 }}>
+                      {deck.deckDescription}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    setLoadingCID(deck.id);
+                    deck.cards?.forEach((bundle: any) => handleLoadSupabaseCard(bundle));
+                    setLoadingCID(null);
+                  }}
+                  disabled={loadingCID === deck.id}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: loadingCID === deck.id
+                      ? 'rgba(147, 51, 234, 0.3)'
+                      : 'rgba(147, 51, 234, 0.5)',
+                    border: '1px solid rgba(147, 51, 234, 0.7)',
+                    borderRadius: '6px',
+                    color: '#e8e8e8',
+                    fontSize: '0.9rem',
+                    cursor: loadingCID === deck.id ? 'wait' : 'pointer',
+                  }}
+                >
+                  {loadingCID === deck.id ? '⏳ Importing…' : '📥 Import Deck'}
+                </button>
+              </motion.div>
+            ))}
           </div>
         )}
       </div>

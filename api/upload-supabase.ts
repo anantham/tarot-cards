@@ -17,6 +17,9 @@ interface UploadPayload {
     timestamp: number;
     model?: string;
     author?: string;
+    deckId?: string;
+    deckName?: string;
+    deckDescription?: string;
   }>;
 }
 
@@ -87,6 +90,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (const card of payload.cards) {
       console.log('[Supabase] Card', card.cardNumber, card.deckType);
       const frameUrls: string[] = [];
+      const deckId = card.deckId || crypto.randomUUID();
+      const deckName = card.deckName || 'Community Deck';
+      const deckDescription = card.deckDescription || null;
       // Frames
       for (let i = 0; i < card.frames.length; i++) {
         console.log('[Supabase] Frame', i, 'of', card.frames.length);
@@ -141,6 +147,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         model: card.model || null,
         prompt: (card as any).prompt || null,
         deck_prompt_suffix: (card as any).deckPromptSuffix || null,
+        deck_id: deckId,
+        deck_name: deckName,
+        deck_description: deckDescription,
       });
       if (insertError) throw insertError;
 
