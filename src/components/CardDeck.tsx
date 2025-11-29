@@ -415,7 +415,6 @@ export default function CardDeck() {
   const currentlyDraggingRef = useRef<number | null>(null); // Track which card is being dragged
 
   // Phase cycling state (continuous, no re-renders)
-  // @ts-expect-error - Will be used in Task 2
   const phaseStateRef = useRef({
     elapsedTime: 0,           // 0-20s cycle counter
     currentPhase: 'fast' as 'fast' | 'slow',
@@ -488,7 +487,7 @@ export default function CardDeck() {
   );
 
   // Phase cycling logic
-  useFrame((state, dt) => {
+  useFrame((_state, dt) => {
     const phaseRef = phaseStateRef.current;
     phaseRef.elapsedTime += dt;
 
