@@ -227,7 +227,7 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
                     Decks:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {bundle.deckTypes.map((deck) => (
+                    {(bundle.deckTypes || (bundle.deck_type ? [bundle.deck_type] : [])).map((deck: string) => (
                       <span
                         key={deck}
                         style={{
