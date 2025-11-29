@@ -422,6 +422,14 @@ export default function CardDeck() {
     transitionProgress: 1.0,  // 0-1 during fade
   });
 
+  // Injection timing state
+  const injectionStateRef = useRef({
+    timeSinceLastInjection: 0,  // 0-60s counter
+  });
+
+  // Injection visual feedback (discrete events, triggers re-renders)
+  // @ts-expect-error - Will be used in Task 4 to pass to Card components
+  const [injectedCardIndices, setInjectedCardIndices] = useState<Set<number>>(new Set());
 
   // Initialize physics for all cards
   const allPhysicsRef = useRef<CardPhysics[]>(
@@ -508,6 +516,43 @@ export default function CardDeck() {
       );
     } else {
       phaseRef.velocityMultiplier = targetMultiplier;
+    }
+
+    // Velocity injection every 60 seconds
+    const injRef = injectionStateRef.current;
+    injRef.timeSinceLastInjection += dt;
+
+    if (injRef.timeSinceLastInjection >= 60) {
+      injRef.timeSinceLastInjection = 0;
+
+      // Select 10 random cards (no duplicates)
+      const totalCards = allPhysicsRef.current.length; // 78
+      const selectedIndices = new Set<number>();
+      while (selectedIndices.size < 10) {
+        selectedIndices.add(Math.floor(Math.random() * totalCards));
+      }
+
+      // Apply strong random impulses
+      selectedIndices.forEach(index => {
+        const physics = allPhysicsRef.current[index];
+
+        // Random direction + magnitude (0.3-0.5)
+        const magnitude = 0.3 + Math.random() * 0.2;
+        const direction = new THREE.Vector3(
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5
+        ).normalize();
+
+        const impulse = direction.multiplyScalar(magnitude);
+        physics.velocity.add(impulse); // Additive to existing velocity
+      });
+
+      // Trigger visual feedback (causes re-render of 10 cards)
+      setInjectedCardIndices(selectedIndices);
+
+      // Clear glow after 500ms
+      setTimeout(() => setInjectedCardIndices(new Set()), 500);
     }
   });
 
