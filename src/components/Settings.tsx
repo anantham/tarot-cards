@@ -41,6 +41,8 @@ export default function Settings() {
   const [showCommunityGallery, setShowCommunityGallery] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<string>('');
+  const [deckName, setDeckName] = useState(settings.selectedDeckType || '');
+  const [deckDescription, setDeckDescription] = useState('');
 
   // Shared generation state
   const showCardInfo = settings.showCardInfo !== false;
@@ -783,11 +785,11 @@ export default function Settings() {
               </div>
             )}
 
-          {/* Card info visibility */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-              Card Info on Hover
-            </label>
+            {/* Card info visibility */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Card Info on Hover
+              </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
@@ -1568,3 +1570,43 @@ export default function Settings() {
     </motion.div>
   );
 }
+            {/* Deck metadata for sharing */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Deck Name (for community sharing)
+              </label>
+              <input
+                type="text"
+                value={deckName}
+                onChange={(e) => setDeckName(e.target.value)}
+                placeholder="My Cosmic Deck"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                }}
+              />
+              <label style={{ display: 'block', fontSize: '0.9rem', margin: '0.75rem 0 0.5rem', opacity: 0.9 }}>
+                Deck Description (shown in community gallery)
+              </label>
+              <textarea
+                value={deckDescription}
+                onChange={(e) => setDeckDescription(e.target.value)}
+                placeholder="Short description of this deck..."
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                  resize: 'vertical',
+                }}
+              />
+            </div>

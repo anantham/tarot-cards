@@ -118,6 +118,8 @@ export function useGallerySharing() {
         }
 
         const deckId = crypto.randomUUID();
+        const deckName = (displayName || settings.selectedDeckType || 'Community Deck') as string;
+        const deckDescription = (settings as any).deckDescription || '';
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
           logProgress(`Uploading batch ${batchIndex + 1}/${batches.length} via Supabase...`);
@@ -134,8 +136,8 @@ export function useGallerySharing() {
               prompt: (card as any).prompt || null,
               deckPromptSuffix: (card as any).deckPromptSuffix || null,
               deckId,
-              deckName: settings.selectedDeckType,
-              deckDescription: `Shared deck: ${settings.selectedDeckType}`,
+              deckName,
+              deckDescription,
             })),
           };
 
