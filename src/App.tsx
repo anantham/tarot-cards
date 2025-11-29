@@ -10,7 +10,7 @@ import { useStore } from './store/useStore';
 import { setDatabaseErrorCallback } from './utils/idb';
 
 function App() {
-  const { selectedCard, showSettings, generatedCards, addGeneratedCard, setReturnToSettingsOnClose } = useStore();
+  const { selectedCard, showSettings, generatedCards, addGeneratedCard, setReturnToSettingsOnClose, settings, updateSettings } = useStore();
   const autoImportStarted = useRef(false);
 
   useEffect(() => {
@@ -47,7 +47,9 @@ function App() {
         const firstDeck = Array.from(byDeck.values())[0];
         if (!firstDeck?.length) return;
 
+        let importedDeckType: string | undefined;
         firstDeck.forEach((bundle: any) => {
+          importedDeckType = importedDeckType || bundle.deck_type || bundle.deckType;
           const prompt = bundle.prompt || null;
           const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
           addGeneratedCard({
@@ -70,6 +72,10 @@ function App() {
         });
 
         setReturnToSettingsOnClose(true);
+        // If the user had no cards, align the selected deck to the imported deck type to avoid "not generated yet" view.
+        if (!settings.selectedDeckType && importedDeckType) {
+          updateSettings({ selectedDeckType: importedDeckType });
+        }
         if (typeof window !== 'undefined') {
           window.localStorage.setItem('communityImportedOnce', '1');
         }
