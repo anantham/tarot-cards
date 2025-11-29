@@ -21,6 +21,7 @@ export interface TarotCard {
   number: number;
   traditional: CardInterpretation;
   lordOfMysteries: CardInterpretation;
+  lordOfMysteriesMasterpiece?: CardInterpretation;
   egyptian: CardInterpretation;
   celtic: CardInterpretation;
   shinto: CardInterpretation;
@@ -66,6 +67,8 @@ export interface Settings {
   autoShareEnabled?: boolean;     // NEW
   displayName?: string;           // NEW
   lastSharedTimestamp?: number;   // NEW
+  deckName?: string;              // NEW: custom deck metadata
+  deckDescription?: string;       // NEW: custom deck metadata
 }
 
 export interface GeneratedCard {

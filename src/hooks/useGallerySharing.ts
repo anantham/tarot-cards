@@ -118,8 +118,8 @@ export function useGallerySharing() {
         }
 
         const deckId = crypto.randomUUID();
-        const deckName = (displayName || settings.selectedDeckType || 'Community Deck') as string;
-        const deckDescription = (settings as any).deckDescription || '';
+        const deckName = (settings.deckName || displayName || settings.selectedDeckType || 'Community Deck') as string;
+        const deckDescription = settings.deckDescription || '';
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
           logProgress(`Uploading batch ${batchIndex + 1}/${batches.length} via Supabase...`);

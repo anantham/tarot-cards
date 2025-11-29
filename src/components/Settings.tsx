@@ -41,8 +41,8 @@ export default function Settings() {
   const [showCommunityGallery, setShowCommunityGallery] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<string>('');
-  const [deckName, setDeckName] = useState(settings.selectedDeckType || '');
-  const [deckDescription, setDeckDescription] = useState('');
+  const [deckName, setDeckName] = useState(settings.deckName || settings.selectedDeckType || '');
+  const [deckDescription, setDeckDescription] = useState(settings.deckDescription || '');
 
   // Shared generation state
   const showCardInfo = settings.showCardInfo !== false;
@@ -850,6 +850,53 @@ export default function Settings() {
                   color: '#e8e8e8',
                   fontSize: '0.9rem',
                   fontFamily: 'monospace',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+
+            {/* Deck metadata for sharing */}
+            <div style={{ marginTop: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                Deck Name (for community sharing)
+              </label>
+              <input
+                type="text"
+                value={deckName}
+                onChange={(e) => {
+                  setDeckName(e.target.value);
+                  updateSettings({ deckName: e.target.value });
+                }}
+                placeholder="My Cosmic Deck"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                }}
+              />
+              <label style={{ display: 'block', fontSize: '0.9rem', margin: '0.75rem 0 0.5rem', opacity: 0.9 }}>
+                Deck Description (shown in community gallery)
+              </label>
+              <textarea
+                value={deckDescription}
+                onChange={(e) => {
+                  setDeckDescription(e.target.value);
+                  updateSettings({ deckDescription: e.target.value });
+                }}
+                placeholder="Short description of this deck..."
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
                   resize: 'vertical',
                 }}
               />
