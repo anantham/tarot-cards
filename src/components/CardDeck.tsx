@@ -343,11 +343,11 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       >
         <boxGeometry args={[0.8, 1.2, 0.05]} />
         <meshStandardMaterial
-          color="#5b21b6"
-          emissive={hovered || dragging ? '#c084fc' : isInjected ? '#ff8a50' : '#7c3aed'}
-          emissiveIntensity={hovered ? 1.0 : dragging ? 1.1 : isInjected ? 1.2 : 0.35}
+          color="#ffffff"
+          emissive={hovered || dragging ? '#ffffff' : isInjected ? '#ff8a50' : '#ffffff'}
+          emissiveIntensity={hovered ? 1.0 : dragging ? 1.1 : isInjected ? 1.2 : 0.5}
           transparent
-          opacity={hovered || dragging ? 0.4 : 0.28}
+          opacity={hovered || dragging ? 0.5 : 0.35}
           metalness={0.8}
           roughness={0.2}
           side={THREE.DoubleSide}
