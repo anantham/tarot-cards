@@ -608,31 +608,6 @@ export default function CardDetail() {
             )}
 
             {/* Prompt editor */}
-            <div style={{ marginTop: '0.75rem' }}>
-              <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Prompt</div>
-              <textarea
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                onBlur={handleSavePrompt}
-                rows={6}
-                style={{
-                  width: '100%',
-                  padding: '0.9rem 1rem',
-                  background: 'rgba(0,0,0,0.25)',
-                  border: '1px solid rgba(147, 51, 234, 0.3)',
-                  borderRadius: '10px',
-                  color: '#e8e8e8',
-                  fontSize: '0.95rem',
-                  lineHeight: 1.5,
-                  resize: 'vertical',
-                }}
-                placeholder="Edit the generation prompt for this card"
-              />
-              <div style={{ fontSize: '0.85rem', opacity: 0.65, marginTop: '0.35rem' }}>
-                Changes save on blur. Future uploads/share will include this prompt.
-              </div>
-            </div>
-
             {/* Delete button - only show if there is a generated card */}
             {generatedCard && (
               <button
@@ -742,23 +717,33 @@ export default function CardDetail() {
             </p>
           </div>
 
-          {/* Prompt Preview */}
+          {/* Prompt Editor */}
           <div>
-            <h3 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', opacity: 0.9 }}>
               Generation Prompt
             </h3>
-            <p style={{
-              fontSize: '0.85rem',
-              lineHeight: '1.5',
-              opacity: 0.6,
-              padding: '1rem',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              fontFamily: 'monospace',
-            }}>
-              {interpretation.prompt}
-            </p>
+            <textarea
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+              onBlur={handleSavePrompt}
+              rows={6}
+              style={{
+                width: '100%',
+                padding: '0.9rem 1rem',
+                background: 'rgba(0,0,0,0.25)',
+                border: '1px solid rgba(147, 51, 234, 0.3)',
+                borderRadius: '10px',
+                color: '#e8e8e8',
+                fontSize: '0.95rem',
+                lineHeight: 1.5,
+                resize: 'vertical',
+                fontFamily: 'monospace',
+              }}
+              placeholder="Edit the generation prompt for this card"
+            />
+            <div style={{ fontSize: '0.85rem', opacity: 0.65, marginTop: '0.35rem' }}>
+              Changes save on blur. Future uploads/share will include this prompt.
+            </div>
           </div>
         </div>
 
