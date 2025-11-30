@@ -87,7 +87,8 @@ export function useCardGeneration() {
         }
       );
 
-      // Save to store (keeping frames/gifUrl for backward compatibility)
+      // Save to store (keeping frames/gifUrl for backward compatibility); carry over edited prompt if any
+      const existing = getGeneratedCard(cardNumber, settings.selectedDeckType);
       const generatedCard: GeneratedCard = {
         cardNumber,
         deckType: settings.selectedDeckType,
@@ -96,6 +97,7 @@ export function useCardGeneration() {
         timestamp: Date.now(),
         shared: false,
         source: 'local',
+        prompt: existing?.prompt || undefined,
       };
 
       addGeneratedCard(generatedCard);
@@ -128,19 +130,20 @@ export function useCardGeneration() {
       const card = cards.find((c) => c.number === cardNumber);
       if (!card) throw new Error(`Card ${cardNumber} not found`);
 
-      const existing = getGeneratedCard(cardNumber, settings.selectedDeckType);
-      const referenceImage = existing?.frames?.[0];
+      const existingForDeck = getGeneratedCard(cardNumber, settings.selectedDeckType);
+      const referenceImage = existingForDeck?.frames?.[0];
 
       if (!referenceImage) {
         throw new Error('No reference image found. Please generate the card image first.');
       }
 
       const interpretation = getInterpretationForDeck(card, settings.selectedDeckType);
+      const editedPrompt = existingForDeck?.prompt;
       const title =
         card.number === 0 ? '0 – THE FOOL' : (interpretation.name || interpretation.pathway || card.traditional.name);
       const basePrompt =
         `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
-        `${interpretation.prompt} Render the title clearly on the card. ` +
+        `${editedPrompt || interpretation.prompt} Render the title clearly on the card. ` +
         'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
 
       setGenerationProgress({
@@ -157,12 +160,13 @@ export function useCardGeneration() {
       const updated: GeneratedCard = {
         cardNumber,
         deckType: settings.selectedDeckType,
-        frames: existing?.frames || [],
-        gifUrl: existing?.gifUrl,
+        frames: existingForDeck?.frames || [],
+        gifUrl: existingForDeck?.gifUrl,
         videoUrl: videoResult.videoUrl,
         timestamp: Date.now(),
         shared: false,
         source: 'local',
+        prompt: existingForDeck?.prompt,
       };
 
       addGeneratedCard(updated);
