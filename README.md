@@ -106,7 +106,9 @@ The project now supports deep lore customization. All deck data is located in `s
 
 ## 🔍 Sample Card
 
-A sample output image is available at `public/samplecard.jpeg` for quick reference (visual style example).
+![Sample Card](public/samplecard.jpeg)
+
+A sample output image for quick reference (visual style example).
 
 ## 📖 Using the Generator
 
