@@ -19,15 +19,6 @@ export default function Header() {
         backdropFilter: 'blur(10px)',
       }}
     >
-      <div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '0.25rem' }}>
-          Tarot Cards
-        </h1>
-        <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>
-          See Yourself in the 22 Arcana
-        </p>
-      </div>
-
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         {isGenerating && (
           <div style={{
