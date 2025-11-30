@@ -13,7 +13,7 @@ export default function Header() {
         zIndex: 100,
         padding: '1.5rem 2rem',
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         background: 'linear-gradient(180deg, rgba(10, 14, 39, 0.9) 0%, transparent 100%)',
         backdropFilter: 'blur(10px)',
@@ -39,22 +39,28 @@ export default function Header() {
         <button
           onClick={() => setShowSettings(!showSettings)}
           style={{
-            padding: '0.75rem',
-            background: showSettings ? 'rgba(147, 51, 234, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            color: '#e8e8e8',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: showSettings ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
+            color: 'rgba(232, 232, 232, 0.8)',
             cursor: 'pointer',
-            fontSize: '1.1rem',
+            fontSize: '1.2rem',
             transition: 'all 0.3s ease',
+            display: 'grid',
+            placeItems: 'center',
+            backdropFilter: 'blur(6px)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(147, 51, 234, 0.3)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.color = '#ffffff';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = showSettings ? 'rgba(147, 51, 234, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.background = showSettings ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.08)';
             e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.color = 'rgba(232, 232, 232, 0.8)';
           }}
         >
           ⚙️
