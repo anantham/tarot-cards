@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
@@ -45,6 +45,28 @@ export default function Settings() {
   const [deckDescription, setDeckDescription] = useState(settings.deckDescription || '');
 
   const selectedDeck = settings.selectedDeckType;
+  const communityDecks = useMemo(() => {
+    const baseIds = new Set(deckData.deckTypes.map((d) => d.id));
+    const map = new Map<string, { id: string; name: string; description: string }>();
+    generatedCards
+      .filter((c) => c.source === 'community' && c.deckType)
+      .forEach((c) => {
+        if (baseIds.has(c.deckType)) return;
+        if (!map.has(c.deckType)) {
+          map.set(c.deckType, {
+            id: c.deckType,
+            name: c.deckName || `Community: ${c.deckType}`,
+            description: c.deckDescription || 'Imported from Community Gallery',
+          });
+        }
+      });
+    return Array.from(map.values());
+  }, [generatedCards]);
+
+  const combinedDecks = useMemo(
+    () => [...deckData.deckTypes, ...communityDecks],
+    [communityDecks]
+  );
 
   // Keep local deck metadata in sync with selected deck and persisted maps
   useEffect(() => {
@@ -598,7 +620,7 @@ export default function Settings() {
               Deck Type
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {deckData.deckTypes.map((deck) => (
+              {combinedDecks.map((deck) => (
                 <label
                   key={deck.id}
                   style={{
