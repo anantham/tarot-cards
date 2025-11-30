@@ -1,6 +1,24 @@
 # Uncommitted Changes - Quick Summary
 
-**Date:** 2025-11-29
+**Date:** 2025-11-29 (superseded by status update below)
+
+---
+
+## Status Update — 2025-11-30
+
+Recent changes now on `main`:
+- Auto-import: on first load (no local cards) we fetch `/api/community-supabase`, merge decks, pick the most recent complete (>=22 cards) deck, log per-card `[AutoImport] Added card X/Y: #N`, and import. Runs once per browser (localStorage flag).
+- Supabase required in production for community endpoints/auto-import: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET=tarotcards`, `SUPABASE_PUBLIC_BASE_URL=.../tarotcards`. KV still needed for legacy KV endpoints.
+- Prompt edits: Card Detail has a prompt editor; edits save on blur and are reused for generation (images/videos) and sharing/upload payloads.
+- Deck selector: dynamic “Community: <deckType>” entries appear for imported decks (non-base deck types). Deck uploads stay grouped via deckIdMap + merge-by-name/type/author.
+- Sharing UI: shows “X ready to share” and “Y already shared”; auto-import and upload have clearer logs.
+- UI defaults/assets: card numbers off and hover info off by default; header title removed; top-right glassy settings icon; new card back image and `public/tarot-icon.svg`.
+
+Outdated/needs revision in this doc:
+- File lists and “uncommitted” counts are stale (most items are now committed).
+- Supabase fallback is no longer optional; it is the active path for community endpoints/auto-import.
+- Vercel KV/env guidance is incomplete without the Supabase envs above.
+- vercel.json and error-state notes in older reviews are superseded by current code.
 
 ---
 
