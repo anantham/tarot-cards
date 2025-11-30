@@ -104,6 +104,10 @@ The project now supports deep lore customization. All deck data is located in `s
     *   A utility script that merges rich narrative descriptions (summary, axis, feeling, scene) into your `tarot-decks.json` file.
     *   Useful if you want to reset or update the core card lore without manually editing the huge JSON file.
 
+## 🔍 Sample Card
+
+A sample output image is available at `public/samplecard.jpeg` for quick reference (visual style example).
+
 ## 📖 Using the Generator
 
 ### Test Before Generating All
