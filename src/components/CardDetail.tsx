@@ -14,6 +14,7 @@ export default function CardDetail() {
     getAllGenerationsForCard,
     deleteGeneratedCard,
     generatedCards,
+    updateGeneratedCard,
     isGenerating,
     returnToSettingsOnClose,
     setReturnToSettingsOnClose,
@@ -31,6 +32,7 @@ export default function CardDetail() {
   const [videoSrc, setVideoSrc] = useState<string | undefined>(undefined);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | undefined>(undefined);
   const [videoMuted, setVideoMuted] = useState(true);
+  const [promptText, setPromptText] = useState<string>('');
 
   useEffect(() => {
     setShowDetails(false);
@@ -66,6 +68,24 @@ export default function CardDetail() {
 
   const allGenerations = primaryGenerations.length > 0 ? primaryGenerations : fallbackGenerations;
   const generatedCard = allGenerations[currentGenerationIndex];
+
+  // Default prompt for this card/deck (from tarot data) as fallback
+  const defaultPrompt = useMemo(() => {
+    const deckType = settings.selectedDeckType;
+    if (!selectedCard) return '';
+    if (deckType === 'lord-of-mysteries-masterpiece') return selectedCard.lordOfMysteriesMasterpiece?.prompt || '';
+    if (deckType === 'lord-of-mysteries') return selectedCard.lordOfMysteries?.prompt || '';
+    if (deckType === 'traditional-rider-waite') return selectedCard.traditional?.prompt || '';
+    if (deckType === 'egyptian-tarot') return selectedCard.egyptian?.prompt || '';
+    if (deckType === 'celtic-tarot') return selectedCard.celtic?.prompt || '';
+    if (deckType === 'japanese-shinto') return selectedCard.shinto?.prompt || '';
+    if (deckType === 'advaita-vedanta') return selectedCard.advaita?.prompt || '';
+    return '';
+  }, [selectedCard, settings.selectedDeckType]);
+
+  useEffect(() => {
+    setPromptText(generatedCard?.prompt || defaultPrompt || '');
+  }, [generatedCard?.prompt, defaultPrompt, generatedCard?.timestamp]);
 
   useEffect(() => {
     // cleanup blob URL when switching videos
@@ -107,6 +127,12 @@ export default function CardDetail() {
     if (currentGenerationIndex >= remaining.length) {
       setCurrentGenerationIndex(remaining.length - 1);
     }
+  };
+
+  const handleSavePrompt = () => {
+    if (!generatedCard) return;
+    const updated = { ...generatedCard, prompt: promptText };
+    updateGeneratedCard(updated);
   };
 
   const handlePrevGeneration = () => {
@@ -492,15 +518,15 @@ export default function CardDetail() {
             </div>
 
             {/* Video display / CTA */}
-              {generatedCard?.videoUrl ? (
-                <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '10px', overflow: 'hidden' }}>
-                  <video
-                    ref={videoRef}
-                    src={videoSrc}
-                    controls
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
+            {generatedCard?.videoUrl ? (
+              <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '10px', overflow: 'hidden' }}>
+                <video
+                  ref={videoRef}
+                  src={videoSrc}
+                  controls
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
             ) : (
               <button
                 onClick={() => generateVideo(selectedCard.number)}
@@ -580,6 +606,32 @@ export default function CardDetail() {
                 {generationError}
               </div>
             )}
+
+            {/* Prompt editor */}
+            <div style={{ marginTop: '0.75rem' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Prompt</div>
+              <textarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                onBlur={handleSavePrompt}
+                rows={6}
+                style={{
+                  width: '100%',
+                  padding: '0.9rem 1rem',
+                  background: 'rgba(0,0,0,0.25)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '10px',
+                  color: '#e8e8e8',
+                  fontSize: '0.95rem',
+                  lineHeight: 1.5,
+                  resize: 'vertical',
+                }}
+                placeholder="Edit the generation prompt for this card"
+              />
+              <div style={{ fontSize: '0.85rem', opacity: 0.65, marginTop: '0.35rem' }}>
+                Changes save on blur. Future uploads/share will include this prompt.
+              </div>
+            </div>
 
             {/* Delete button - only show if there is a generated card */}
             {generatedCard && (

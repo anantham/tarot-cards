@@ -27,6 +27,7 @@ interface StoreState {
   // Generated cards cache
   generatedCards: GeneratedCard[];
   addGeneratedCard: (card: GeneratedCard) => void;
+  updateGeneratedCard: (updated: GeneratedCard) => void;
   getGeneratedCard: (cardNumber: number, deckType: string) => GeneratedCard | undefined;
   getAllGenerationsForCard: (cardNumber: number, deckType: string) => GeneratedCard[];
   deleteGeneratedCard: (timestamp: number) => void;
@@ -80,6 +81,15 @@ export const useStore = create<StoreState>()(
             const updated = [...state.generatedCards, fullCard];
             void putGeneratedCard(fullCard);
             return { generatedCards: updated };
+          }),
+
+        updateGeneratedCard: (updatedCard) =>
+          set((state) => {
+            const updatedList = state.generatedCards.map((c) =>
+              c.timestamp === updatedCard.timestamp ? { ...c, ...updatedCard } : c
+            );
+            void putGeneratedCard(updatedCard);
+            return { generatedCards: updatedList };
           }),
 
         getGeneratedCard: (cardNumber, deckType) => {

@@ -98,7 +98,7 @@ function App() {
         );
 
         let importedDeckType: string | undefined = chosen.deckType;
-        chosen.cards.forEach((bundle: any) => {
+        chosen.cards.forEach((bundle: any, idx: number) => {
           const prompt = bundle.prompt || null;
           const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
           addGeneratedCard({
@@ -118,6 +118,9 @@ function App() {
             deckDescription: bundle.deck_description ?? bundle.deckDescription ?? chosen.deckDescription,
             author: bundle.author || bundle.display_name || bundle.displayName || chosen.author,
           });
+          console.log(
+            `[AutoImport] Added card ${idx + 1}/${chosen.cards.length}: #${bundle.card_number ?? bundle.cardNumber}`
+          );
         });
 
         setReturnToSettingsOnClose(true);

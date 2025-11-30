@@ -1054,6 +1054,11 @@ export default function Settings() {
                         {unsharedCount} card{unsharedCount !== 1 ? 's' : ''} ready to share
                       </span>
                     </div>
+                    {generatedCards.length > unsharedCount && (
+                      <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.25rem' }}>
+                        {generatedCards.length - unsharedCount} already shared
+                      </div>
+                    )}
                     <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
                       Will upload when you close Settings
                     </div>
