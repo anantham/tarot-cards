@@ -37,39 +37,86 @@ function App() {
         const rows = data?.galleries || [];
         if (!rows.length) return;
 
-        // Group by deck_id (or fallback bucket for uncategorized)
+        // Group by deck_id (skip uncategorized for auto-import)
         const byDeck = new Map<string, any[]>();
         rows.forEach((row: any) => {
-          const key = row.deck_id || row.deckId || `uncategorized-${row.deck_type || 'community'}`;
+          const key = row.deck_id || row.deckId;
+          if (!key) return; // ignore uncategorized for auto-import
           if (!byDeck.has(key)) byDeck.set(key, []);
           byDeck.get(key)!.push(row);
         });
 
-        const firstDeck = Array.from(byDeck.values())[0];
-        if (!firstDeck?.length) return;
+        // Merge decks that share name/type/author to avoid splits
+        const merged: Record<string, any> = {};
+        byDeck.forEach((cards, deckId) => {
+          const sample = cards[0];
+          const deckType = sample.deck_type || sample.deckType || 'community';
+          const deckName = sample.deck_name || sample.deckName || deckType || 'Community Deck';
+          const author = sample.author || 'Anonymous';
+          const deckDescription = sample.deck_description || sample.deckDescription || '';
+          const mergeKey = `${deckName}::${deckType}::${author}`;
+          const stampedCards = cards.map((c: any) => ({
+            ...c,
+            deckType,
+            deckName,
+            deckDescription,
+            author,
+          }));
+          const deckTimestamp = Math.max(...stampedCards.map((c: any) => c.timestamp || Date.now()));
+          if (!merged[mergeKey]) {
+            merged[mergeKey] = {
+              id: mergeKey,
+              deckId,
+              deckType,
+              deckName,
+              deckDescription,
+              author,
+              timestamp: deckTimestamp,
+              cards: stampedCards,
+            };
+          } else {
+            merged[mergeKey].cards.push(...stampedCards);
+            merged[mergeKey].timestamp = Math.max(merged[mergeKey].timestamp, deckTimestamp);
+          }
+        });
 
-        console.log(`[AutoImport] Found ${byDeck.size} deck groups; importing first with ${firstDeck.length} cards...`);
-        let importedDeckType: string | undefined;
-        firstDeck.forEach((bundle: any) => {
-          importedDeckType = importedDeckType || bundle.deck_type || bundle.deckType;
+        const decks = Object.values(merged) as any[];
+        if (!decks.length) return;
+
+        // Prefer complete decks (>=22 cards), pick the most recent
+        const completeDecks = decks
+          .filter((d) => (d.cards?.length || 0) >= 22)
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        const fallbackDecks = decks.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        const chosen = completeDecks[0] || fallbackDecks[0];
+        if (!chosen?.cards?.length) return;
+
+        console.log(
+          `[AutoImport] Found ${decks.length} merged decks; importing "${chosen.deckName}" with ${chosen.cards.length} cards (complete=${
+            chosen.cards.length >= 22
+          }).`
+        );
+
+        let importedDeckType: string | undefined = chosen.deckType;
+        chosen.cards.forEach((bundle: any) => {
           const prompt = bundle.prompt || null;
           const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
           addGeneratedCard({
             cardNumber: bundle.card_number ?? bundle.cardNumber,
-            deckType: bundle.deck_type ?? bundle.deckType,
+            deckType: bundle.deckType ?? bundle.deck_type ?? importedDeckType,
             frames: bundle.frames || [],
             gifUrl: bundle.gif_url ?? bundle.gifUrl,
             videoUrl: bundle.video_url ?? bundle.videoUrl,
             timestamp: bundle.timestamp || Date.now(),
             shared: true,
             source: 'community',
-            bundleCID: bundle.cid || bundle.deck_id || undefined,
+            bundleCID: bundle.cid || bundle.deck_id || chosen.deckId || undefined,
             prompt: prompt || undefined,
             deckPromptSuffix: deckPromptSuffix || undefined,
-            deckId: bundle.deck_id ?? bundle.deckId,
-            deckName: bundle.deck_name ?? bundle.deckName,
-            deckDescription: bundle.deck_description ?? bundle.deckDescription,
-            author: bundle.author || bundle.display_name || bundle.displayName,
+            deckId: bundle.deck_id ?? bundle.deckId ?? chosen.deckId,
+            deckName: bundle.deck_name ?? bundle.deckName ?? chosen.deckName,
+            deckDescription: bundle.deck_description ?? bundle.deckDescription ?? chosen.deckDescription,
+            author: bundle.author || bundle.display_name || bundle.displayName || chosen.author,
           });
         });
 
