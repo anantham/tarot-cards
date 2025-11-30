@@ -348,7 +348,7 @@ export default function CardDetail() {
           >
             👁
           </button>
-          {generatedCard && (
+          {generatedCard && showDetails && (
             <button
               onClick={handleDeleteCurrent}
               style={{
