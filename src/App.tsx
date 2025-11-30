@@ -28,6 +28,7 @@ function App() {
     if (typeof window !== 'undefined' && window.localStorage.getItem('communityImportedOnce') === '1') return;
 
     autoImportStarted.current = true;
+    console.log('[AutoImport] Starting first-load import...');
     (async () => {
       try {
         const res = await fetch('/api/community-supabase');
@@ -47,6 +48,7 @@ function App() {
         const firstDeck = Array.from(byDeck.values())[0];
         if (!firstDeck?.length) return;
 
+        console.log(`[AutoImport] Found ${byDeck.size} deck groups; importing first with ${firstDeck.length} cards...`);
         let importedDeckType: string | undefined;
         firstDeck.forEach((bundle: any) => {
           importedDeckType = importedDeckType || bundle.deck_type || bundle.deckType;
@@ -76,11 +78,12 @@ function App() {
         if (!settings.selectedDeckType && importedDeckType) {
           updateSettings({ selectedDeckType: importedDeckType });
         }
+        console.log('[AutoImport] Import completed.');
         if (typeof window !== 'undefined') {
           window.localStorage.setItem('communityImportedOnce', '1');
         }
       } catch (err) {
-        console.error('[App] Auto-import community deck failed:', err);
+        console.error('[AutoImport] Failed:', err);
       } finally {
         autoImportStarted.current = false;
       }
