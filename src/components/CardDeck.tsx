@@ -58,6 +58,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const hasDragged = useRef(false); // Track if user actually moved the card
 
   // Physics constants
+  const MOTION_SCALE = 0.2; // Slow overall motion to ~20% speed
   const REPULSION_STRENGTH = 6.0;
   const REPULSION_DISTANCE = 4.0;
   const CURSOR_REPULSION_STRENGTH = 1.0;
@@ -272,7 +273,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 
       // Update position
       physics.current.position.add(
-        physics.current.velocity.clone().multiplyScalar(dt * 60)
+        physics.current.velocity.clone().multiplyScalar(dt * 60 * MOTION_SCALE)
       );
 
       // Apply to group
@@ -280,12 +281,12 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     }
 
     // Multi-axis rotation with a bit of wobble
-    group.rotation.x += angularVelocity.x * dt;
-    group.rotation.y += angularVelocity.y * dt;
-    group.rotation.z += angularVelocity.z * dt;
-    group.rotation.x += Math.sin(time * driftParams.rotSpeed) * 0.02;
-    group.rotation.y += Math.cos(time * driftParams.rotSpeed * 0.8) * 0.02;
-    group.rotation.z += Math.sin(time * driftParams.rotSpeed * 0.6) * 0.015;
+    group.rotation.x += angularVelocity.x * dt * MOTION_SCALE;
+    group.rotation.y += angularVelocity.y * dt * MOTION_SCALE;
+    group.rotation.z += angularVelocity.z * dt * MOTION_SCALE;
+    group.rotation.x += Math.sin(time * driftParams.rotSpeed) * 0.02 * MOTION_SCALE;
+    group.rotation.y += Math.cos(time * driftParams.rotSpeed * 0.8) * 0.02 * MOTION_SCALE;
+    group.rotation.z += Math.sin(time * driftParams.rotSpeed * 0.6) * 0.015 * MOTION_SCALE;
 
     // Hover effect - scale up and emit light
     if (hovered && !dragging) {
