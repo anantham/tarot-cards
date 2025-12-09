@@ -61,6 +61,7 @@ export default function CardDetail() {
       startAngle: isInverted ? 180 : -12,
       startTilt: isInverted ? -14 : 10,
     });
+    console.log('[CardDetail] triggerFlip', { isInverted });
     setFlipKey((k) => k + 1);
   }, []);
 
@@ -89,6 +90,7 @@ export default function CardDetail() {
 
     useEffect(() => {
       setIsLoaded(false);
+      console.log('[CardDetail] image src changed, awaiting load', { src });
     }, [src, flipKey]);
 
     const HOLD_BEFORE_FLIP = 2; // seconds to display inverted state before rotating
@@ -116,7 +118,11 @@ export default function CardDetail() {
         <img
           src={src}
           alt={alt}
-          onLoad={() => setIsLoaded(true)}
+          onLoad={() => {
+            console.log('[CardDetail] image loaded, starting flip after hold', { src });
+            setIsLoaded(true);
+          }}
+          onClick={() => console.log('[CardDetail] image clicked', { src })}
           style={{ width: '100%', height: '100%', objectFit: 'cover', backfaceVisibility: 'hidden' }}
           loading="eager"
         />
@@ -185,6 +191,10 @@ export default function CardDetail() {
 
   // Trigger flip once when the displayed media changes
   useEffect(() => {
+    console.log('[CardDetail] media changed, triggering flip', {
+      gif: generatedCard?.gifUrl,
+      frame0: generatedCard?.frames?.[0],
+    });
     triggerFlip();
   }, [generatedCard?.gifUrl, generatedCard?.frames, triggerFlip]);
 
