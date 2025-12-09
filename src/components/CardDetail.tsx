@@ -40,6 +40,7 @@ export default function CardDetail() {
     startAngle: 180,
     startTilt: -12,
   }));
+  const loadedMediaRef = useRef<Set<string>>(new Set());
   const prefetchToCache = useCallback(async (url?: string | null) => {
     if (!url || url.startsWith('data:')) return;
     if (typeof window === 'undefined' || !(window as any).caches) return;
@@ -74,6 +75,7 @@ export default function CardDetail() {
       startAngle={flipOrientation.startAngle}
       startTilt={flipOrientation.startTilt}
       flipTrigger={flipTrigger}
+      loadedMediaRef={loadedMediaRef}
     />
   );
 
@@ -148,6 +150,10 @@ export default function CardDetail() {
     if (!primaryMediaSrc) return;
     if (primaryMediaSrc === lastMediaSrcRef.current) return;
     lastMediaSrcRef.current = primaryMediaSrc;
+    if (loadedMediaRef.current.has(primaryMediaSrc)) {
+      console.log('[CardDetail] media already loaded, skipping flip', { media: primaryMediaSrc });
+      return;
+    }
     console.log('[CardDetail] media changed, triggering flip', {
       media: primaryMediaSrc,
       isGif: !!generatedCard?.gifUrl,

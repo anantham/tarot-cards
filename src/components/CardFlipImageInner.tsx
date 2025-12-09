@@ -7,11 +7,12 @@ interface CardFlipImageInnerProps {
   startAngle: number;
   startTilt: number;
   flipTrigger: number;
+  loadedMediaRef: React.MutableRefObject<Set<string>>;
 }
 
 const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
 
-export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigger }: CardFlipImageInnerProps) {
+export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigger, loadedMediaRef }: CardFlipImageInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const lastLoadedSrcRef = useRef<string | null>(null);
 
@@ -22,6 +23,10 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
 
   useEffect(() => {
     console.log('[CardDetail] image mount', { src, flipTrigger });
+    if (loadedMediaRef.current.has(src)) {
+      console.log('[CardDetail] image already marked loaded for src; skipping hold/flip', { src });
+      setIsLoaded(true);
+    }
     return () => {
       console.log('[CardDetail] image unmount', { src, flipTrigger });
     };
@@ -53,11 +58,12 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
         src={src}
         alt={alt}
         onLoad={() => {
-          if (lastLoadedSrcRef.current === src) {
+          if (lastLoadedSrcRef.current === src || loadedMediaRef.current.has(src)) {
             console.log('[CardDetail] image load ignored (same src already loaded)', { src });
             return;
           }
           lastLoadedSrcRef.current = src;
+          loadedMediaRef.current.add(src);
           console.log('[CardDetail] image loaded, holding inverted before flip', { src, holdSeconds: HOLD_BEFORE_FLIP });
           setIsLoaded(true);
         }}
