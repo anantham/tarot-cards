@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
 import type { CardInterpretation } from '../types';
@@ -34,13 +34,32 @@ export default function CardDetail() {
   const [videoMuted, setVideoMuted] = useState(true);
   const [promptText, setPromptText] = useState<string>('');
   const [flipKey, setFlipKey] = useState(0);
+  const [flipOrientation, setFlipOrientation] = useState(() => ({
+    isInverted: true,
+    startAngle: 180,
+    startTilt: -12,
+  }));
+
+  const triggerFlip = useCallback(() => {
+    const isInverted = Math.random() < 0.5;
+    setFlipOrientation({
+      isInverted,
+      startAngle: isInverted ? 180 : -12,
+      startTilt: isInverted ? -14 : 10,
+    });
+    setFlipKey((k) => k + 1);
+  }, []);
 
   const CardFlipImage = ({ src, alt }: { src: string; alt: string }) => (
     <motion.div
       key={`${flipKey}-${src}`}
-      initial={{ rotate: 180, scale: 0.98 }}
-      animate={{ rotate: 0, scale: 1 }}
-      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ rotate: flipOrientation.startAngle, rotateX: flipOrientation.startTilt, scale: 0.94 }}
+      animate={{
+        rotate: [flipOrientation.startAngle, flipOrientation.startAngle / 3, 0],
+        rotateX: [flipOrientation.startTilt, flipOrientation.startTilt / 2, 0],
+        scale: [0.94, 1.06, 1],
+      }}
+      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }}
       style={{ width: '100%', height: '100%' }}
     >
       <img
@@ -54,7 +73,7 @@ export default function CardDetail() {
   useEffect(() => {
     setShowDetails(false);
     setCurrentGenerationIndex(0);
-    setFlipKey((k) => k + 1); // retrigger flip on card change
+    triggerFlip(); // retrigger flip on card change
   }, [selectedCard?.number, settings.selectedDeckType]);
 
   if (!selectedCard) return null;
@@ -104,7 +123,7 @@ export default function CardDetail() {
   useEffect(() => {
     setPromptText(generatedCard?.prompt || defaultPrompt || '');
     // retrigger flip when generation changes (new image)
-    setFlipKey((k) => k + 1);
+    triggerFlip();
   }, [generatedCard?.prompt, defaultPrompt, generatedCard?.timestamp]);
 
   useEffect(() => {
