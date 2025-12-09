@@ -33,10 +33,28 @@ export default function CardDetail() {
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | undefined>(undefined);
   const [videoMuted, setVideoMuted] = useState(true);
   const [promptText, setPromptText] = useState<string>('');
+  const [flipKey, setFlipKey] = useState(0);
+
+  const CardFlipImage = ({ src, alt }: { src: string; alt: string }) => (
+    <motion.div
+      key={`${flipKey}-${src}`}
+      initial={{ rotate: 180, scale: 0.98 }}
+      animate={{ rotate: 0, scale: 1 }}
+      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <img
+        src={src}
+        alt={alt}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', backfaceVisibility: 'hidden' }}
+      />
+    </motion.div>
+  );
 
   useEffect(() => {
     setShowDetails(false);
     setCurrentGenerationIndex(0);
+    setFlipKey((k) => k + 1); // retrigger flip on card change
   }, [selectedCard?.number, settings.selectedDeckType]);
 
   if (!selectedCard) return null;
@@ -85,6 +103,8 @@ export default function CardDetail() {
 
   useEffect(() => {
     setPromptText(generatedCard?.prompt || defaultPrompt || '');
+    // retrigger flip when generation changes (new image)
+    setFlipKey((k) => k + 1);
   }, [generatedCard?.prompt, defaultPrompt, generatedCard?.timestamp]);
 
   useEffect(() => {
@@ -451,17 +471,9 @@ export default function CardDetail() {
                   </button>
                 </>
               ) : generatedCard?.gifUrl ? (
-                <img
-                  src={generatedCard.gifUrl}
-                  alt={getTitle()}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <CardFlipImage src={generatedCard.gifUrl} alt={getTitle()} />
               ) : generatedCard?.frames?.[0] ? (
-                <img
-                  src={generatedCard.frames[0]}
-                  alt={getTitle()}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <CardFlipImage src={generatedCard.frames[0]} alt={getTitle()} />
               ) : (
                 <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
@@ -492,17 +504,9 @@ export default function CardDetail() {
             }}
           >
             {generatedCard?.gifUrl ? (
-              <img
-                src={generatedCard.gifUrl}
-                alt={getTitle()}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              <CardFlipImage src={generatedCard.gifUrl} alt={getTitle()} />
             ) : generatedCard?.frames?.[0] ? (
-              <img
-                src={generatedCard.frames[0]}
-                alt={getTitle()}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              <CardFlipImage src={generatedCard.frames[0]} alt={getTitle()} />
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
