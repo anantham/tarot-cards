@@ -183,20 +183,30 @@ export default function CardDetail() {
     setPromptText(generatedCard?.prompt || defaultPrompt || '');
   }, [generatedCard?.prompt, defaultPrompt, generatedCard?.timestamp]);
 
+  // Memoized primary media src (gif preferred, else first frame)
+  const primaryMediaSrc = useMemo(
+    () => generatedCard?.gifUrl || generatedCard?.frames?.[0] || null,
+    [generatedCard?.gifUrl, generatedCard?.frames]
+  );
+  const lastMediaSrcRef = useRef<string | null>(null);
+
   // Prefetch main image (gif or first frame) to leverage Cache API for community imports
   useEffect(() => {
-    const primarySrc = generatedCard?.gifUrl || generatedCard?.frames?.[0];
-    if (primarySrc) prefetchToCache(primarySrc);
-  }, [generatedCard?.gifUrl, generatedCard?.frames, prefetchToCache]);
+    if (!primaryMediaSrc || primaryMediaSrc === lastMediaSrcRef.current) return;
+    prefetchToCache(primaryMediaSrc);
+  }, [primaryMediaSrc, prefetchToCache]);
 
-  // Trigger flip once when the displayed media changes
+  // Trigger flip once when the displayed media changes (strictly when URL changes)
   useEffect(() => {
+    if (!primaryMediaSrc) return;
+    if (primaryMediaSrc === lastMediaSrcRef.current) return;
+    lastMediaSrcRef.current = primaryMediaSrc;
     console.log('[CardDetail] media changed, triggering flip', {
-      gif: generatedCard?.gifUrl,
-      frame0: generatedCard?.frames?.[0],
+      media: primaryMediaSrc,
+      isGif: !!generatedCard?.gifUrl,
     });
     triggerFlip();
-  }, [generatedCard?.gifUrl, generatedCard?.frames, triggerFlip]);
+  }, [primaryMediaSrc, triggerFlip, generatedCard?.gifUrl]);
 
   useEffect(() => {
     // cleanup blob URL when switching videos
