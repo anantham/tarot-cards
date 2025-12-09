@@ -91,6 +91,8 @@ export default function CardDetail() {
       setIsLoaded(false);
     }, [src, flipKey]);
 
+    const HOLD_BEFORE_FLIP = 2; // seconds to display inverted state before rotating
+
     return (
       <motion.div
         initial={{ rotate: startAngle, rotateX: startTilt, scale: 0.94, opacity: 0.5 }}
@@ -107,6 +109,7 @@ export default function CardDetail() {
         transition={
           isLoaded
             ? { duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+            : { delay: HOLD_BEFORE_FLIP, duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
             : { duration: 0 }
         }
         style={{ width: '100%', height: '100%' }}
