@@ -110,7 +110,6 @@ export default function CardDetail() {
           isLoaded
             ? { duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
             : { delay: HOLD_BEFORE_FLIP, duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
-            : { duration: 0 }
         }
         style={{ width: '100%', height: '100%' }}
       >
