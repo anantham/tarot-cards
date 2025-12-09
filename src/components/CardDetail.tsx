@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
 import type { CardInterpretation } from '../types';
@@ -322,7 +323,7 @@ export default function CardDetail() {
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           <button
             aria-label="Previous card"
-            onClick={(e) => { e.stopPropagation(); navigateCard(-1); }}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); navigateCard(-1); }}
             style={{
               position: 'absolute',
               left: '1.5rem',
@@ -343,7 +344,7 @@ export default function CardDetail() {
           </button>
           <button
             aria-label="Next card"
-            onClick={(e) => { e.stopPropagation(); navigateCard(1); }}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); navigateCard(1); }}
             style={{
               position: 'absolute',
               right: '1.5rem',
