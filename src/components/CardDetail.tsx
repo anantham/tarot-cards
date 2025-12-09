@@ -33,7 +33,7 @@ export default function CardDetail() {
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | undefined>(undefined);
   const [videoMuted, setVideoMuted] = useState(true);
   const [promptText, setPromptText] = useState<string>('');
-  const [flipKey, setFlipKey] = useState(0);
+  const [flipTrigger, setFlipTrigger] = useState(0);
   const [flipOrientation, setFlipOrientation] = useState(() => ({
     isInverted: true,
     startAngle: 180,
@@ -62,16 +62,17 @@ export default function CardDetail() {
       startTilt: isInverted ? -14 : 10,
     });
     console.log('[CardDetail] triggerFlip', { isInverted });
-    setFlipKey((k) => k + 1);
+    setFlipTrigger((k) => k + 1);
   }, []);
 
   const CardFlipImage = ({ src, alt }: { src: string; alt: string }) => (
     <CardFlipImageInner
-      key={`${flipKey}-${src}`}
+      key={src}
       src={src}
       alt={alt}
       startAngle={flipOrientation.startAngle}
       startTilt={flipOrientation.startTilt}
+      flipTrigger={flipTrigger}
     />
   );
 
@@ -80,18 +81,20 @@ export default function CardDetail() {
     alt,
     startAngle,
     startTilt,
+    flipTrigger,
   }: {
     src: string;
     alt: string;
     startAngle: number;
     startTilt: number;
+    flipTrigger: number;
   }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
       setIsLoaded(false);
       console.log('[CardDetail] image src changed, awaiting load', { src });
-    }, [src, flipKey]);
+    }, [src, flipTrigger]);
 
     const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
 
