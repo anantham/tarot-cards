@@ -186,7 +186,6 @@ export default function CardDetail() {
 
   // Trigger flip once when the displayed media changes
   useEffect(() => {
-    const primarySrc = generatedCard?.gifUrl || generatedCard?.frames?.[0];
     triggerFlip();
   }, [generatedCard?.gifUrl, generatedCard?.frames, triggerFlip]);
 
