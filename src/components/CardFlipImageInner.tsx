@@ -6,6 +6,7 @@ interface CardFlipImageInnerProps {
   alt: string;
   startAngle: number;
   startTilt: number;
+  targetAngle: number;
   flipTrigger: number;
   loadedMediaRef: React.MutableRefObject<Set<string>>;
   onReady: (src: string) => void;
@@ -14,7 +15,7 @@ interface CardFlipImageInnerProps {
 const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
 const FLIP_DURATION = 3.2; // seconds for the animated flip
 
-export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigger, loadedMediaRef, onReady }: CardFlipImageInnerProps) {
+export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }: CardFlipImageInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const lastLoadedSrcRef = useRef<string | null>(null);
   const readyTimeoutRef = useRef<number | null>(null);
@@ -47,13 +48,15 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
+  const midAngle = targetAngle === 180 ? targetAngle + 30 : targetAngle / 2;
+
   return (
     <motion.div
       initial={{ rotate: startAngle, rotateX: startTilt, scale: 0.94, opacity: 0.5 }}
       animate={
         isLoaded
           ? {
-              rotate: [startAngle, startAngle / 3, 0],
+              rotate: [startAngle, midAngle, targetAngle],
               rotateX: [startTilt, startTilt / 2, 0],
               scale: [0.94, 1.07, 1],
               opacity: [0.5, 0.85, 1],
@@ -62,8 +65,8 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
       }
       transition={
         isLoaded
-          ? { duration: 3.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
-          : { delay: HOLD_BEFORE_FLIP, duration: 3.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+          ? { delay: HOLD_BEFORE_FLIP, duration: FLIP_DURATION, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+          : { duration: 0 }
       }
       style={{ width: '100%', height: '100%' }}
     >

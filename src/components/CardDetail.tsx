@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
@@ -6,6 +6,33 @@ import type { CardInterpretation } from '../types';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard } from '../types';
 import { CardFlipImageInner } from './CardFlipImageInner';
+
+type CardFlipImageProps = {
+  src: string;
+  alt: string;
+  startAngle: number;
+  startTilt: number;
+  targetAngle: number;
+  flipTrigger: number;
+  loadedMediaRef: React.MutableRefObject<Set<string>>;
+  onReady: () => void;
+};
+
+const CardFlipImage: React.FC<CardFlipImageProps> = React.memo(
+  ({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }) => (
+    <CardFlipImageInner
+      key={src}
+      src={src}
+      alt={alt}
+      startAngle={startAngle}
+      startTilt={startTilt}
+      targetAngle={targetAngle}
+      flipTrigger={flipTrigger}
+      loadedMediaRef={loadedMediaRef}
+      onReady={onReady}
+    />
+  )
+);
 
 export default function CardDetail() {
   const {
@@ -58,31 +85,16 @@ export default function CardDetail() {
   }, []);
 
   const triggerFlip = useCallback(() => {
-    const isInverted = Math.random() < 0.5;
+    const revealInverted = Math.random() < 0.5;
     setFlipOrientation({
-      isInverted,
-      startAngle: isInverted ? 180 : -12,
-      startTilt: isInverted ? -14 : 10,
+      isInverted: revealInverted,
+      startAngle: 180,
+      startTilt: -14,
+      targetAngle: revealInverted ? 180 : 0,
     });
-    console.log('[CardDetail] triggerFlip', { isInverted });
+    console.log('[CardDetail] triggerFlip', { revealInverted });
     setFlipTrigger((k) => k + 1);
   }, []);
-
-  const CardFlipImage = ({ src, alt }: { src: string; alt: string }) => (
-    <CardFlipImageInner
-      key={src}
-      src={src}
-      alt={alt}
-      startAngle={flipOrientation.startAngle}
-      startTilt={flipOrientation.startTilt}
-      flipTrigger={flipTrigger}
-      loadedMediaRef={loadedMediaRef}
-      onReady={() => {
-        console.log('[CardDetail] card ready after flip', { src });
-        setIsCardReady(true);
-      }}
-    />
-  );
 
   useEffect(() => {
     setShowDetails(false);
@@ -143,6 +155,9 @@ export default function CardDetail() {
     [generatedCard?.gifUrl, generatedCard?.frames]
   );
   const lastMediaSrcRef = useRef<string | null>(null);
+  const handleCardReady = useCallback(() => {
+    setIsCardReady(true);
+  }, []);
 
   // Prefetch main image (gif or first frame) to leverage Cache API for community imports
   useEffect(() => {
@@ -533,9 +548,27 @@ export default function CardDetail() {
                   </button>
                 </>
               ) : generatedCard?.gifUrl ? (
-                <CardFlipImage src={generatedCard.gifUrl} alt={getTitle()} />
+                <CardFlipImage
+                  src={generatedCard.gifUrl}
+                  alt={getTitle()}
+                  startAngle={flipOrientation.startAngle}
+                  startTilt={flipOrientation.startTilt}
+                  targetAngle={flipOrientation.targetAngle}
+                  flipTrigger={flipTrigger}
+                  loadedMediaRef={loadedMediaRef}
+                  onReady={handleCardReady}
+                />
               ) : generatedCard?.frames?.[0] ? (
-                <CardFlipImage src={generatedCard.frames[0]} alt={getTitle()} />
+                <CardFlipImage
+                  src={generatedCard.frames[0]}
+                  alt={getTitle()}
+                  startAngle={flipOrientation.startAngle}
+                  startTilt={flipOrientation.startTilt}
+                  targetAngle={flipOrientation.targetAngle}
+                  flipTrigger={flipTrigger}
+                  loadedMediaRef={loadedMediaRef}
+                  onReady={handleCardReady}
+                />
               ) : (
                 <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
@@ -566,9 +599,27 @@ export default function CardDetail() {
             }}
           >
             {generatedCard?.gifUrl ? (
-              <CardFlipImage src={generatedCard.gifUrl} alt={getTitle()} />
+              <CardFlipImage
+                src={generatedCard.gifUrl}
+                alt={getTitle()}
+                startAngle={flipOrientation.startAngle}
+                startTilt={flipOrientation.startTilt}
+                targetAngle={flipOrientation.targetAngle}
+                flipTrigger={flipTrigger}
+                loadedMediaRef={loadedMediaRef}
+                onReady={handleCardReady}
+              />
             ) : generatedCard?.frames?.[0] ? (
-              <CardFlipImage src={generatedCard.frames[0]} alt={getTitle()} />
+              <CardFlipImage
+                src={generatedCard.frames[0]}
+                alt={getTitle()}
+                startAngle={flipOrientation.startAngle}
+                startTilt={flipOrientation.startTilt}
+                targetAngle={flipOrientation.targetAngle}
+                flipTrigger={flipTrigger}
+                loadedMediaRef={loadedMediaRef}
+                onReady={handleCardReady}
+              />
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
