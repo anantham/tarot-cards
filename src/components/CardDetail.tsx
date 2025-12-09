@@ -40,6 +40,7 @@ export default function CardDetail() {
     startAngle: 180,
     startTilt: -12,
   }));
+  const [isCardReady, setIsCardReady] = useState(false);
   const loadedMediaRef = useRef<Set<string>>(new Set());
   const prefetchToCache = useCallback(async (url?: string | null) => {
     if (!url || url.startsWith('data:')) return;
@@ -76,6 +77,10 @@ export default function CardDetail() {
       startTilt={flipOrientation.startTilt}
       flipTrigger={flipTrigger}
       loadedMediaRef={loadedMediaRef}
+      onReady={() => {
+        console.log('[CardDetail] card ready after flip', { src });
+        setIsCardReady(true);
+      }}
     />
   );
 
@@ -150,6 +155,7 @@ export default function CardDetail() {
     if (!primaryMediaSrc) return;
     if (primaryMediaSrc === lastMediaSrcRef.current) return;
     lastMediaSrcRef.current = primaryMediaSrc;
+    setIsCardReady(false);
     if (loadedMediaRef.current.has(primaryMediaSrc)) {
       console.log('[CardDetail] media already loaded, skipping flip', { media: primaryMediaSrc });
       return;
@@ -454,24 +460,26 @@ export default function CardDetail() {
         {!showDetails && (
           <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div
-              style={{
-                position: 'relative',
-                aspectRatio: '2/3',
-                width: '100%',
-                maxWidth: '500px',
+            style={{
+              position: 'relative',
+              aspectRatio: '2/3',
+              width: '100%',
+              maxWidth: '500px',
                 background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0e27 100%)',
                 borderRadius: '14px',
                 border: 'none',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                perspective: '1000px',
-                transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                transition: 'transform 0.15s ease',
-              }}
+              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              perspective: '1000px',
+              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: 'transform 0.15s ease',
+              pointerEvents: isCardReady ? 'auto' : 'none',
+            }}
               onMouseMove={(e) => {
+                if (!isCardReady) return;
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = ((e.clientY - rect.top) / rect.height - 0.5) * -6;
                 const y = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
