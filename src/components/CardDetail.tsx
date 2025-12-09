@@ -39,6 +39,20 @@ export default function CardDetail() {
     startAngle: 180,
     startTilt: -12,
   }));
+  const prefetchToCache = useCallback(async (url?: string | null) => {
+    if (!url || url.startsWith('data:')) return;
+    if (typeof window === 'undefined' || !(window as any).caches) return;
+    try {
+      const cache = await caches.open('tarot-media');
+      const match = await cache.match(url);
+      if (match) return;
+      const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+      if (!resp.ok) return;
+      await cache.put(url, resp.clone());
+    } catch (err) {
+      console.warn('[CardDetail] cache prefetch failed', err);
+    }
+  }, []);
 
   const triggerFlip = useCallback(() => {
     const isInverted = Math.random() < 0.5;
@@ -51,29 +65,66 @@ export default function CardDetail() {
   }, []);
 
   const CardFlipImage = ({ src, alt }: { src: string; alt: string }) => (
-    <motion.div
+    <CardFlipImageInner
       key={`${flipKey}-${src}`}
-      initial={{ rotate: flipOrientation.startAngle, rotateX: flipOrientation.startTilt, scale: 0.94 }}
-      animate={{
-        rotate: [flipOrientation.startAngle, flipOrientation.startAngle / 3, 0],
-        rotateX: [flipOrientation.startTilt, flipOrientation.startTilt / 2, 0],
-        scale: [0.94, 1.06, 1],
-      }}
-      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <img
-        src={src}
-        alt={alt}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', backfaceVisibility: 'hidden' }}
-      />
-    </motion.div>
+      src={src}
+      alt={alt}
+      startAngle={flipOrientation.startAngle}
+      startTilt={flipOrientation.startTilt}
+    />
   );
+
+  const CardFlipImageInner = ({
+    src,
+    alt,
+    startAngle,
+    startTilt,
+  }: {
+    src: string;
+    alt: string;
+    startAngle: number;
+    startTilt: number;
+  }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+      setIsLoaded(false);
+    }, [src, flipKey]);
+
+    return (
+      <motion.div
+        initial={{ rotate: startAngle, rotateX: startTilt, scale: 0.94, opacity: 0.5 }}
+        animate={
+          isLoaded
+            ? {
+                rotate: [startAngle, startAngle / 3, 0],
+                rotateX: [startTilt, startTilt / 2, 0],
+                scale: [0.94, 1.07, 1],
+                opacity: [0.5, 0.85, 1],
+              }
+            : { rotate: startAngle, rotateX: startTilt, scale: 0.94, opacity: 0.5 }
+        }
+        transition={
+          isLoaded
+            ? { duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+            : { duration: 0 }
+        }
+        style={{ width: '100%', height: '100%' }}
+      >
+        <img
+          src={src}
+          alt={alt}
+          onLoad={() => setIsLoaded(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', backfaceVisibility: 'hidden' }}
+          loading="eager"
+        />
+      </motion.div>
+    );
+  };
 
   useEffect(() => {
     setShowDetails(false);
     setCurrentGenerationIndex(0);
-    triggerFlip(); // retrigger flip on card change
   }, [selectedCard?.number, settings.selectedDeckType]);
 
   if (!selectedCard) return null;
@@ -122,9 +173,19 @@ export default function CardDetail() {
 
   useEffect(() => {
     setPromptText(generatedCard?.prompt || defaultPrompt || '');
-    // retrigger flip when generation changes (new image)
-    triggerFlip();
   }, [generatedCard?.prompt, defaultPrompt, generatedCard?.timestamp]);
+
+  // Prefetch main image (gif or first frame) to leverage Cache API for community imports
+  useEffect(() => {
+    const primarySrc = generatedCard?.gifUrl || generatedCard?.frames?.[0];
+    if (primarySrc) prefetchToCache(primarySrc);
+  }, [generatedCard?.gifUrl, generatedCard?.frames, prefetchToCache]);
+
+  // Trigger flip once when the displayed media changes
+  useEffect(() => {
+    const primarySrc = generatedCard?.gifUrl || generatedCard?.frames?.[0];
+    triggerFlip();
+  }, [generatedCard?.gifUrl, generatedCard?.frames, triggerFlip]);
 
   useEffect(() => {
     // cleanup blob URL when switching videos
