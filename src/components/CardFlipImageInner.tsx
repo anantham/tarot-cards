@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { motion } from 'framer-motion';
 
 interface CardFlipImageInnerProps {
@@ -8,7 +8,7 @@ interface CardFlipImageInnerProps {
   startTilt: number;
   targetAngle: number;
   flipTrigger: number;
-  loadedMediaRef: React.MutableRefObject<Set<string>>;
+  loadedMediaRef: MutableRefObject<Set<string>>;
   onReady: (src: string) => void;
 }
 

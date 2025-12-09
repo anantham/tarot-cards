@@ -12,6 +12,11 @@ interface CardPhysics {
   acceleration: THREE.Vector3;
   targetPosition: THREE.Vector3;
   mass: number;
+  personality: 'shy' | 'neutral' | 'curious';
+  breathPhase: number;
+  awarenessTarget: THREE.Vector3 | null;
+  restlessness: number;
+  lastImpulseTime: number;
 }
 
 interface CardProps {
@@ -29,9 +34,33 @@ interface CardProps {
     transitionProgress: number;
   }>;
   isInjected: boolean;
+  mass: number;
+  personality: 'shy' | 'neutral' | 'curious';
+  currentRef: React.MutableRefObject<{
+    direction: THREE.Vector3;
+    strength: number;
+    targetStrength: number;
+    changeTimer: number;
+  }>;
 }
 
-function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected }: CardProps) {
+// Flow field (curl-ish) using trig as pseudo noise
+const flowField = (position: THREE.Vector3, time: number, scale = 1.0): THREE.Vector3 => {
+  const p = position.clone().multiplyScalar(0.3);
+  const t = time * 0.15;
+
+  const n1 = Math.sin(p.x * 1.3 + t) * Math.cos(p.y * 0.9 + t * 0.7) * Math.sin(p.z * 1.1 + t * 0.5);
+  const n2 = Math.cos(p.x * 0.8 + t * 1.1) * Math.sin(p.y * 1.4 + t * 0.6) * Math.cos(p.z * 0.7 + t * 0.9);
+  const n3 = Math.sin(p.x * 1.1 + t * 0.8) * Math.sin(p.y * 0.7 + t * 1.2) * Math.cos(p.z * 1.3 + t * 0.4);
+
+  return new THREE.Vector3(
+    n2 - n3,
+    n3 - n1,
+    n1 - n2
+  ).multiplyScalar(0.025 * scale);
+};
+
+function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected, mass, personality, currentRef }: CardProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -56,33 +85,28 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const lastDragPosition = useRef(new THREE.Vector3());
   const dragVelocity = useRef(new THREE.Vector3());
   const hasDragged = useRef(false); // Track if user actually moved the card
+  const trailRef = useRef<THREE.Vector3[]>([]);
+  const lastTrailSampleRef = useRef(0);
 
-  // Physics constants
-  const MOTION_SCALE = 0.2; // Slow overall motion to ~20% speed
-  const REPULSION_STRENGTH = 6.0;
-  const REPULSION_DISTANCE = 4.0;
-  const CURSOR_REPULSION_STRENGTH = 1.0;
-  const CURSOR_REPULSION_DISTANCE = 3.0;
-  const CENTER_ATTRACTION = 0.05; // stronger pull toward origin
-  const CENTER_ATTRACTION_DISTANCE = 5.0; // Start pulling when farther than this
-  const DAMPING = 0.965;
-  const MAX_VELOCITY = 0.45;
-  const BOUNDARY_FORCE = 0.5;
-  const BOUNDARY_DISTANCE = 9;
-  const ORBITAL_SPIN = 0.25;
+  // Physics constants (tuned for flowy motion)
+  const MOTION_SCALE = 0.25;
+  const MAX_VELOCITY = 0.5;
+  const DAMPING = 0.96;
+  const REPULSION_STRENGTH = 5.0;
+  const REPULSION_DISTANCE = 3.5;
+  const CURSOR_INTERACTION_DISTANCE = 4.0;
+  const CENTER_ATTRACTION = 0.04;
+  const CENTER_ATTRACTION_DISTANCE = 6.0;
+  const BOUNDARY_FORCE = 0.4;
+  const BOUNDARY_DISTANCE = 10;
   const DRAG_REPULSION_STRENGTH = 3.5;
-
-  // Random drift parameters
-  const driftParams = useMemo(() => ({
-    speed: 0.35 + Math.random() * 0.4,
-    xOffset: Math.random() * Math.PI * 2,
-    yOffset: Math.random() * Math.PI * 2,
-    zOffset: Math.random() * Math.PI * 2,
-    xAmplitude: 0.25 + Math.random() * 0.3,
-    yAmplitude: 0.2 + Math.random() * 0.25,
-    zAmplitude: 0.1 + Math.random() * 0.2,
-    rotSpeed: 0.35 + Math.random() * 0.4,
-  }), []);
+  const FLOCK_RADIUS = 4.5;
+  const ALIGNMENT_STRENGTH = 0.008;
+  const COHESION_STRENGTH = 0.003;
+  const BREATH_SPEED = 0.25;
+  const BREATH_AMPLITUDE = 0.018;
+  const ATTENTION_STRENGTH = 0.015;
+  const ATTENTION_DISTANCE = 6;
 
   // Independent angular velocity so cards spin on varied axes
   const angularVelocity = useMemo(() => {
@@ -145,6 +169,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     const time = state.clock.elapsedTime;
     // Ensure minimum dt of 0.016 (~60fps) to prevent zero-dt frames
     const dt = Math.max(Math.min(state.clock.getDelta(), 0.1), 0.016);
+    const cardMass = mass;
 
     if (dragging) {
       // Update drag position
@@ -184,11 +209,9 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       // Reset acceleration
       physics.current.acceleration.set(0, 0, 0);
 
-      // Random trajectory drift
-      const driftX = Math.sin(time * driftParams.speed + driftParams.xOffset) * driftParams.xAmplitude * 0.01;
-      const driftY = Math.cos(time * driftParams.speed + driftParams.yOffset) * driftParams.yAmplitude * 0.01;
-      const driftZ = Math.sin(time * driftParams.speed * 0.5 + driftParams.zOffset) * driftParams.zAmplitude * 0.01;
-      physics.current.acceleration.add(new THREE.Vector3(driftX, driftY, driftZ));
+      // Flow field drift scaled by restlessness
+      const flowForce = flowField(physics.current.position, time, physics.current.restlessness);
+      physics.current.acceleration.add(flowForce.divideScalar(cardMass));
 
       // Card-to-card repulsion (magnetic field)
       allPhysics.current.forEach((otherPhysics, otherIndex) => {
@@ -201,46 +224,73 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         const distance = direction.length();
 
         if (distance < REPULSION_DISTANCE && distance > 0.1) {
-          const force = REPULSION_STRENGTH / (distance * distance);
+          const force = (REPULSION_STRENGTH / (distance * distance)) / cardMass;
           direction.normalize().multiplyScalar(force);
           physics.current.acceleration.add(direction);
         }
       });
 
-      // Cursor repulsion
-      const cursorWorldPos = new THREE.Vector3(pointer.x * 10, pointer.y * 10, 0);
-      const cursorDirection = new THREE.Vector3()
-        .copy(physics.current.position)
-        .sub(cursorWorldPos);
+      // Flocking: alignment + cohesion
+      let avgVelocity = new THREE.Vector3();
+      let avgPosition = new THREE.Vector3();
+      let neighborCount = 0;
 
+      allPhysics.current.forEach((other, otherIndex) => {
+        if (otherIndex === index) return;
+        const dist = physics.current.position.distanceTo(other.position);
+        if (dist < FLOCK_RADIUS && dist > 0.5) {
+          avgVelocity.add(other.velocity);
+          avgPosition.add(other.position);
+          neighborCount++;
+        }
+      });
+
+      if (neighborCount > 0) {
+        avgVelocity.divideScalar(neighborCount);
+        avgPosition.divideScalar(neighborCount);
+
+        const alignment = avgVelocity
+          .clone()
+          .sub(physics.current.velocity)
+          .multiplyScalar(ALIGNMENT_STRENGTH / physics.current.mass);
+
+        const cohesion = avgPosition
+          .clone()
+          .sub(physics.current.position)
+          .multiplyScalar(COHESION_STRENGTH / physics.current.mass);
+
+        physics.current.acceleration.add(alignment).add(cohesion);
+      }
+
+      // Cursor interaction varies by personality
+      const cursorWorldPos = new THREE.Vector3(pointer.x * 10, pointer.y * 10, 0);
+      const cursorDirection = physics.current.position.clone().sub(cursorWorldPos);
       const cursorDistance = cursorDirection.length();
-      if (cursorDistance < CURSOR_REPULSION_DISTANCE && cursorDistance > 0.1) {
-        const cursorForce = CURSOR_REPULSION_STRENGTH / (cursorDistance * cursorDistance);
-        cursorDirection.normalize().multiplyScalar(cursorForce);
-        physics.current.acceleration.add(cursorDirection);
+      if (cursorDistance < CURSOR_INTERACTION_DISTANCE && cursorDistance > 0.1) {
+        cursorDirection.normalize();
+        const baseForce = 1.2 / (cursorDistance * cursorDistance);
+        const personalityForce =
+          personality === 'shy' ? 1.5 :
+          personality === 'curious' ? -0.4 :
+          0.6;
+        const finalForce = (baseForce * personalityForce) / cardMass;
+        physics.current.acceleration.add(
+          cursorDirection.multiplyScalar(finalForce)
+        );
       }
 
       // Center attraction (keeps cards from escaping)
       const distanceFromCenter = physics.current.position.length();
       if (distanceFromCenter > CENTER_ATTRACTION_DISTANCE) {
-        const centerDirection = new THREE.Vector3()
-          .copy(physics.current.position)
-          .negate()
-          .normalize();
-
-        // Stronger pull the farther from center
+        const centerDirection = physics.current.position.clone().negate().normalize();
         const pullStrength = CENTER_ATTRACTION * (distanceFromCenter / CENTER_ATTRACTION_DISTANCE);
-        centerDirection.multiplyScalar(pullStrength);
+        centerDirection.multiplyScalar(pullStrength / cardMass);
         physics.current.acceleration.add(centerDirection);
       }
 
-      // Orbital swirl around origin for constant motion
-      const tangential = new THREE.Vector3(
-        -physics.current.position.y,
-        physics.current.position.x,
-        0
-      ).normalize().multiplyScalar(ORBITAL_SPIN);
-      physics.current.acceleration.add(tangential);
+      // Ambient current force
+      const currentForce = currentRef.current.direction.clone().multiplyScalar(currentRef.current.strength / cardMass);
+      physics.current.acceleration.add(currentForce);
 
       // Boundary forces (keep cards in view)
       const boundaryForce = new THREE.Vector3();
@@ -255,18 +305,20 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         boundaryForce.z = -Math.sign(physics.current.position.z) * BOUNDARY_FORCE;
       }
 
-      physics.current.acceleration.add(boundaryForce);
+      physics.current.acceleration.add(boundaryForce.divideScalar(cardMass));
 
-      // Update velocity
+      // Update velocity (mass-aware)
       physics.current.velocity.add(
-        physics.current.acceleration.multiplyScalar(dt)
+        physics.current.acceleration.clone().multiplyScalar(dt / cardMass)
       );
 
-      // Apply damping
-      physics.current.velocity.multiplyScalar(DAMPING);
+      // Apply damping (heavier retain a bit more momentum)
+      const effectiveDamping = Math.min(DAMPING + (cardMass - 1) * 0.01, 0.985);
+      physics.current.velocity.multiplyScalar(effectiveDamping);
 
-      // Limit velocity (phase-modulated)
-      const effectiveMaxVelocity = MAX_VELOCITY * phaseStateRef.current.velocityMultiplier;
+      // Limit velocity (phase-modulated, mass-adjusted)
+      const massVelocityFactor = 1.2 - (cardMass * 0.15);
+      const effectiveMaxVelocity = MAX_VELOCITY * phaseStateRef.current.velocityMultiplier * massVelocityFactor;
       if (physics.current.velocity.length() > effectiveMaxVelocity) {
         physics.current.velocity.normalize().multiplyScalar(effectiveMaxVelocity);
       }
@@ -278,23 +330,50 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 
       // Apply to group
       group.position.copy(physics.current.position);
+
+      // Trail sampling
+      lastTrailSampleRef.current += dt;
+      if (lastTrailSampleRef.current > 0.05) {
+        lastTrailSampleRef.current = 0;
+        trailRef.current.push(physics.current.position.clone());
+        if (trailRef.current.length > 5) {
+          trailRef.current.shift();
+        }
+      }
     }
 
-    // Multi-axis rotation with a bit of wobble
+    // Multi-axis rotation
     group.rotation.x += angularVelocity.x * dt * MOTION_SCALE;
     group.rotation.y += angularVelocity.y * dt * MOTION_SCALE;
     group.rotation.z += angularVelocity.z * dt * MOTION_SCALE;
-    group.rotation.x += Math.sin(time * driftParams.rotSpeed) * 0.02 * MOTION_SCALE;
-    group.rotation.y += Math.cos(time * driftParams.rotSpeed * 0.8) * 0.02 * MOTION_SCALE;
-    group.rotation.z += Math.sin(time * driftParams.rotSpeed * 0.6) * 0.015 * MOTION_SCALE;
 
-    // Hover effect - scale up and emit light
-    if (hovered && !dragging) {
-      group.scale.lerp(new THREE.Vector3(1.3, 1.3, 1.3), 0.1);
+    // Attention: orient toward cursor (or away if shy)
+    const cursorWorldPos = new THREE.Vector3(pointer.x * 10, pointer.y * 10, 0);
+    const toCursor = cursorWorldPos.clone().sub(physics.current.position);
+    const cursorDist = toCursor.length();
+    if (cursorDist < ATTENTION_DISTANCE && cursorDist > 0.5) {
+      const attentionFactor = 1 - (cursorDist / ATTENTION_DISTANCE);
+      const personalityMod =
+        personality === 'curious' ? 1.0 :
+        personality === 'shy' ? -0.3 :
+        0.2;
+      const targetRotY = Math.atan2(toCursor.x, 5);
+      const targetRotX = Math.atan2(-toCursor.y, 5) * 0.3;
+      const strength = ATTENTION_STRENGTH * attentionFactor * personalityMod;
+      group.rotation.y += (targetRotY - group.rotation.y) * strength;
+      group.rotation.x += (targetRotX - group.rotation.x) * strength * 0.5;
+    }
+
+    // Breathing / hover scale
+    if (!hovered && !dragging) {
+      physics.current.breathPhase += dt * BREATH_SPEED;
+      if (physics.current.breathPhase > Math.PI * 2) physics.current.breathPhase -= Math.PI * 2;
+      const breathScale = 1 + Math.sin(physics.current.breathPhase) * BREATH_AMPLITUDE;
+      group.scale.lerp(new THREE.Vector3(breathScale, breathScale, breathScale), 0.1);
+    } else if (hovered && !dragging) {
+      group.scale.lerp(new THREE.Vector3(1.25, 1.25, 1.25), 0.1);
     } else if (dragging) {
-      group.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.15);
-    } else {
-      group.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+      group.scale.lerp(new THREE.Vector3(1.35, 1.35, 1.35), 0.12);
     }
   });
 
@@ -426,6 +505,14 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
           </Text>
         </>
       )}
+
+      {/* Subtle trail */}
+      {trailRef.current.map((pos, i) => (
+        <mesh key={i} position={pos} scale={[0.3, 0.45, 0.01]}>
+          <planeGeometry />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.03 * (i / 5)} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -447,12 +534,30 @@ export default function CardDeck() {
     timeSinceLastInjection: 0,  // 0-60s counter
   });
 
+  const currentRef = useRef({
+    direction: new THREE.Vector3(1, 0.3, 0).normalize(),
+    strength: 0,
+    targetStrength: 0,
+    changeTimer: 0,
+  });
+
   // Injection visual feedback (discrete events, triggers re-renders)
   const [injectedCardIndices, setInjectedCardIndices] = useState<Set<number>>(new Set());
 
+  const getMass = (card: TarotCard): number => {
+    if (card.number === 0) return 2.2;
+    if (card.number <= 21) return 1.6;
+    return 0.9 + Math.random() * 0.2;
+  };
+
+  const getPersonality = (card: TarotCard): 'shy' | 'neutral' | 'curious' => {
+    const hash = (card.number * 7 + 3) % 3;
+    return hash === 0 ? 'shy' : hash === 1 ? 'neutral' : 'curious';
+  };
+
   // Initialize physics for all cards
   const allPhysicsRef = useRef<CardPhysics[]>(
-    cards.map((_, index) => {
+    cards.map((card, index) => {
       const angle = (index / cards.length) * Math.PI * 4;
       const radius = 2 + (index % 3) * 1.5;
 
@@ -465,13 +570,18 @@ export default function CardDeck() {
       return {
         position: initialPos.clone(),
         velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.25,
-          (Math.random() - 0.5) * 0.25,
-          (Math.random() - 0.5) * 0.2
+          (Math.random() - 0.5) * 0.15,
+          (Math.random() - 0.5) * 0.15,
+          (Math.random() - 0.5) * 0.1
         ),
         acceleration: new THREE.Vector3(),
         targetPosition: initialPos.clone(),
-        mass: 1.0,
+        mass: getMass(card),
+        personality: getPersonality(card),
+        breathPhase: (index / cards.length) * Math.PI * 2,
+        awarenessTarget: null,
+        restlessness: 0.3 + Math.random() * 0.4,
+        lastImpulseTime: 0,
       };
     })
   );
@@ -538,17 +648,34 @@ export default function CardDeck() {
       phaseRef.velocityMultiplier = targetMultiplier;
     }
 
-    // Velocity injection every 60 seconds
+    // Ambient current modulation
+    currentRef.current.changeTimer += dt;
+    if (currentRef.current.changeTimer > 8 + Math.random() * 7) {
+      currentRef.current.changeTimer = 0;
+      currentRef.current.targetStrength = Math.random() < 0.3 ? 0 : 0.15 + Math.random() * 0.2;
+      currentRef.current.direction = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        (Math.random() - 0.5) * 0.3
+      ).normalize();
+    }
+    currentRef.current.strength += (currentRef.current.targetStrength - currentRef.current.strength) * dt * 0.5;
+
+    // Velocity injection every INJECTION_INTERVAL seconds
+    const INJECTION_INTERVAL = 45;
+    const INJECTION_COUNT = 8;
+    const INJECTION_MAGNITUDE_MIN = 0.25;
+    const INJECTION_MAGNITUDE_MAX = 0.45;
     const injRef = injectionStateRef.current;
     injRef.timeSinceLastInjection += dt;
 
-    if (injRef.timeSinceLastInjection >= 60) {
+    if (injRef.timeSinceLastInjection >= INJECTION_INTERVAL) {
       injRef.timeSinceLastInjection = 0;
 
-      // Select 10 random cards (no duplicates)
+      // Select random cards (no duplicates)
       const totalCards = allPhysicsRef.current.length; // 78
       const selectedIndices = new Set<number>();
-      while (selectedIndices.size < 10) {
+      while (selectedIndices.size < INJECTION_COUNT) {
         selectedIndices.add(Math.floor(Math.random() * totalCards));
       }
 
@@ -556,8 +683,7 @@ export default function CardDeck() {
       selectedIndices.forEach(index => {
         const physics = allPhysicsRef.current[index];
 
-        // Random direction + magnitude (0.3-0.5)
-        const magnitude = 0.3 + Math.random() * 0.2;
+        const magnitude = INJECTION_MAGNITUDE_MIN + Math.random() * (INJECTION_MAGNITUDE_MAX - INJECTION_MAGNITUDE_MIN);
         const direction = new THREE.Vector3(
           Math.random() - 0.5,
           Math.random() - 0.5,
@@ -590,6 +716,9 @@ export default function CardDeck() {
           currentlyDraggingRef={currentlyDraggingRef}
           phaseStateRef={phaseStateRef}
           isInjected={injectedCardIndices.has(index)}
+          currentRef={currentRef}
+          mass={allPhysicsRef.current[index].mass}
+          personality={allPhysicsRef.current[index].personality}
         />
       ))}
     </group>

@@ -15,7 +15,7 @@ type CardFlipImageProps = {
   targetAngle: number;
   flipTrigger: number;
   loadedMediaRef: React.MutableRefObject<Set<string>>;
-  onReady: () => void;
+  onReady: (src: string) => void;
 };
 
 const CardFlipImage: React.FC<CardFlipImageProps> = React.memo(
@@ -155,7 +155,7 @@ export default function CardDetail() {
     [generatedCard?.gifUrl, generatedCard?.frames]
   );
   const lastMediaSrcRef = useRef<string | null>(null);
-  const handleCardReady = useCallback(() => {
+  const handleCardReady = useCallback((_src: string) => {
     setIsCardReady(true);
   }, []);
 
