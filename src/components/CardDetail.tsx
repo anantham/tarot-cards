@@ -93,7 +93,7 @@ export default function CardDetail() {
       console.log('[CardDetail] image src changed, awaiting load', { src });
     }, [src, flipKey]);
 
-    const HOLD_BEFORE_FLIP = 2; // seconds to display inverted state before rotating
+    const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
 
     return (
       <motion.div
@@ -110,8 +110,8 @@ export default function CardDetail() {
         }
         transition={
           isLoaded
-            ? { duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
-            : { delay: HOLD_BEFORE_FLIP, duration: 2.6, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+            ? { duration: 3.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
+            : { delay: HOLD_BEFORE_FLIP, duration: 3.2, ease: [0.16, 1, 0.3, 1], times: [0, 0.55, 1] }
         }
         style={{ width: '100%', height: '100%' }}
       >
@@ -119,7 +119,7 @@ export default function CardDetail() {
           src={src}
           alt={alt}
           onLoad={() => {
-            console.log('[CardDetail] image loaded, starting flip after hold', { src });
+            console.log('[CardDetail] image loaded, holding inverted before flip', { src, holdSeconds: HOLD_BEFORE_FLIP });
             setIsLoaded(true);
           }}
           onClick={() => console.log('[CardDetail] image clicked', { src })}
