@@ -1964,7 +1964,7 @@
   "defaultSettings": {
     "userPhoto": "",
     "usePhoto": true,
-    "selectedDeckType": "lord-of-mysteries",
+    "selectedDeckType": "lord-of-mysteries-masterpiece",
     "framesPerCard": 4,
     "generationModel": "gemini-2.5-flash-image",
     "promptSuffix": ", highly detailed, cinematic lighting, tarot card art style, masterpiece quality",
