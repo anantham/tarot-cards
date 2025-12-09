@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface CardFlipImageInnerProps {
@@ -13,11 +13,21 @@ const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
 
 export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigger }: CardFlipImageInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const lastLoadedSrcRef = useRef<string | null>(null);
 
   useEffect(() => {
     setIsLoaded(false);
     console.log('[CardDetail] image src changed, awaiting load', { src, flipTrigger });
-  }, [src, flipTrigger]);
+  }, [src]);
+
+  useEffect(() => {
+    console.log('[CardDetail] image mount', { src, flipTrigger });
+    return () => {
+      console.log('[CardDetail] image unmount', { src, flipTrigger });
+    };
+    // flipTrigger intentionally omitted to log once per src mount/unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
 
   return (
     <motion.div
@@ -43,6 +53,11 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
         src={src}
         alt={alt}
         onLoad={() => {
+          if (lastLoadedSrcRef.current === src) {
+            console.log('[CardDetail] image load ignored (same src already loaded)', { src });
+            return;
+          }
+          lastLoadedSrcRef.current = src;
           console.log('[CardDetail] image loaded, holding inverted before flip', { src, holdSeconds: HOLD_BEFORE_FLIP });
           setIsLoaded(true);
         }}
@@ -53,4 +68,3 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, flipTrigge
     </motion.div>
   );
 }
-
