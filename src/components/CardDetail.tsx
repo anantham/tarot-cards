@@ -394,7 +394,10 @@ export default function CardDetail() {
       >
         <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', gap: '0.35rem' }}>
           <button
-            onClick={() => setShowDetails((prev) => !prev)}
+            onClick={() => {
+              if (!isCardReady) return;
+              setShowDetails((prev) => !prev);
+            }}
             style={{
               width: '32px',
               height: '32px',
@@ -523,16 +526,22 @@ export default function CardDetail() {
                   </button>
                 </>
               ) : generatedCard?.gifUrl ? (
-                <img
+                <CardFlipImage
                   src={generatedCard.gifUrl}
                   alt={getTitle()}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  targetAngle={flipOrientation.targetAngle}
+                  flipTrigger={flipTrigger}
+                  loadedMediaRef={loadedMediaRef}
+                  onReady={handleCardReady}
                 />
               ) : generatedCard?.frames?.[0] ? (
-                <img
+                <CardFlipImage
                   src={generatedCard.frames[0]}
                   alt={getTitle()}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  targetAngle={flipOrientation.targetAngle}
+                  flipTrigger={flipTrigger}
+                  loadedMediaRef={loadedMediaRef}
+                  onReady={handleCardReady}
                 />
               ) : (
                 <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>

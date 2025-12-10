@@ -12,8 +12,8 @@ interface CardFlipImageInnerProps {
   onReady: (src: string) => void;
 }
 
-const HOLD_BEFORE_FLIP = 4; // seconds to display inverted state before rotating
-const FLIP_DURATION = 3.2; // seconds for the animated flip
+const HOLD_BEFORE_FLIP = 2; // seconds to display inverted state before rotating
+const FLIP_DURATION = 3.5; // seconds for the animated flip
 
 export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }: CardFlipImageInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
