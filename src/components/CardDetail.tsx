@@ -13,6 +13,8 @@ const START_TILT = -14;
 type CardFlipImageProps = {
   src: string;
   alt: string;
+  startAngle: number;
+  startTilt: number;
   targetAngle: number;
   flipTrigger: number;
   loadedMediaRef: React.MutableRefObject<Set<string>>;
@@ -20,13 +22,13 @@ type CardFlipImageProps = {
 };
 
 const CardFlipImage: React.FC<CardFlipImageProps> = React.memo(
-  ({ src, alt, targetAngle, flipTrigger, loadedMediaRef, onReady }) => (
+  ({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }) => (
     <CardFlipImageInner
       key={src}
       src={src}
       alt={alt}
-      startAngle={START_ANGLE}
-      startTilt={START_TILT}
+      startAngle={startAngle}
+      startTilt={startTilt}
       targetAngle={targetAngle}
       flipTrigger={flipTrigger}
       loadedMediaRef={loadedMediaRef}
@@ -64,18 +66,30 @@ export default function CardDetail() {
   const [promptText, setPromptText] = useState<string>('');
   const [flipTrigger, setFlipTrigger] = useState(0);
   const [flipOrientation, setFlipOrientation] = useState(() => ({
-    targetAngle: 180 as 0 | 180,
+    targetAngle: 0 as 0 | 180,
+    startAngle: 0,
+    startTilt: 0,
   }));
   const [isCardReady, setIsCardReady] = useState(false);
   const loadedMediaRef = useRef<Set<string>>(new Set());
   const triggerFlip = useCallback(() => {
     const revealInverted = Math.random() < 0.5;
-    setFlipOrientation({
-      targetAngle: revealInverted ? 180 : 0,
+    const newOrientation = {
+      targetAngle: 0 as 0 | 180,
+      startAngle: revealInverted ? 180 : 0,
+      startTilt: revealInverted ? START_TILT : 0,
+    };
+    console.log('[CardDetail] triggerFlip CALLED', {
+      revealInverted,
+      newOrientation,
+      currentFlipTrigger: flipTrigger,
     });
-    console.log('[CardDetail] triggerFlip', { revealInverted });
-    setFlipTrigger((k) => k + 1);
-  }, []);
+    setFlipOrientation(newOrientation);
+    setFlipTrigger((k) => {
+      console.log('[CardDetail] flipTrigger incremented', { old: k, new: k + 1 });
+      return k + 1;
+    });
+  }, [flipTrigger]);
 
   useEffect(() => {
     setShowDetails(false);
@@ -142,16 +156,34 @@ export default function CardDetail() {
 
   // Trigger flip once when the displayed media changes (strictly when URL changes)
   useEffect(() => {
-    if (!primaryMediaSrc) return;
-    if (primaryMediaSrc === lastMediaSrcRef.current) return;
-    lastMediaSrcRef.current = primaryMediaSrc;
-    setIsCardReady(false);
-    if (loadedMediaRef.current.has(primaryMediaSrc)) {
-      console.log('[CardDetail] media already loaded, skipping flip', { media: primaryMediaSrc });
+    console.log('[CardDetail] useEffect[primaryMediaSrc] CHECK', {
+      primaryMediaSrc: primaryMediaSrc?.slice(-40),
+      lastMediaSrc: lastMediaSrcRef.current?.slice(-40),
+      loadedMediaRefSize: loadedMediaRef.current.size,
+      loadedMediaRefContents: Array.from(loadedMediaRef.current).map(s => s.slice(-30)),
+    });
+
+    if (!primaryMediaSrc) {
+      console.log('[CardDetail] useEffect[primaryMediaSrc] SKIP: no primaryMediaSrc');
       return;
     }
-    console.log('[CardDetail] media changed, triggering flip', {
-      media: primaryMediaSrc,
+    if (primaryMediaSrc === lastMediaSrcRef.current) {
+      console.log('[CardDetail] useEffect[primaryMediaSrc] SKIP: same as lastMediaSrcRef');
+      return;
+    }
+
+    console.log('[CardDetail] useEffect[primaryMediaSrc] ACCEPTED: new media detected');
+    lastMediaSrcRef.current = primaryMediaSrc;
+    setIsCardReady(false);
+
+    if (loadedMediaRef.current.has(primaryMediaSrc)) {
+      console.log('[CardDetail] media already in loadedMediaRef, skipping flip', { media: primaryMediaSrc.slice(-40) });
+      setIsCardReady(true); // Already revealed, so mark ready immediately
+      return;
+    }
+
+    console.log('[CardDetail] TRIGGERING FLIP for new media', {
+      media: primaryMediaSrc.slice(-40),
       isGif: !!generatedCard?.gifUrl,
     });
     triggerFlip();
@@ -370,8 +402,8 @@ export default function CardDetail() {
 
       <motion.div
         key={selectedCard.number}
-        initial={{ scale: 0.85, rotateY: 90 }}
-        animate={{ scale: 1, rotateY: 0, x: navDirection * 10 }}
+        initial={{ scale: 0.85 }}
+        animate={{ scale: 1, x: navDirection * 10 }}
         transition={{ type: 'spring', duration: 0.7 }}
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -529,6 +561,8 @@ export default function CardDetail() {
                 <CardFlipImage
                   src={generatedCard.gifUrl}
                   alt={getTitle()}
+                  startAngle={flipOrientation.startAngle}
+                  startTilt={flipOrientation.startTilt}
                   targetAngle={flipOrientation.targetAngle}
                   flipTrigger={flipTrigger}
                   loadedMediaRef={loadedMediaRef}
@@ -538,6 +572,8 @@ export default function CardDetail() {
                 <CardFlipImage
                   src={generatedCard.frames[0]}
                   alt={getTitle()}
+                  startAngle={flipOrientation.startAngle}
+                  startTilt={flipOrientation.startTilt}
                   targetAngle={flipOrientation.targetAngle}
                   flipTrigger={flipTrigger}
                   loadedMediaRef={loadedMediaRef}
@@ -576,6 +612,8 @@ export default function CardDetail() {
               <CardFlipImage
                 src={generatedCard.gifUrl}
                 alt={getTitle()}
+                startAngle={flipOrientation.startAngle}
+                startTilt={flipOrientation.startTilt}
                 targetAngle={flipOrientation.targetAngle}
                 flipTrigger={flipTrigger}
                 loadedMediaRef={loadedMediaRef}
@@ -585,6 +623,8 @@ export default function CardDetail() {
               <CardFlipImage
                 src={generatedCard.frames[0]}
                 alt={getTitle()}
+                startAngle={flipOrientation.startAngle}
+                startTilt={flipOrientation.startTilt}
                 targetAngle={flipOrientation.targetAngle}
                 flipTrigger={flipTrigger}
                 loadedMediaRef={loadedMediaRef}

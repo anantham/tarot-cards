@@ -17,6 +17,17 @@ interface CardPhysics {
   awarenessTarget: THREE.Vector3 | null;
   restlessness: number;
   lastImpulseTime: number;
+  // Space curve tracking
+  curveT: number;           // Position along the curve [0, 1]
+  curveTVelocity: number;   // How fast we're moving along the curve
+  // Diagnostic data (populated each frame)
+  diag: {
+    curveTarget: THREE.Vector3;
+    distToCurve: number;
+    curveForce: number;
+    repulsionForce: number;
+    cohesionForce: number;
+  };
 }
 
 interface CardProps {
@@ -33,6 +44,12 @@ interface CardProps {
     velocityMultiplier: number;
     transitionProgress: number;
   }>;
+  curveStateRef: React.MutableRefObject<{
+    currentCurve: CurveType;
+    nextCurve: CurveType;
+    transitionProgress: number;
+    cycleTime: number;
+  }>;
   isInjected: boolean;
   mass: number;
   personality: 'shy' | 'neutral' | 'curious';
@@ -44,7 +61,121 @@ interface CardProps {
   }>;
 }
 
-// Flow field (curl-ish) using trig as pseudo noise
+// ============================================
+// SPACE CURVE DEFINITIONS
+// Cards follow these beautiful mathematical paths
+// ============================================
+
+type CurveType = 'torusKnot' | 'trefoil' | 'lissajous3D' | 'cinquefoil' | 'rose' | 'lorenz';
+
+// Torus knot: winds p times around the torus while going through the hole q times
+const torusKnot = (t: number, time: number, p = 2, q = 3, R = 5, r = 2): THREE.Vector3 => {
+  const phi = t * Math.PI * 2 * q + time * 0.1;
+  const theta = t * Math.PI * 2 * p + time * 0.07;
+  
+  const x = (R + r * Math.cos(phi)) * Math.cos(theta);
+  const y = (R + r * Math.cos(phi)) * Math.sin(theta);
+  const z = r * Math.sin(phi);
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(0.8);
+};
+
+// Trefoil knot - the simplest non-trivial knot
+const trefoilKnot = (t: number, time: number, scale = 4): THREE.Vector3 => {
+  const phi = t * Math.PI * 2 + time * 0.08;
+  
+  const x = Math.sin(phi) + 2 * Math.sin(2 * phi);
+  const y = Math.cos(phi) - 2 * Math.cos(2 * phi);
+  const z = -Math.sin(3 * phi);
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(scale * 0.4);
+};
+
+// Cinquefoil knot (5-pointed star knot)
+const cinquefoilKnot = (t: number, time: number, scale = 4): THREE.Vector3 => {
+  const phi = t * Math.PI * 2 + time * 0.06;
+  
+  const x = Math.cos(phi) * (2 - Math.cos(2 * phi / 5));
+  const y = Math.sin(phi) * (2 - Math.cos(2 * phi / 5));
+  const z = -Math.sin(2 * phi / 5);
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(scale * 0.5);
+};
+
+// 3D Lissajous curve - beautiful interweaving loops
+const lissajous3D = (t: number, time: number, a = 3, b = 2, c = 5, scale = 5): THREE.Vector3 => {
+  const phi = t * Math.PI * 2;
+  const drift = time * 0.05;
+  
+  const x = Math.sin(a * phi + drift);
+  const y = Math.sin(b * phi + drift * 1.3);
+  const z = Math.sin(c * phi + drift * 0.7);
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(scale);
+};
+
+// Rose curve wrapped on a sphere
+const sphericalRose = (t: number, time: number, k = 5, scale = 5): THREE.Vector3 => {
+  const phi = t * Math.PI * 2 + time * 0.04;
+  const r = Math.cos(k * phi);
+  const theta = phi * 2 + time * 0.03;
+  
+  const x = r * Math.cos(phi) * Math.sin(theta);
+  const y = r * Math.sin(phi) * Math.sin(theta);
+  const z = r * Math.cos(theta) * 0.5;
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(scale);
+};
+
+// Simplified Lorenz-inspired attractor (not true Lorenz, but has similar feel)
+const lorenzInspired = (t: number, time: number, scale = 4): THREE.Vector3 => {
+  const phi = t * Math.PI * 4 + time * 0.1;
+  const wing = Math.sin(phi * 0.5) > 0 ? 1 : -1;
+  
+  const r = 2 + Math.cos(phi * 2);
+  const x = r * Math.cos(phi) * wing;
+  const y = r * Math.sin(phi);
+  const z = Math.sin(phi * 3) * 1.5 + Math.cos(phi * 0.5) * 0.5;
+  
+  return new THREE.Vector3(x, y, z).multiplyScalar(scale * 0.6);
+};
+
+// Get position on the currently active curve
+const getCurvePosition = (t: number, time: number, curveType: CurveType): THREE.Vector3 => {
+  switch (curveType) {
+    case 'torusKnot': return torusKnot(t, time, 3, 5);
+    case 'trefoil': return trefoilKnot(t, time);
+    case 'cinquefoil': return cinquefoilKnot(t, time);
+    case 'lissajous3D': return lissajous3D(t, time, 3, 4, 7);
+    case 'rose': return sphericalRose(t, time, 7);
+    case 'lorenz': return lorenzInspired(t, time);
+    default: return torusKnot(t, time);
+  }
+};
+
+// Smoothstep for more organic easing
+const smoothstep = (x: number): number => x * x * (3 - 2 * x);
+
+// Blend between two curves for smooth transitions
+const blendCurves = (
+  t: number, 
+  time: number, 
+  curve1: CurveType, 
+  curve2: CurveType, 
+  blend: number
+): THREE.Vector3 => {
+  const p1 = getCurvePosition(t, time, curve1);
+  const p2 = getCurvePosition(t, time, curve2);
+  // Apply smoothstep for more organic transition feel
+  return p1.lerp(p2, smoothstep(blend));
+};
+
+// Available curves for cycling
+const CURVE_SEQUENCE: CurveType[] = ['trefoil', 'lissajous3D', 'torusKnot', 'cinquefoil', 'rose', 'lorenz'];
+const CURVE_CYCLE_DURATION = 45; // seconds to stay on each curve
+const CURVE_TRANSITION_DURATION = 8; // seconds to blend between curves (smooth morphing)
+
+// Flow field (curl-ish) using trig as pseudo noise - still used for micro-perturbations
 const flowField = (position: THREE.Vector3, time: number, scale = 1.0): THREE.Vector3 => {
   const p = position.clone().multiplyScalar(0.3);
   const t = time * 0.15;
@@ -57,10 +188,10 @@ const flowField = (position: THREE.Vector3, time: number, scale = 1.0): THREE.Ve
     n2 - n3,
     n3 - n1,
     n1 - n2
-  ).multiplyScalar(0.025 * scale);
+  ).multiplyScalar(0.015 * scale); // Reduced - curve attraction is primary now
 };
 
-function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, isInjected, mass, personality, currentRef }: CardProps) {
+function Card({ card, initialPosition, initialRotation, index, physics, allPhysics, currentlyDraggingRef, phaseStateRef, curveStateRef, isInjected, mass, personality, currentRef }: CardProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -89,14 +220,14 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const lastTrailSampleRef = useRef(0);
 
   // Physics constants (tuned for flowy motion)
-  const MOTION_SCALE = 0.25;
-  const MAX_VELOCITY = 0.5;
-  const DAMPING = 0.96;
+  const MOTION_SCALE = 0.5;   // Was 1.0, now 0.5 - balance between old (0.25) and new
+  const MAX_VELOCITY = 1.0;   // Was 2.0 - reduced to prevent escape velocity
+  const DAMPING = 0.992;      // Was 0.995 - slightly more drag to keep things controlled
   const REPULSION_STRENGTH = 5.0;
   const REPULSION_DISTANCE = 3.5;
   const CURSOR_INTERACTION_DISTANCE = 4.0;
-  const CENTER_ATTRACTION = 0.04;
-  const CENTER_ATTRACTION_DISTANCE = 6.0;
+  const CENTER_ATTRACTION = 0.02; // Reduced - curve handles this now
+  const CENTER_ATTRACTION_DISTANCE = 8.0;
   const BOUNDARY_FORCE = 0.4;
   const BOUNDARY_DISTANCE = 10;
   const DRAG_REPULSION_STRENGTH = 3.5;
@@ -107,6 +238,11 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
   const BREATH_AMPLITUDE = 0.018;
   const ATTENTION_STRENGTH = 0.015;
   const ATTENTION_DISTANCE = 6;
+  
+  // Curve following constants
+  const CURVE_ATTRACTION_STRENGTH = 0.6;   // Was 0.4 - even stronger to keep cards on track
+  const CURVE_T_VELOCITY_BASE = 0.015;     // Base speed of movement along curve
+  const CURVE_T_VELOCITY_VARIANCE = 0.008; // Randomness in curve speed
 
   // Independent angular velocity so cards spin on varied axes
   const angularVelocity = useMemo(() => {
@@ -208,8 +344,48 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
     } else {
       // Reset acceleration
       physics.current.acceleration.set(0, 0, 0);
+      
+      // Reset diagnostic data for this frame
+      physics.current.diag.curveForce = 0;
+      physics.current.diag.repulsionForce = 0;
+      physics.current.diag.cohesionForce = 0;
 
-      // Flow field drift scaled by restlessness
+      // === SPACE CURVE ATTRACTION (Primary movement pattern) ===
+      // Update position along the curve - PHASE MODULATED
+      const phaseSpeedMult = phaseStateRef.current.velocityMultiplier;
+      physics.current.curveT += physics.current.curveTVelocity * dt * phaseSpeedMult;
+      if (physics.current.curveT > 1) physics.current.curveT -= 1;
+      if (physics.current.curveT < 0) physics.current.curveT += 1;
+
+      // Get target position on the curve (always blend for smooth transitions)
+      const curveState = curveStateRef.current;
+      const curveTargetPos = blendCurves(
+        physics.current.curveT,
+        time,
+        curveState.currentCurve,
+        curveState.nextCurve,
+        curveState.transitionProgress  // 0 = fully currentCurve, 1 = fully nextCurve
+      );
+      
+      // Store curve target for diagnostics
+      physics.current.diag.curveTarget.copy(curveTargetPos);
+
+      // Calculate attraction force toward the curve - PHASE MODULATED
+      const toCurve = curveTargetPos.clone().sub(physics.current.position);
+      const distToCurve = toCurve.length();
+      physics.current.diag.distToCurve = distToCurve;
+      if (distToCurve > 0.1) {
+        // Stronger attraction when far from curve, gentler when close
+        // Phase multiplier makes cards snap to curve faster during fast phase
+        const attractionFactor = Math.min(distToCurve * 0.5, 1.5);
+        const curveForce = toCurve.normalize().multiplyScalar(
+          CURVE_ATTRACTION_STRENGTH * attractionFactor * phaseSpeedMult / cardMass
+        );
+        physics.current.diag.curveForce = curveForce.length();
+        physics.current.acceleration.add(curveForce);
+      }
+
+      // Flow field drift scaled by restlessness (micro-perturbations)
       const flowForce = flowField(physics.current.position, time, physics.current.restlessness);
       physics.current.acceleration.add(flowForce.divideScalar(cardMass));
 
@@ -226,6 +402,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         if (distance < REPULSION_DISTANCE && distance > 0.1) {
           const force = (REPULSION_STRENGTH / (distance * distance)) / cardMass;
           direction.normalize().multiplyScalar(force);
+          physics.current.diag.repulsionForce += direction.length();
           physics.current.acceleration.add(direction);
         }
       });
@@ -259,6 +436,7 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
           .sub(physics.current.position)
           .multiplyScalar(COHESION_STRENGTH / physics.current.mass);
 
+        physics.current.diag.cohesionForce = cohesion.length();
         physics.current.acceleration.add(alignment).add(cohesion);
       }
 
@@ -312,8 +490,12 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         physics.current.acceleration.clone().multiplyScalar(dt / cardMass)
       );
 
-      // Apply damping (heavier retain a bit more momentum)
-      const effectiveDamping = Math.min(DAMPING + (cardMass - 1) * 0.01, 0.985);
+      // Apply damping - phase-aware: less damping during fast phase to allow velocity buildup
+      // Fast phase (mult=5): damping ≈ 0.996 (less drag, more momentum)
+      // Slow phase (mult=0.5): damping ≈ 0.988 (more drag for graceful slowdown)
+      const phaseDampingFactor = phaseSpeedMult > 1 ? 0.996 : 0.988;
+      const massDampingAdjust = (cardMass - 1) * 0.001; // Heavier cards retain slightly more
+      const effectiveDamping = Math.min(phaseDampingFactor + massDampingAdjust, 0.998);
       physics.current.velocity.multiplyScalar(effectiveDamping);
 
       // Limit velocity (phase-modulated, mass-adjusted)
@@ -331,12 +513,14 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
       // Apply to group
       group.position.copy(physics.current.position);
 
-      // Trail sampling
+      // Trail sampling - more points during fast phase
       lastTrailSampleRef.current += dt;
-      if (lastTrailSampleRef.current > 0.05) {
+      const trailSampleRate = phaseSpeedMult > 1 ? 0.02 : 0.05; // Sample faster during fast phase
+      const maxTrailLength = phaseSpeedMult > 1 ? 20 : 8; // Longer trails during fast phase
+      if (lastTrailSampleRef.current > trailSampleRate) {
         lastTrailSampleRef.current = 0;
         trailRef.current.push(physics.current.position.clone());
-        if (trailRef.current.length > 5) {
+        if (trailRef.current.length > maxTrailLength) {
           trailRef.current.shift();
         }
       }
@@ -506,13 +690,20 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
         </>
       )}
 
-      {/* Subtle trail */}
-      {trailRef.current.map((pos, i) => (
-        <mesh key={i} position={pos} scale={[0.3, 0.45, 0.01]}>
-          <planeGeometry />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.03 * (i / 5)} />
-        </mesh>
-      ))}
+      {/* Trail disabled - was distracting floating meshes
+      {trailRef.current.map((pos, i) => {
+        const trailLength = trailRef.current.length;
+        const normalizedIndex = i / Math.max(trailLength - 1, 1); // 0 to 1
+        const baseOpacity = 0.15; // Much more visible
+        const opacity = baseOpacity * normalizedIndex * normalizedIndex; // Quadratic fade
+        return (
+          <mesh key={i} position={pos} scale={[0.2, 0.3, 0.01]}>
+            <planeGeometry />
+            <meshBasicMaterial color="#9333ea" transparent opacity={opacity} />
+          </mesh>
+        );
+      })}
+      */}
     </group>
   );
 }
@@ -520,6 +711,52 @@ function Card({ card, initialPosition, initialRotation, index, physics, allPhysi
 export default function CardDeck() {
   const cards = tarotData.cards as TarotCard[];
   const currentlyDraggingRef = useRef<number | null>(null); // Track which card is being dragged
+
+  // === DIAGNOSTIC DATA COLLECTION ===
+  // Logs physics data for analysis. Press 'D' to download as JSON.
+  interface DiagnosticFrame {
+    t: number;  // time
+    phase: string;
+    mult: number;  // velocity multiplier
+    curve: string;  // current curve type
+    cards: Array<{
+      i: number;  // index
+      pos: [number, number, number];
+      vel: [number, number, number];
+      acc: [number, number, number];
+      curveT: number;
+      curveTarget: [number, number, number];
+      distToCurve: number;
+    }>;
+  }
+  const diagnosticDataRef = useRef<DiagnosticFrame[]>([]);
+  const diagnosticEnabledRef = useRef(true);  // Set to false to disable
+  const lastDiagnosticTimeRef = useRef(0);
+  const DIAGNOSTIC_INTERVAL = 0.1;  // Log every 100ms
+  const MAX_DIAGNOSTIC_FRAMES = 600;  // 60 seconds of data
+  
+  // Download diagnostic data as JSON
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'd' || e.key === 'D') {
+        const data = diagnosticDataRef.current;
+        if (data.length === 0) {
+          console.log('[Diagnostic] No data collected yet');
+          return;
+        }
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `card-physics-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        console.log(`[Diagnostic] Downloaded ${data.length} frames`);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Phase cycling state (continuous, no re-renders)
   const phaseStateRef = useRef({
@@ -539,6 +776,15 @@ export default function CardDeck() {
     strength: 0,
     targetStrength: 0,
     changeTimer: 0,
+  });
+
+  // Space curve state - tracks which curve cards are following
+  const curveStateRef = useRef({
+    currentCurve: CURVE_SEQUENCE[0] as CurveType,
+    nextCurve: CURVE_SEQUENCE[1] as CurveType,
+    transitionProgress: 1, // 0-1, 1 = fully on currentCurve
+    cycleTime: 0,
+    curveIndex: 0,
   });
 
   // Injection visual feedback (discrete events, triggers re-renders)
@@ -567,6 +813,11 @@ export default function CardDeck() {
         (Math.random() - 0.5) * 3
       );
 
+      // Distribute cards evenly along the curve parameter space
+      const curveT = index / cards.length;
+      // Vary velocity slightly so cards spread out over time
+      const curveTVelocity = 0.015 + (Math.random() - 0.5) * 0.008;
+      
       return {
         position: initialPos.clone(),
         velocity: new THREE.Vector3(
@@ -582,6 +833,15 @@ export default function CardDeck() {
         awarenessTarget: null,
         restlessness: 0.3 + Math.random() * 0.4,
         lastImpulseTime: 0,
+        curveT,
+        curveTVelocity,
+        diag: {
+          curveTarget: new THREE.Vector3(),
+          distToCurve: 0,
+          curveForce: 0,
+          repulsionForce: 0,
+          cohesionForce: 0,
+        },
       };
     })
   );
@@ -619,17 +879,17 @@ export default function CardDeck() {
     const phaseRef = phaseStateRef.current;
     phaseRef.elapsedTime += dt;
 
-    // 20-second cycle: 0-10s fast, 10-20s slow
-    if (phaseRef.elapsedTime >= 20) {
+    // 30-second cycle: 0-10s fast, 10-30s slow (slow is 2× longer)
+    if (phaseRef.elapsedTime >= 30) {
       phaseRef.elapsedTime = 0;
     }
 
     const targetPhase = phaseRef.elapsedTime < 10 ? 'fast' : 'slow';
-    const targetMultiplier = targetPhase === 'fast' ? 1.0 : 0.5;
+    const targetMultiplier = targetPhase === 'fast' ? 5.0 : 0.5;
 
     // Detect phase change
     if (phaseRef.currentPhase !== targetPhase) {
-      console.log(`[Animation] Phase change: ${phaseRef.currentPhase} → ${targetPhase} at ${phaseRef.elapsedTime.toFixed(2)}s`);
+      console.log(`[Animation] Phase change: ${phaseRef.currentPhase} → ${targetPhase} at ${phaseRef.elapsedTime.toFixed(2)}s, multiplier: ${phaseRef.velocityMultiplier.toFixed(2)} → ${targetMultiplier}`);
       phaseRef.currentPhase = targetPhase;
       phaseRef.transitionProgress = 0; // Start 1.5s fade
     }
@@ -660,6 +920,78 @@ export default function CardDeck() {
       ).normalize();
     }
     currentRef.current.strength += (currentRef.current.targetStrength - currentRef.current.strength) * dt * 0.5;
+
+    // Debug: Log average velocity every 2 seconds
+    if (Math.floor(phaseRef.elapsedTime) % 2 === 0 && phaseRef.elapsedTime - Math.floor(phaseRef.elapsedTime) < dt * 2) {
+      const avgVel = allPhysicsRef.current.reduce((sum, p) => sum + p.velocity.length(), 0) / allPhysicsRef.current.length;
+      console.log(`[Debug] Phase: ${phaseRef.currentPhase}, Multiplier: ${phaseRef.velocityMultiplier.toFixed(2)}, Avg velocity: ${avgVel.toFixed(4)}`);
+    }
+
+    // === DIAGNOSTIC DATA COLLECTION ===
+    const currentTime = _state.clock.elapsedTime;
+    if (diagnosticEnabledRef.current && currentTime - lastDiagnosticTimeRef.current >= DIAGNOSTIC_INTERVAL) {
+      lastDiagnosticTimeRef.current = currentTime;
+      
+      // Sample only first 5 cards to keep data manageable
+      const sampledCards = allPhysicsRef.current.slice(0, 5).map((p, i) => {
+        const curveTarget = blendCurves(
+          p.curveT,
+          currentTime,
+          curveStateRef.current.currentCurve,
+          curveStateRef.current.nextCurve,
+          curveStateRef.current.transitionProgress
+        );
+        return {
+          i,
+          pos: [p.position.x, p.position.y, p.position.z] as [number, number, number],
+          vel: [p.velocity.x, p.velocity.y, p.velocity.z] as [number, number, number],
+          acc: [p.acceleration.x, p.acceleration.y, p.acceleration.z] as [number, number, number],
+          curveT: p.curveT,
+          curveTarget: [curveTarget.x, curveTarget.y, curveTarget.z] as [number, number, number],
+          distToCurve: p.position.distanceTo(curveTarget),
+        };
+      });
+      
+      diagnosticDataRef.current.push({
+        t: currentTime,
+        phase: phaseRef.currentPhase,
+        mult: phaseRef.velocityMultiplier,
+        curve: curveStateRef.current.currentCurve,
+        cards: sampledCards,
+      });
+      
+      // Keep bounded
+      if (diagnosticDataRef.current.length > MAX_DIAGNOSTIC_FRAMES) {
+        diagnosticDataRef.current.shift();
+      }
+    }
+
+    // === SPACE CURVE CYCLING ===
+    // Logic: Stay on currentCurve for CYCLE_DURATION, then blend to nextCurve over TRANSITION_DURATION
+    const cState = curveStateRef.current;
+    cState.cycleTime += dt;
+
+    const totalCycleTime = CURVE_CYCLE_DURATION + CURVE_TRANSITION_DURATION;
+
+    // Check if full cycle (stay + transition) is complete
+    if (cState.cycleTime >= totalCycleTime) {
+      // Transition complete, swap curves
+      cState.cycleTime = 0;
+      cState.curveIndex = (cState.curveIndex + 1) % CURVE_SEQUENCE.length;
+      cState.currentCurve = cState.nextCurve;
+      cState.nextCurve = CURVE_SEQUENCE[(cState.curveIndex + 1) % CURVE_SEQUENCE.length];
+      console.log(`[Curve] Now on: ${cState.currentCurve}, next: ${cState.nextCurve}`);
+    }
+
+    // Calculate blend factor: 0 during stay phase, 0→1 during transition
+    if (cState.cycleTime < CURVE_CYCLE_DURATION) {
+      cState.transitionProgress = 0; // Stay on currentCurve
+    } else {
+      // Transitioning: progress from 0 to 1 over TRANSITION_DURATION
+      cState.transitionProgress = Math.min(1, 
+        (cState.cycleTime - CURVE_CYCLE_DURATION) / CURVE_TRANSITION_DURATION
+      );
+    }
 
     // Velocity injection every INJECTION_INTERVAL seconds
     const INJECTION_INTERVAL = 45;
@@ -715,6 +1047,7 @@ export default function CardDeck() {
           allPhysics={allPhysicsRef}
           currentlyDraggingRef={currentlyDraggingRef}
           phaseStateRef={phaseStateRef}
+          curveStateRef={curveStateRef}
           isInjected={injectedCardIndices.has(index)}
           currentRef={currentRef}
           mass={allPhysicsRef.current[index].mass}

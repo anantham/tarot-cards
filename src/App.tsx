@@ -147,31 +147,35 @@ function App() {
       {/* Error Notifications */}
       <ErrorNotification />
 
-      {/* 3D Card Deck Scene */}
-      {!selectedCard && (
-        <Canvas
-          camera={{ position: [0, 0, 10], fov: 50 }}
-          style={{ background: 'transparent' }}
-        >
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} color="#9333ea" />
+      {/* 3D Card Deck Scene - always mounted to preserve WebGL context and animation state */}
+      <Canvas
+        camera={{ position: [0, 0, 10], fov: 50 }}
+        style={{
+          background: 'transparent',
+          // Hide but keep mounted when card detail is open
+          visibility: selectedCard ? 'hidden' : 'visible',
+          pointerEvents: selectedCard ? 'none' : 'auto',
+        }}
+      >
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#9333ea" />
 
-          {/* Interactive Camera Controls */}
-          <OrbitControls
-            enableDamping
-            dampingFactor={0.05}
-            rotateSpeed={0.5}
-            zoomSpeed={0.8}
-            minDistance={5}
-            maxDistance={30}
-            maxPolarAngle={Math.PI / 1.5}
-            minPolarAngle={Math.PI / 4}
-          />
+        {/* Interactive Camera Controls */}
+        <OrbitControls
+          enableDamping
+          dampingFactor={0.05}
+          rotateSpeed={0.5}
+          zoomSpeed={0.8}
+          minDistance={5}
+          maxDistance={30}
+          maxPolarAngle={Math.PI / 1.5}
+          minPolarAngle={Math.PI / 4}
+          enabled={!selectedCard} // Disable controls when card detail is open
+        />
 
-          <CardDeck />
-        </Canvas>
-      )}
+        <CardDeck />
+      </Canvas>
 
       {/* Card Detail View */}
       {selectedCard && <CardDetail />}

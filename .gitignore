@@ -39,3 +39,4 @@ agent.json
 *.b64
 tmp/
 src/pages/
+CLAUDE.md

@@ -15,7 +15,9 @@ describe('Card Physics Integration Tests', () => {
       // Start with two cards very close together
       const positions = [
         new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0.1, 0, 0),
+        // Must be > 0.1, because calculateCardRepulsion returns zero at <= 0.1
+        // (singularity guard).
+        new THREE.Vector3(0.2, 0, 0),
       ];
       const velocities = [
         new THREE.Vector3(0, 0, 0),
@@ -150,10 +152,15 @@ describe('Card Physics Integration Tests', () => {
 
         // Every frame, card should be within boundaries or moving back
         if (!isWithinBoundaries(position)) {
-          // If outside, velocity should be pointing back inward
+          // If outside, boundary acceleration at the *current* position should
+          // point back inward. Velocity may still be outward for a few frames
+          // because boundaries are modeled as soft acceleration, not an instant
+          // velocity reflection.
           const toCenter = position.clone().negate().normalize();
-          const dot = velocity.clone().normalize().dot(toCenter);
-          expect(dot).toBeGreaterThanOrEqual(0); // Moving toward center
+          const boundaryNow = calculateBoundaryForce(position);
+          expect(boundaryNow.length()).toBeGreaterThan(0);
+          const dot = boundaryNow.clone().normalize().dot(toCenter);
+          expect(dot).toBeGreaterThan(0);
         }
       }
 
