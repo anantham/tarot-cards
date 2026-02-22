@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { CardFlipImageInner } from '../components/CardFlipImageInner';
 import React from 'react';
 
@@ -23,7 +23,7 @@ vi.mock('framer-motion', () => ({
 
 describe('CardFlipImageInner', () => {
   let loadedMediaRef: React.MutableRefObject<Set<string>>;
-  let onReadyMock: ReturnType<typeof vi.fn>;
+  let onReadyMock: (src: string) => void;
 
   beforeEach(() => {
     vi.useFakeTimers();
