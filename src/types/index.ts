@@ -120,6 +120,44 @@ export interface GalleryBundle {
   deckTypes: string[];
 }
 
+export interface CommunityGalleryRow {
+  id?: string | number;
+  cid?: string;
+  card_number?: number;
+  cardNumber?: number;
+  deck_type?: string;
+  deckType?: string;
+  frames?: string[];
+  gif_url?: string;
+  gifUrl?: string;
+  video_url?: string;
+  videoUrl?: string;
+  timestamp?: number;
+  prompt?: string | null;
+  deck_prompt_suffix?: string | null;
+  deckPromptSuffix?: string | null;
+  deck_id?: string;
+  deckId?: string;
+  deck_name?: string;
+  deckName?: string;
+  deck_description?: string;
+  deckDescription?: string;
+  author?: string;
+  display_name?: string;
+  displayName?: string;
+}
+
+export interface CommunityDeckGroup {
+  id: string;
+  deckId: string | null;
+  deckType: string;
+  deckName: string;
+  deckDescription: string;
+  author: string;
+  timestamp: number;
+  cards: CommunityGalleryRow[];
+}
+
 export interface IPFSCardPackage {
   author?: string;
   timestamp: number;

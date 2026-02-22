@@ -8,6 +8,7 @@ import Header from './components/Header';
 import ErrorNotification, { showError } from './components/ErrorNotification';
 import { useStore } from './store/useStore';
 import { setDatabaseErrorCallback } from './utils/idb';
+import type { CommunityDeckGroup, CommunityGalleryRow } from './types';
 
 function App() {
   const { selectedCard, showSettings, generatedCards, addGeneratedCard, setReturnToSettingsOnClose, settings, updateSettings } = useStore();
@@ -33,13 +34,13 @@ function App() {
       try {
         const res = await fetch('/api/community-supabase');
         if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
-        const data = await res.json();
-        const rows = data?.galleries || [];
+        const data = (await res.json()) as { galleries?: CommunityGalleryRow[] };
+        const rows = data.galleries || [];
         if (!rows.length) return;
 
         // Group by deck_id (skip uncategorized for auto-import)
-        const byDeck = new Map<string, any[]>();
-        rows.forEach((row: any) => {
+        const byDeck = new Map<string, CommunityGalleryRow[]>();
+        rows.forEach((row) => {
           const key = row.deck_id || row.deckId;
           if (!key) return; // ignore uncategorized for auto-import
           if (!byDeck.has(key)) byDeck.set(key, []);
@@ -47,7 +48,7 @@ function App() {
         });
 
         // Merge decks that share name/type/author to avoid splits
-        const merged: Record<string, any> = {};
+        const merged: Record<string, CommunityDeckGroup> = {};
         byDeck.forEach((cards, deckId) => {
           const sample = cards[0];
           const deckType = sample.deck_type || sample.deckType || 'community';
@@ -55,14 +56,14 @@ function App() {
           const author = sample.author || 'Anonymous';
           const deckDescription = sample.deck_description || sample.deckDescription || '';
           const mergeKey = `${deckName}::${deckType}::${author}`;
-          const stampedCards = cards.map((c: any) => ({
+          const stampedCards = cards.map((c): CommunityGalleryRow => ({
             ...c,
             deckType,
             deckName,
             deckDescription,
             author,
           }));
-          const deckTimestamp = Math.max(...stampedCards.map((c: any) => c.timestamp || Date.now()));
+          const deckTimestamp = Math.max(...stampedCards.map((c) => c.timestamp || Date.now()));
           if (!merged[mergeKey]) {
             merged[mergeKey] = {
               id: mergeKey,
@@ -80,7 +81,7 @@ function App() {
           }
         });
 
-        const decks = Object.values(merged) as any[];
+        const decks = Object.values(merged);
         if (!decks.length) return;
 
         // Prefer complete decks (>=22 cards), pick the most recent
@@ -98,11 +99,13 @@ function App() {
         );
 
         let importedDeckType: string | undefined = chosen.deckType;
-        chosen.cards.forEach((bundle: any, idx: number) => {
+        chosen.cards.forEach((bundle, idx) => {
+          const cardNumber = bundle.card_number ?? bundle.cardNumber;
+          if (typeof cardNumber !== 'number') return;
           const prompt = bundle.prompt || null;
           const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
           addGeneratedCard({
-            cardNumber: bundle.card_number ?? bundle.cardNumber,
+            cardNumber,
             deckType: bundle.deckType ?? bundle.deck_type ?? importedDeckType,
             frames: bundle.frames || [],
             gifUrl: bundle.gif_url ?? bundle.gifUrl,
@@ -113,13 +116,13 @@ function App() {
             bundleCID: bundle.cid || bundle.deck_id || chosen.deckId || undefined,
             prompt: prompt || undefined,
             deckPromptSuffix: deckPromptSuffix || undefined,
-            deckId: bundle.deck_id ?? bundle.deckId ?? chosen.deckId,
+            deckId: bundle.deck_id ?? bundle.deckId ?? chosen.deckId ?? undefined,
             deckName: bundle.deck_name ?? bundle.deckName ?? chosen.deckName,
             deckDescription: bundle.deck_description ?? bundle.deckDescription ?? chosen.deckDescription,
             author: bundle.author || bundle.display_name || bundle.displayName || chosen.author,
           });
           console.log(
-            `[AutoImport] Added card ${idx + 1}/${chosen.cards.length}: #${bundle.card_number ?? bundle.cardNumber}`
+            `[AutoImport] Added card ${idx + 1}/${chosen.cards.length}: #${cardNumber}`
           );
         });
 

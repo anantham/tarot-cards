@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import type { GeneratedCard } from '../types';
+import type { CommunityDeckGroup, CommunityGalleryRow } from '../types';
+import {
+  buildGeneratedCardFromCommunityRow,
+  getCommunityLoadingId,
+  groupCommunityRows,
+} from '../utils/communityGallery';
 
 interface CommunityGalleryProps {
   embedded?: boolean;
 }
 
 export default function CommunityGallery({ embedded = false }: CommunityGalleryProps) {
-  const [galleries, setGalleries] = useState<any[]>([]);
+  const [galleries, setGalleries] = useState<CommunityDeckGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCID, setLoadingCID] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -26,72 +31,9 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
       if (!response.ok) {
         throw new Error(`Fetch failed (${response.status} ${response.statusText})`);
       }
-      const data = await response.json();
+      const data = (await response.json()) as { galleries?: CommunityGalleryRow[] };
       const rows = data.galleries || [];
-      const byDeck: Record<string, any> = {};
-      const uncategorized: any[] = [];
-
-      rows.forEach((row: any) => {
-        const deckId = row.deck_id || row.deckId;
-        const deckType = row.deck_type || row.deckType || 'community';
-        const deckName = row.deck_name || row.deckName || deckType || 'Community Deck';
-        const deckDescription = row.deck_description || row.deckDescription || '';
-        const author = row.author || 'Anonymous';
-
-        if (!deckId) {
-          // No deck id: keep separate so they don't mix with real decks
-          uncategorized.push({ ...row, deckType, deckName, deckDescription, author });
-          return;
-        }
-
-        if (!byDeck[deckId]) {
-          byDeck[deckId] = {
-            id: deckId,
-            deckId,
-            deckType,
-            deckName,
-            deckDescription,
-            author,
-            timestamp: row.timestamp || Date.now(),
-            cards: [],
-          };
-        }
-        byDeck[deckId].cards.push({ ...row, deckType, deckName, deckDescription, author });
-      });
-
-      const groups = Object.values(byDeck);
-      if (uncategorized.length > 0) {
-        groups.push({
-          id: 'uncategorized',
-          deckId: null,
-          deckType: 'community',
-          deckName: 'Uncategorized (no deck id)',
-          deckDescription: 'These uploads were missing a deck id; import individually or re-upload with a deck id.',
-          author: 'Unknown',
-          timestamp: Date.now(),
-          cards: uncategorized,
-        });
-      }
-
-      // Merge decks that share the same name/type/author (helps when earlier uploads had different deckIds)
-      const merged: Record<string, any> = {};
-      groups.forEach((deck: any) => {
-        const mergeKey = `${deck.deckName || ''}::${deck.deckType || ''}::${deck.author || ''}`;
-        if (!merged[mergeKey]) {
-          merged[mergeKey] = {
-            ...deck,
-            id: mergeKey,
-            deckId: deck.deckId ?? mergeKey,
-            cards: [...(deck.cards || [])],
-          };
-        } else {
-          merged[mergeKey].cards.push(...(deck.cards || []));
-          // Keep earliest timestamp for ordering
-          merged[mergeKey].timestamp = Math.min(merged[mergeKey].timestamp, deck.timestamp || Date.now());
-        }
-      });
-
-      setGalleries(Object.values(merged));
+      setGalleries(groupCommunityRows(rows));
     } catch (err) {
       console.error('[CommunityGallery] Fetch failed:', err);
       setFetchError(err instanceof Error ? err.message : 'Failed to load community galleries');
@@ -100,30 +42,11 @@ export default function CommunityGallery({ embedded = false }: CommunityGalleryP
     }
   };
 
-  const handleLoadSupabaseCard = async (bundle: any): Promise<boolean> => {
+  const handleLoadSupabaseCard = async (bundle: CommunityGalleryRow): Promise<boolean> => {
     try {
-      setLoadingCID(bundle.id || bundle.cid || `${bundle.card_number}-${bundle.timestamp}`);
-      const prompt = bundle.prompt || null;
-      const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
-
-      // Build a GeneratedCard from Supabase metadata
-      const generated: GeneratedCard = {
-        cardNumber: bundle.card_number ?? bundle.cardNumber,
-        deckType: bundle.deck_type ?? bundle.deckType,
-        frames: bundle.frames || [],
-        gifUrl: bundle.gif_url ?? bundle.gifUrl,
-        videoUrl: bundle.video_url ?? bundle.videoUrl,
-        timestamp: bundle.timestamp || Date.now(),
-        shared: true,
-        source: 'community',
-        bundleCID: bundle.cid || undefined,
-        prompt: prompt || undefined,
-        deckPromptSuffix: deckPromptSuffix || undefined,
-        deckId: bundle.deck_id ?? bundle.deckId,
-        deckName: bundle.deck_name ?? bundle.deckName,
-        deckDescription: bundle.deck_description ?? bundle.deckDescription,
-        author: bundle.author || bundle.display_name || bundle.displayName,
-      };
+      const loadingId = getCommunityLoadingId(bundle);
+      setLoadingCID(loadingId);
+      const generated = buildGeneratedCardFromCommunityRow(bundle);
       addGeneratedCard(generated);
       return true;
     } catch (err) {

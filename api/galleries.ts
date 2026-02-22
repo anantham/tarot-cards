@@ -11,6 +11,41 @@ const QuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
+type GalleryHashRecord = {
+  cid?: string;
+  author?: string;
+  cardCount?: string | number;
+  deckTypes?: string;
+  timestamp?: string | number;
+};
+
+function parseNumericField(value: string | number | undefined): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string') return 0;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseDeckTypes(value: string | undefined): string[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((entry): entry is string => typeof entry === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function extractRecord(result: unknown): GalleryHashRecord | null {
+  if (!result || typeof result !== 'object') return null;
+  if ('result' in result) {
+    const nested = (result as { result?: unknown }).result;
+    return nested && typeof nested === 'object' ? (nested as GalleryHashRecord) : null;
+  }
+  return result as GalleryHashRecord;
+}
+
 /**
  * Gallery Listing Endpoint
  *
@@ -84,15 +119,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Transform results into GalleryBundle objects
     const galleries: GalleryBundle[] = results
-      .map((result: any) => {
-        const data = (result as any)?.result ?? result;
+      .map((result) => {
+        const data = extractRecord(result);
         if (!data || !data.cid) return null;
         return {
           cid: data.cid,
           author: data.author || undefined,
-          cardCount: parseInt(data.cardCount, 10),
-          deckTypes: JSON.parse(data.deckTypes),
-          timestamp: parseInt(data.timestamp, 10),
+          cardCount: parseNumericField(data.cardCount),
+          deckTypes: parseDeckTypes(data.deckTypes),
+          timestamp: parseNumericField(data.timestamp),
         };
       })
       .filter((bundle): bundle is NonNullable<typeof bundle> => bundle !== null) as GalleryBundle[];
