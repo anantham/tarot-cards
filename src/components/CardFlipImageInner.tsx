@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { motion } from 'framer-motion';
+import { debugLog } from '../utils/logger';
 
 interface CardFlipImageInnerProps {
   src: string;
@@ -14,18 +15,21 @@ interface CardFlipImageInnerProps {
 
 const HOLD_BEFORE_FLIP = 1.4; // seconds to display inverted state before rotating
 const FLIP_DURATION = 2.5; // seconds for the animated flip
+const REMOTE_LOADER_DELAY_MS = 150; // avoid flicker when cached
 
 export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }: CardFlipImageInnerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const lastLoadedSrcRef = useRef<string | null>(null);
   const readyTimeoutRef = useRef<number | null>(null);
+  const loaderDelayTimeoutRef = useRef<number | null>(null);
   const readyCalledRef = useRef(false);
   const alreadyRevealedRef = useRef(loadedMediaRef.current.has(src));
   const renderCountRef = useRef(0);
 
   // Log every render
   renderCountRef.current++;
-  console.log('[CardFlip] RENDER', {
+  debugLog('[CardFlip] RENDER', {
     renderCount: renderCountRef.current,
     src: src.slice(-30),
     isLoaded,
@@ -44,43 +48,59 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
     alreadyRevealedRef.current = isInRef;
     readyCalledRef.current = false;
     
-    console.log('[CardFlip] useEffect[src] fired', {
+    debugLog('[CardFlip] useEffect[src] fired', {
       src: src.slice(-30),
       wasRevealed,
       isInRef,
     });
 
-    if (readyTimeoutRef.current !== null) {
-      console.log('[CardFlip] clearing existing timeout');
-      window.clearTimeout(readyTimeoutRef.current);
-      readyTimeoutRef.current = null;
-    }
+	    if (readyTimeoutRef.current !== null) {
+	      debugLog('[CardFlip] clearing existing timeout');
+	      window.clearTimeout(readyTimeoutRef.current);
+	      readyTimeoutRef.current = null;
+	    }
 
-    if (alreadyRevealedRef.current) {
-      console.log('[CardFlip] SKIP: already revealed, showing final pose', { src: src.slice(-30) });
-      setIsLoaded(true);
-      if (!readyCalledRef.current) {
+	    if (loaderDelayTimeoutRef.current !== null) {
+	      window.clearTimeout(loaderDelayTimeoutRef.current);
+	      loaderDelayTimeoutRef.current = null;
+	    }
+	    setShowLoader(false);
+
+	    if (alreadyRevealedRef.current) {
+	      debugLog('[CardFlip] SKIP: already revealed, showing final pose', { src: src.slice(-30) });
+	      setIsLoaded(true);
+	      if (!readyCalledRef.current) {
         readyCalledRef.current = true;
-        onReady(src);
-      }
-      return;
-    }
-    console.log('[CardFlip] RESET: setting isLoaded=false, awaiting img onLoad', { src: src.slice(-30) });
-    setIsLoaded(false);
+	        onReady(src);
+	      }
+	      return;
+	    }
+	    debugLog('[CardFlip] RESET: setting isLoaded=false, awaiting img onLoad', { src: src.slice(-30) });
+	    setIsLoaded(false);
+
+	    const isRemoteSrc = /^https?:\/\//.test(src);
+	    if (isRemoteSrc) {
+	      loaderDelayTimeoutRef.current = window.setTimeout(() => {
+	        setShowLoader(true);
+	      }, REMOTE_LOADER_DELAY_MS);
+	    }
   }, [src, onReady]); // Removed flipTrigger - it was causing animation interruption!
 
   useEffect(() => {
-    console.log('[CardFlip] MOUNT', { src: src.slice(-30), flipTrigger });
+    debugLog('[CardFlip] MOUNT', { src: src.slice(-30), flipTrigger });
     return () => {
-      console.log('[CardFlip] UNMOUNT', { src: src.slice(-30), flipTrigger });
+      debugLog('[CardFlip] UNMOUNT', { src: src.slice(-30), flipTrigger });
        if (readyTimeoutRef.current !== null) {
          window.clearTimeout(readyTimeoutRef.current);
          readyTimeoutRef.current = null;
        }
+       if (loaderDelayTimeoutRef.current !== null) {
+         window.clearTimeout(loaderDelayTimeoutRef.current);
+         loaderDelayTimeoutRef.current = null;
+       }
       readyCalledRef.current = false;
     };
     // flipTrigger intentionally omitted to log once per src mount/unmount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   const midAngle = targetAngle === 180 ? targetAngle + 30 : targetAngle / 2;
@@ -95,7 +115,7 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
       ? needsFlipAnimation ? 'ANIMATING_FLIP' : 'ANIMATING_FADE'
       : 'WAITING_FOR_LOAD';
   
-  console.log('[CardFlip] ANIMATION_DECISION', {
+  debugLog('[CardFlip] ANIMATION_DECISION', {
     branch: animationBranch,
     alreadyRevealedRef: alreadyRevealedRef.current,
     isLoaded,
@@ -138,13 +158,47 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
               : { duration: 0 } // Upright cards: instant pop (no gating, no motion)
             : { duration: 0 }
       }
-      style={{ width: '100%', height: '100%' }}
+      style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
     >
+      {showLoader && !alreadyRevealedRef.current && !isLoaded && (
+        <div
+          data-testid="media-loader"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(10, 14, 39, 0.95) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        >
+          <motion.div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background:
+                'linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0) 90%)',
+              width: '120%',
+              transform: 'translateX(-100%)',
+              pointerEvents: 'none',
+            }}
+            animate={{ x: ['-20%', '120%'] }}
+            transition={{ duration: 1.4, ease: 'easeInOut', repeat: Infinity }}
+          />
+        </div>
+      )}
       <img
         src={src}
         alt={alt}
         onLoad={() => {
-          console.log('[CardFlip] IMG_ONLOAD fired', {
+          if (loaderDelayTimeoutRef.current !== null) {
+            window.clearTimeout(loaderDelayTimeoutRef.current);
+            loaderDelayTimeoutRef.current = null;
+          }
+          setShowLoader(false);
+
+          debugLog('[CardFlip] IMG_ONLOAD fired', {
             src: src.slice(-30),
             lastLoadedSrc: lastLoadedSrcRef.current?.slice(-30),
             alreadyRevealedRef: alreadyRevealedRef.current,
@@ -153,11 +207,11 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
           });
 
           if (lastLoadedSrcRef.current === src) {
-            console.log('[CardFlip] IMG_ONLOAD IGNORED: same src already processed');
+            debugLog('[CardFlip] IMG_ONLOAD IGNORED: same src already processed');
             return;
           }
           if (alreadyRevealedRef.current) {
-            console.log('[CardFlip] IMG_ONLOAD IGNORED: alreadyRevealedRef is true');
+            debugLog('[CardFlip] IMG_ONLOAD IGNORED: alreadyRevealedRef is true');
             return;
           }
 
@@ -168,7 +222,7 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
           
           if (!needsFlipAnimation) {
             // Upright card - show immediately, no flip animation or gating
-            console.log('[CardFlip] IMG_ONLOAD FAST PATH: upright card, instant reveal', {
+            debugLog('[CardFlip] IMG_ONLOAD FAST PATH: upright card, instant reveal', {
               src: src.slice(-30),
               startAngle,
               targetAngle,
@@ -178,14 +232,14 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
               readyCalledRef.current = true;
               loadedMediaRef.current.add(src);
               alreadyRevealedRef.current = true;
-              console.log('[CardFlip] READY (fast path): instant', { src: src.slice(-30) });
+              debugLog('[CardFlip] READY (fast path): instant', { src: src.slice(-30) });
               onReady(src);
             }
             return;
           }
           
           // Inverted card - use full flip animation
-          console.log('[CardFlip] IMG_ONLOAD SLOW PATH: inverted card, starting flip animation', {
+          debugLog('[CardFlip] IMG_ONLOAD SLOW PATH: inverted card, starting flip animation', {
             src: src.slice(-30),
             holdSeconds: HOLD_BEFORE_FLIP,
             flipSeconds: FLIP_DURATION,
@@ -194,14 +248,14 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
           setIsLoaded(true);
 
           if (readyTimeoutRef.current !== null) {
-            console.log('[CardFlip] clearing old ready timeout');
+            debugLog('[CardFlip] clearing old ready timeout');
             window.clearTimeout(readyTimeoutRef.current);
           }
 
           const timeoutMs = (HOLD_BEFORE_FLIP + FLIP_DURATION) * 1000;
-          console.log('[CardFlip] setting ready timeout', { timeoutMs });
+          debugLog('[CardFlip] setting ready timeout', { timeoutMs });
           readyTimeoutRef.current = window.setTimeout(() => {
-            console.log('[CardFlip] TIMEOUT fired', {
+            debugLog('[CardFlip] TIMEOUT fired', {
               src: src.slice(-30),
               readyCalledRef: readyCalledRef.current,
             });
@@ -209,14 +263,14 @@ export function CardFlipImageInner({ src, alt, startAngle, startTilt, targetAngl
               readyCalledRef.current = true;
               loadedMediaRef.current.add(src);
               alreadyRevealedRef.current = true;
-              console.log('[CardFlip] READY: animation complete, added to loadedMediaRef', { src: src.slice(-30) });
+              debugLog('[CardFlip] READY: animation complete, added to loadedMediaRef', { src: src.slice(-30) });
               onReady(src);
             } else {
-              console.log('[CardFlip] TIMEOUT skipped: readyCalledRef already true');
+              debugLog('[CardFlip] TIMEOUT skipped: readyCalledRef already true');
             }
           }, timeoutMs);
         }}
-        onClick={() => console.log('[CardFlip] image clicked', { src: src.slice(-30) })}
+        onClick={() => debugLog('[CardFlip] image clicked', { src: src.slice(-30) })}
         style={{ width: '100%', height: '100%', objectFit: 'cover', backfaceVisibility: 'hidden' }}
         loading="eager"
       />
