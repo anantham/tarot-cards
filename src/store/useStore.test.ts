@@ -6,11 +6,13 @@ vi.mock('../utils/idb', () => ({
   getAllGeneratedCards: vi.fn().mockResolvedValue([]),
   putGeneratedCard: vi.fn().mockResolvedValue(undefined),
   clearGeneratedCardsStore: vi.fn().mockResolvedValue(undefined),
+  deleteGeneratedCardFromStore: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Import after mocking
 import { useStore } from './useStore';
 import type { GeneratedCard, TarotCard } from '../types';
+import { deleteGeneratedCardFromStore } from '../utils/idb';
 
 describe('useStore', () => {
   beforeEach(() => {
@@ -137,6 +139,7 @@ describe('useStore', () => {
       });
 
       expect(result.current.generatedCards).toHaveLength(0);
+      expect(deleteGeneratedCardFromStore).toHaveBeenCalledWith(mockGeneratedCard.timestamp);
     });
 
     it('should update a generated card', () => {

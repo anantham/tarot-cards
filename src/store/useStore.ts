@@ -2,12 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Settings, GeneratedCard, TarotCard } from '../types';
 import tarotData from '../data/tarot-decks.json';
-import { getAllGeneratedCards, putGeneratedCard, clearGeneratedCardsStore } from '../utils/idb';
+import { getAllGeneratedCards, putGeneratedCard, clearGeneratedCardsStore, deleteGeneratedCardFromStore } from '../utils/idb';
 
-// Prefer .env-provided keys/endpoints when available (for first-run defaults)
-const envOpenrouterKey = (import.meta as any).env?.OPENROUTER_API_KEY || (import.meta as any).env?.VITE_OPENROUTER_API_KEY;
-const envGeminiKey = (import.meta as any).env?.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-const envOpenrouterEndpoint = (import.meta as any).env?.OPENROUTER_API_ENDPOINT || (import.meta as any).env?.VITE_OPENROUTER_API_ENDPOINT;
+// Prefer explicitly-exposed VITE_* defaults when available.
+const envOpenrouterKey = (import.meta as any).env?.VITE_OPENROUTER_API_KEY;
+const envGeminiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+const envOpenrouterEndpoint = (import.meta as any).env?.VITE_OPENROUTER_API_ENDPOINT;
 
 const applyEnvDefaults = (settings: Settings): Settings => {
   const next = { ...settings };
@@ -108,8 +108,7 @@ export const useStore = create<StoreState>()(
         deleteGeneratedCard: (timestamp) => {
           const updated = get().generatedCards.filter((c) => c.timestamp !== timestamp);
           set({ generatedCards: updated });
-          // No direct delete by timestamp in IDB store; rewrite the store
-          updated.forEach((card) => void putGeneratedCard(card));
+          void deleteGeneratedCardFromStore(timestamp).catch(() => {});
         },
 
         clearGeneratedCards: () => {
@@ -152,7 +151,12 @@ export const useStore = create<StoreState>()(
       },
       partialize: (state) => ({
         // Keep only lightweight settings in localStorage; generated cards live in IndexedDB
-        settings: state.settings,
+        settings: {
+          ...state.settings,
+          // Avoid persisting raw API keys in browser localStorage.
+          apiKey: undefined,
+          geminiApiKey: undefined,
+        },
       }),
     }
   )
