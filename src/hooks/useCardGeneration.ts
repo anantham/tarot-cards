@@ -2,31 +2,10 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { generateCardFrames } from '../utils/imageGeneration';
 import { generateVideoFromImage } from '../utils/videoGeneration';
+import { getInterpretationForDeck } from '../utils/deckInterpretation';
+import { buildTarotVideoPrompt } from '../utils/videoPrompt';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard, GeneratedCard } from '../types';
-
-const getInterpretationForDeck = (card: TarotCard, deckType: string) => {
-  switch (deckType) {
-    case 'lord-of-mysteries-masterpiece':
-      return (card as any).lordOfMysteriesMasterpiece || card.lordOfMysteries;
-    case 'lord-of-mysteries':
-      return card.lordOfMysteries;
-    case 'traditional-rider-waite':
-      return card.traditional;
-    case 'egyptian-tarot':
-      return card.egyptian;
-    case 'celtic-tarot':
-      return card.celtic;
-    case 'japanese-shinto':
-      return card.shinto;
-    case 'advaita-vedanta':
-      return card.advaita;
-    case 'buddhist':
-      return card.traditional;
-    default:
-      return card.traditional;
-  }
-};
 
 export function useCardGeneration() {
   const {
@@ -36,12 +15,8 @@ export function useCardGeneration() {
     setGenerationProgress,
     getGeneratedCard,
   } = useStore();
-
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Generate a single card image (for video reference)
-   */
   const generateSingleCard = async (
     cardNumber: number,
     progressContext?: { current: number; total: number; cardName?: string }
@@ -118,9 +93,6 @@ export function useCardGeneration() {
     }
   };
 
-  /**
-   * Generate short video (Veo 3.1) using first frame if available
-   */
   const generateCardVideo = async (cardNumber: number): Promise<void> => {
     try {
       setError(null);
@@ -139,12 +111,11 @@ export function useCardGeneration() {
 
       const interpretation = getInterpretationForDeck(card, settings.selectedDeckType);
       const editedPrompt = existingForDeck?.prompt;
-      const title =
-        card.number === 0 ? '0 – THE FOOL' : (interpretation.name || interpretation.pathway || card.traditional.name);
-      const basePrompt =
-        `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
-        `${editedPrompt || interpretation.prompt} Render the title clearly on the card. ` +
-        'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
+      const { title, basePrompt } = buildTarotVideoPrompt({
+        cardNumber: card.number,
+        titleFallback: interpretation.name || interpretation.pathway || card.traditional.name || `Card ${card.number}`,
+        prompt: editedPrompt || interpretation.prompt,
+      });
 
       setGenerationProgress({
         current: 0,
@@ -152,7 +123,7 @@ export function useCardGeneration() {
         status: `Generating video for ${title}...`,
       });
 
-      const videoResult = await generateVideoFromImage(basePrompt, referenceImage!, settings);
+      const videoResult = await generateVideoFromImage(basePrompt, referenceImage, settings);
       if (videoResult.error || !videoResult.videoUrl) {
         throw new Error(videoResult.error || 'No video URL returned');
       }
@@ -184,9 +155,6 @@ export function useCardGeneration() {
     }
   };
 
-  /**
-   * Generate all 22 cards (images only - use generateAllVideos for videos)
-   */
   const generateAllCards = async (): Promise<void> => {
     try {
       setError(null);
@@ -223,9 +191,6 @@ export function useCardGeneration() {
     }
   };
 
-  /**
-   * Generate videos for all cards that already have at least one generated frame
-   */
   const generateAllVideos = async (): Promise<void> => {
     try {
       setError(null);
@@ -261,14 +226,13 @@ export function useCardGeneration() {
 
         let requestedVideo = false;
         try {
-          const title =
-            card.number === 0 ? '0 – THE FOOL' : (card.traditional.name || interpretation.pathway || `Card ${card.number}`);
-          const basePrompt =
-            `8-second portrait (9:16) tarot card animation. Title: ${title}. ` +
-            `${interpretation.prompt} Render the title clearly on the card. ` +
-            'Subtle motion only: gentle fabric sway, tiny head turn, light shimmer of cosmic symbols. Camera steady.';
+          const { basePrompt } = buildTarotVideoPrompt({
+            cardNumber: card.number,
+            titleFallback: card.traditional.name || interpretation.pathway || `Card ${card.number}`,
+            prompt: interpretation.prompt,
+          });
 
-          const videoResult = await generateVideoFromImage(basePrompt, referenceImage as string, settings);
+          const videoResult = await generateVideoFromImage(basePrompt, referenceImage, settings);
           requestedVideo = true;
           if (videoResult.error || !videoResult.videoUrl) {
             throw new Error(videoResult.error || 'No video URL returned');

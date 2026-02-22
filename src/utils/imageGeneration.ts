@@ -1,4 +1,4 @@
-import type { Settings, TarotCard, CardInterpretation } from '../types';
+import type { Settings, TarotCard } from '../types';
 import { generateImageWithGemini } from './geminiImageGeneration';
 import configData from '../data/tarot-config.json';
 import { toRoman } from './roman';
@@ -6,6 +6,7 @@ import { traditionalSymbols } from '../data/traditional-symbols';
 import lotmLore from '../data/lotm-lore.json';
 import deckLore from '../data/deck-lore.json';
 import buddhistLore from '../data/buddhist-lore.json';
+import { getInterpretationForDeck } from './deckInterpretation';
 
 export interface ImageGenerationResult {
   imageUrl: string;
@@ -240,34 +241,4 @@ export async function generateCardFrames(
 
   // Return as single-item array for backward compatibility
   return [result.imageUrl];
-}
-
-/**
- * Get the correct interpretation based on deck type
- */
-function getInterpretationForDeck(
-  card: TarotCard,
-  deckType: string
-): CardInterpretation {
-  switch (deckType) {
-    case 'lord-of-mysteries-masterpiece':
-      return card.lordOfMysteriesMasterpiece || card.lordOfMysteries;
-    case 'lord-of-mysteries':
-      return card.lordOfMysteries;
-    case 'traditional-rider-waite':
-      return card.traditional;
-    case 'egyptian-tarot':
-      return card.egyptian;
-    case 'celtic-tarot':
-      return card.celtic;
-    case 'japanese-shinto':
-      return card.shinto;
-    case 'advaita-vedanta':
-      return card.advaita;
-    case 'buddhist':
-      // Use traditional prompt as base; Buddhist flavor is layered via deckLoreText
-      return card.traditional;
-    default:
-      return card.traditional;
-  }
 }
