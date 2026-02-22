@@ -5,7 +5,7 @@
 
 ## Summary
 - **Current blocker:** `POST /api/auth/w3up` returns 500 with `Unable to decode multibase string ... base64pad decoder only supports inputs prefixed with M`.
-- **Env key:** `WEB3_STORAGE_AGENT_KEY=Ed25519PrivateKey:base58:MgCYKF6FJFYXUnicB2mckXh5aS0cP6TPhhfCcvIs8igSYW+0BLWIbz7okywyIatpJXkTIpH4+pcMLS/ucaRgP/Qs0Ogg=`
+- **Env key:** `WEB3_STORAGE_AGENT_KEY=Ed25519PrivateKey:base58:<REDACTED_AGENT_KEY>`
   - Payload decodes as base64 (69 bytes), not base58btc.
 - **Tried:** Normalizing agent key to multibase base58btc (`z` prefix) and base64pad (`m` prefix). `Signer.parse` still fails.
 - **Next ask:** Determine correct format for `@ucanto/principal/ed25519.parse` for this key. Likely needs explicit `m` base64 multibase or different wrapping.

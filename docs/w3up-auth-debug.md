@@ -12,7 +12,7 @@
 ## Local normalization
 You can normalize the provided key once and set it in .env.local:
 ```bash
-node scripts/normalize-agent-key.mjs "Ed25519PrivateKey:base58:MgCYKF6FJFYXUnicB2mckXh5aS0cP6TPhhfCcvIs8igSYW+0BLWIbz7okywyIatpJXkTIpH4+pcMLS/ucaRgP/Qs0Ogg="
+node scripts/normalize-agent-key.mjs "Ed25519PrivateKey:base58:<REDACTED_AGENT_KEY>"
 # Output:
 # MAJgoXoUkVhdSeJwHaZyReHlpLRw/pM+GF8Jy8izyKBJhb7QEtYhvPuiTLDIhq2kleRMikfj6lwwtL+5xpGA/9CzQ6CA=
 ```

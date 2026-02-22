@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Expose only the env vars we intentionally need on the client
-  envPrefix: ['VITE_', 'OPENROUTER_', 'GEMINI_'],
+  // Expose only VITE_* values to client bundles.
+  envPrefix: ['VITE_'],
   server: {
     port: 5173,
     proxy: {

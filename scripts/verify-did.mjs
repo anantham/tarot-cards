@@ -1,10 +1,18 @@
 // Verify which DID the agent key actually derives to
 import * as Signer from '@ucanto/principal/ed25519';
 
-const keyPayload = 'MgCYKF6FJFYXUnicB2mckXh5aS0cP6TPhhfCcvIs8igSYW+0BLWIbz7okywyIatpJXkTIpH4+pcMLS/ucaRgP/Qs0Ogg=';
+const rawInput = process.argv[2] || process.env.WEB3_STORAGE_AGENT_KEY || '';
+if (!rawInput) {
+  console.error('Provide key via argv or WEB3_STORAGE_AGENT_KEY env var');
+  process.exit(1);
+}
+
+const keyPayload = rawInput.startsWith('Ed25519PrivateKey:')
+  ? rawInput.split(':').pop()
+  : rawInput;
 
 try {
-  const principal = Signer.parse(keyPayload);
+  const principal = Signer.parse(String(keyPayload));
   console.log('Key derives to DID:', principal.did());
   console.log('');
   console.log('Expected (from server_identity.key comment):');
