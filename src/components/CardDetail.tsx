@@ -1,41 +1,14 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useStore } from '../store/useStore';
 import { useCardGeneration } from '../hooks/useCardGeneration';
-import type { CardInterpretation } from '../types';
 import tarotData from '../data/tarot-decks.json';
 import type { TarotCard } from '../types';
-import { CardFlipImageInner } from './CardFlipImageInner';
+import { debugLog } from '../utils/logger';
+import { getInterpretationForDeck } from '../utils/deckInterpretation';
+import { CardDetailModal } from './card-detail/CardDetailModal';
+import { useVideoPlaybackFallback } from './card-detail/useVideoPlaybackFallback';
 
-const START_ANGLE = 180;
 const START_TILT = -14;
-
-type CardFlipImageProps = {
-  src: string;
-  alt: string;
-  startAngle: number;
-  startTilt: number;
-  targetAngle: number;
-  flipTrigger: number;
-  loadedMediaRef: React.MutableRefObject<Set<string>>;
-  onReady: (src: string) => void;
-};
-
-const CardFlipImage: React.FC<CardFlipImageProps> = React.memo(
-  ({ src, alt, startAngle, startTilt, targetAngle, flipTrigger, loadedMediaRef, onReady }) => (
-    <CardFlipImageInner
-      key={src}
-      src={src}
-      alt={alt}
-      startAngle={startAngle}
-      startTilt={startTilt}
-      targetAngle={targetAngle}
-      flipTrigger={flipTrigger}
-      loadedMediaRef={loadedMediaRef}
-      onReady={onReady}
-    />
-  )
-);
 
 export default function CardDetail() {
   const {
@@ -58,7 +31,6 @@ export default function CardDetail() {
   const [currentGenerationIndex, setCurrentGenerationIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const navEnabled = settings.navigateWithArrows === true;
-  const [tilt, setTilt] = useState({ x: 0, y: 0, shineX: 50, shineY: 50 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | undefined>(undefined);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | undefined>(undefined);
@@ -79,14 +51,14 @@ export default function CardDetail() {
       startAngle: revealInverted ? 180 : 0,
       startTilt: revealInverted ? START_TILT : 0,
     };
-    console.log('[CardDetail] triggerFlip CALLED', {
+    debugLog('[CardDetail] triggerFlip CALLED', {
       revealInverted,
       newOrientation,
       currentFlipTrigger: flipTrigger,
     });
     setFlipOrientation(newOrientation);
     setFlipTrigger((k) => {
-      console.log('[CardDetail] flipTrigger incremented', { old: k, new: k + 1 });
+      debugLog('[CardDetail] flipTrigger incremented', { old: k, new: k + 1 });
       return k + 1;
     });
   }, [flipTrigger]);
@@ -98,22 +70,7 @@ export default function CardDetail() {
 
   if (!selectedCard) return null;
 
-  // Get the correct interpretation based on selected deck type
-  const getInterpretation = (): CardInterpretation => {
-    const deckType = settings.selectedDeckType;
-    if (deckType === 'lord-of-mysteries-masterpiece') {
-      return selectedCard.lordOfMysteriesMasterpiece || selectedCard.lordOfMysteries;
-    }
-    if (deckType === 'lord-of-mysteries') return selectedCard.lordOfMysteries;
-    if (deckType === 'traditional-rider-waite') return selectedCard.traditional;
-    if (deckType === 'egyptian-tarot') return selectedCard.egyptian;
-    if (deckType === 'celtic-tarot') return selectedCard.celtic;
-    if (deckType === 'japanese-shinto') return selectedCard.shinto;
-    if (deckType === 'advaita-vedanta') return selectedCard.advaita;
-    return selectedCard.traditional;
-  };
-
-  const interpretation = getInterpretation();
+  const interpretation = getInterpretationForDeck(selectedCard, settings.selectedDeckType);
   // Prefer generations for the selected deck; fall back to any deck that has this card number
   const primaryGenerations = getAllGenerationsForCard(selectedCard.number, settings.selectedDeckType);
   const fallbackGenerations = useMemo(() => {
@@ -156,7 +113,7 @@ export default function CardDetail() {
 
   // Trigger flip once when the displayed media changes (strictly when URL changes)
   useEffect(() => {
-    console.log('[CardDetail] useEffect[primaryMediaSrc] CHECK', {
+    debugLog('[CardDetail] useEffect[primaryMediaSrc] CHECK', {
       primaryMediaSrc: primaryMediaSrc?.slice(-40),
       lastMediaSrc: lastMediaSrcRef.current?.slice(-40),
       loadedMediaRefSize: loadedMediaRef.current.size,
@@ -164,25 +121,25 @@ export default function CardDetail() {
     });
 
     if (!primaryMediaSrc) {
-      console.log('[CardDetail] useEffect[primaryMediaSrc] SKIP: no primaryMediaSrc');
+      debugLog('[CardDetail] useEffect[primaryMediaSrc] SKIP: no primaryMediaSrc');
       return;
     }
     if (primaryMediaSrc === lastMediaSrcRef.current) {
-      console.log('[CardDetail] useEffect[primaryMediaSrc] SKIP: same as lastMediaSrcRef');
+      debugLog('[CardDetail] useEffect[primaryMediaSrc] SKIP: same as lastMediaSrcRef');
       return;
     }
 
-    console.log('[CardDetail] useEffect[primaryMediaSrc] ACCEPTED: new media detected');
+    debugLog('[CardDetail] useEffect[primaryMediaSrc] ACCEPTED: new media detected');
     lastMediaSrcRef.current = primaryMediaSrc;
     setIsCardReady(false);
 
     if (loadedMediaRef.current.has(primaryMediaSrc)) {
-      console.log('[CardDetail] media already in loadedMediaRef, skipping flip', { media: primaryMediaSrc.slice(-40) });
+      debugLog('[CardDetail] media already in loadedMediaRef, skipping flip', { media: primaryMediaSrc.slice(-40) });
       setIsCardReady(true); // Already revealed, so mark ready immediately
       return;
     }
 
-    console.log('[CardDetail] TRIGGERING FLIP for new media', {
+    debugLog('[CardDetail] TRIGGERING FLIP for new media', {
       media: primaryMediaSrc.slice(-40),
       isGif: !!generatedCard?.gifUrl,
     });
@@ -197,7 +154,6 @@ export default function CardDetail() {
         setVideoObjectUrl(undefined);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generatedCard?.videoUrl]);
 
   useEffect(() => {
@@ -248,6 +204,7 @@ export default function CardDetail() {
   const getTitle = () => {
     return interpretation.name || interpretation.pathway || interpretation.deity || interpretation.figure || interpretation.kami || 'Unknown';
   };
+  const currentCardPosition = cards.findIndex((c) => c.number === selectedCard.number) + 1;
 
   const closeDetail = () => {
     setSelectedCard(null);
@@ -269,52 +226,16 @@ export default function CardDetail() {
     return () => setReturnToSettingsOnClose(false);
   }, [setReturnToSettingsOnClose]);
 
-  useEffect(() => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
-    const onError = () => {
-      const err = videoEl.error;
-      console.error('[Video] playback error', {
-        code: err?.code,
-        message: err?.message,
-        videoUrl: videoSrc,
-      });
-      // Fallback: try fetching with API key and play from blob
-      if (settings.apiProvider === 'gemini' && settings.geminiApiKey && videoSrc && videoSrc.startsWith('https://')) {
-        fetch(videoSrc, {
-          headers: {
-            'x-goog-api-key': settings.geminiApiKey,
-          },
-        })
-          .then(async (resp) => {
-            if (!resp.ok) throw new Error(`Fetch failed: ${resp.status}`);
-            const blob = await resp.blob();
-            if (videoObjectUrl) {
-              URL.revokeObjectURL(videoObjectUrl);
-            }
-            const url = URL.createObjectURL(blob);
-            setVideoObjectUrl(url);
-            setVideoSrc(url);
-          })
-          .catch((fetchErr) => {
-            console.error('[Video] fallback fetch error', fetchErr);
-          });
-      }
-    };
-    const onLoaded = () => {
-      console.log('[Video] loaded metadata', {
-        duration: videoEl.duration,
-        readyState: videoEl.readyState,
-        videoUrl: videoSrc,
-      });
-    };
-    videoEl.addEventListener('error', onError);
-    videoEl.addEventListener('loadedmetadata', onLoaded);
-    return () => {
-      videoEl.removeEventListener('error', onError);
-      videoEl.removeEventListener('loadedmetadata', onLoaded);
-    };
-  }, [generatedCard?.videoUrl]);
+  useVideoPlaybackFallback({
+    videoRef,
+    videoUrl: generatedCard?.videoUrl,
+    videoSrc,
+    videoObjectUrl,
+    setVideoObjectUrl,
+    setVideoSrc,
+    apiProvider: settings.apiProvider,
+    geminiApiKey: settings.geminiApiKey,
+  });
 
   useEffect(() => {
     if (!navEnabled) return;
@@ -335,548 +256,41 @@ export default function CardDetail() {
   }, [selectedCard, totalCards, navEnabled]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 200,
-        background: 'rgba(10, 14, 39, 0.95)',
-        backdropFilter: 'blur(20px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem',
-      }}
-      onClick={closeDetail}
-    >
-      {/* Nav buttons (optional) */}
-      {navEnabled && (
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <button
-            aria-label="Previous card"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); navigateCard(-1); }}
-            style={{
-              position: 'absolute',
-              left: '1.5rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.2)',
-              background: 'rgba(0,0,0,0.25)',
-              color: '#e8e8e8',
-              fontSize: '1.2rem',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-            }}
-          >
-            ←
-          </button>
-          <button
-            aria-label="Next card"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); navigateCard(1); }}
-            style={{
-              position: 'absolute',
-              right: '1.5rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.2)',
-              background: 'rgba(0,0,0,0.25)',
-              color: '#e8e8e8',
-              fontSize: '1.2rem',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-            }}
-          >
-            →
-          </button>
-        </div>
-      )}
-
-      <motion.div
-        key={selectedCard.number}
-        initial={{ scale: 0.85 }}
-        animate={{ scale: 1, x: navDirection * 10 }}
-        transition={{ type: 'spring', duration: 0.7 }}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: showDetails ? '1200px' : '720px',
-          width: '100%',
-          maxHeight: '90vh',
-          background: showDetails ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)' : 'transparent',
-          borderRadius: showDetails ? '20px' : '0',
-          border: showDetails ? '2px solid rgba(147, 51, 234, 0.3)' : 'none',
-          boxShadow: showDetails ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(147, 51, 234, 0.3)' : 'none',
-          overflow: showDetails ? 'auto' : 'visible',
-          display: showDetails ? 'grid' : 'flex',
-          gridTemplateColumns: showDetails ? '1fr 1fr' : undefined,
-          gap: showDetails ? '2rem' : undefined,
-          padding: showDetails ? '3rem' : '0',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
-        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', gap: '0.35rem' }}>
-          <button
-            onClick={() => {
-              if (!isCardReady) return;
-              setShowDetails((prev) => !prev);
-            }}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              border: 'none',
-              background: 'rgba(0,0,0,0.05)',
-              color: 'rgba(255,255,255,0.25)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            aria-label={showDetails ? 'Hide details' : 'Show details'}
-            title={showDetails ? 'Hide details' : 'Show details'}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.25)';
-              e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-            }}
-          >
-            👁
-          </button>
-          {generatedCard && showDetails && (
-            <button
-              onClick={handleDeleteCurrent}
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                border: 'none',
-                background: 'rgba(255,0,0,0.12)',
-                color: '#ffb4b4',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-              aria-label="Delete this card"
-              title="Delete this card"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,0,0,0.25)';
-                e.currentTarget.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,0,0,0.12)';
-                e.currentTarget.style.color = '#ffb4b4';
-              }}
-            >
-              🗑
-            </button>
-          )}
-        </div>
-
-        {!showDetails && (
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <div
-            style={{
-              position: 'relative',
-              aspectRatio: '2/3',
-              width: '100%',
-              maxWidth: '500px',
-                background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0e27 100%)',
-                borderRadius: '14px',
-                border: 'none',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              perspective: '1000px',
-              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-              transition: 'transform 0.15s ease',
-              pointerEvents: isCardReady ? 'auto' : 'none',
-            }}
-              onMouseMove={(e) => {
-                if (!isCardReady) return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = ((e.clientY - rect.top) / rect.height - 0.5) * -6;
-                const y = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
-                setTilt({ x, y, shineX: ((e.clientX - rect.left) / rect.width) * 100, shineY: ((e.clientY - rect.top) / rect.height) * 100 });
-              }}
-              onMouseLeave={() => setTilt({ x: 0, y: 0, shineX: 50, shineY: 50 })}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: `radial-gradient(600px circle at ${tilt.shineX}% ${tilt.shineY}%, rgba(255,255,255,0.12), transparent 40%)`,
-                  pointerEvents: 'none',
-                }}
-              />
-              {generatedCard?.videoUrl && videoSrc ? (
-                <>
-                  <video
-                    ref={videoRef}
-                    src={videoSrc}
-                    autoPlay
-                    loop
-                    playsInline
-                    muted={videoMuted}
-                    controls={false}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setVideoMuted((m) => !m);
-                      if (videoRef.current) {
-                        videoRef.current.muted = !videoMuted;
-                      }
-                    }}
-                    style={{
-                      position: 'absolute',
-                      bottom: '0.5rem',
-                      right: '0.5rem',
-                      padding: '0.35rem 0.5rem',
-                      borderRadius: '999px',
-                      border: 'none',
-                      background: 'rgba(0,0,0,0.45)',
-                      color: '#e8e8e8',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      opacity: 0.75,
-                    }}
-                  >
-                    {videoMuted ? '🔇' : '🔊'}
-                  </button>
-                </>
-              ) : generatedCard?.gifUrl ? (
-                <CardFlipImage
-                  src={generatedCard.gifUrl}
-                  alt={getTitle()}
-                  startAngle={flipOrientation.startAngle}
-                  startTilt={flipOrientation.startTilt}
-                  targetAngle={flipOrientation.targetAngle}
-                  flipTrigger={flipTrigger}
-                  loadedMediaRef={loadedMediaRef}
-                  onReady={handleCardReady}
-                />
-              ) : generatedCard?.frames?.[0] ? (
-                <CardFlipImage
-                  src={generatedCard.frames[0]}
-                  alt={getTitle()}
-                  startAngle={flipOrientation.startAngle}
-                  startTilt={flipOrientation.startTilt}
-                  targetAngle={flipOrientation.targetAngle}
-                  flipTrigger={flipTrigger}
-                  loadedMediaRef={loadedMediaRef}
-                  onReady={handleCardReady}
-                />
-              ) : (
-                <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
-                  <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                    {selectedCard.number === 0 ? '0' : selectedCard.number}
-                  </div>
-                  <div style={{ fontSize: '0.9rem' }}>Card not generated yet</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {showDetails && (
-          <>
-        {/* Left side - Card Image */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div
-            style={{
-              position: 'relative',
-              aspectRatio: '2/3',
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0e27 100%)',
-              borderRadius: '12px',
-              border: '3px solid rgba(212, 175, 55, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-            }}
-          >
-            {generatedCard?.gifUrl ? (
-              <CardFlipImage
-                src={generatedCard.gifUrl}
-                alt={getTitle()}
-                startAngle={flipOrientation.startAngle}
-                startTilt={flipOrientation.startTilt}
-                targetAngle={flipOrientation.targetAngle}
-                flipTrigger={flipTrigger}
-                loadedMediaRef={loadedMediaRef}
-                onReady={handleCardReady}
-              />
-            ) : generatedCard?.frames?.[0] ? (
-              <CardFlipImage
-                src={generatedCard.frames[0]}
-                alt={getTitle()}
-                startAngle={flipOrientation.startAngle}
-                startTilt={flipOrientation.startTilt}
-                targetAngle={flipOrientation.targetAngle}
-                flipTrigger={flipTrigger}
-                loadedMediaRef={loadedMediaRef}
-                onReady={handleCardReady}
-              />
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎴</div>
-                <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                  {selectedCard.number === 0 ? '0' : selectedCard.number}
-                </div>
-                <div style={{ fontSize: '0.9rem' }}>Card not generated yet</div>
-                <div style={{ fontSize: '0.8rem', marginTop: '1rem' }}>
-                  Go to Settings to generate your personalized cards
-                </div>
-                </div>
-              )}
-            </div>
-
-            {/* Video display / CTA */}
-            {generatedCard?.videoUrl ? (
-              <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '10px', overflow: 'hidden' }}>
-                <video
-                  ref={videoRef}
-                  src={videoSrc}
-                  controls
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
-            ) : (
-              <button
-                onClick={() => generateVideo(selectedCard.number)}
-                disabled={isGenerating}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: isGenerating ? 'rgba(100,100,100,0.4)' : 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '0.95rem',
-                  fontWeight: 600,
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {isGenerating ? 'Generating video…' : 'Generate 8s Video (Veo 3.1)'}
-              </button>
-            )}
-
-            {/* Generation Navigation - only show if there are generated cards */}
-            {allGenerations.length > 0 && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.75rem',
-              background: 'rgba(147, 51, 234, 0.1)',
-              border: '1px solid rgba(147, 51, 234, 0.3)',
-              borderRadius: '8px',
-            }}>
-              <button
-                onClick={handlePrevGeneration}
-                disabled={currentGenerationIndex === 0}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: currentGenerationIndex === 0 ? 'rgba(0,0,0,0.2)' : 'rgba(147, 51, 234, 0.3)',
-                  border: '1px solid rgba(147, 51, 234, 0.4)',
-                  borderRadius: '6px',
-                  color: currentGenerationIndex === 0 ? 'rgba(255,255,255,0.3)' : '#e8e8e8',
-                  cursor: currentGenerationIndex === 0 ? 'not-allowed' : 'pointer',
-                  fontSize: '0.9rem',
-                }}
-              >
-                ← Prev
-              </button>
-
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>
-                  Generation {currentGenerationIndex + 1} / {allGenerations.length}
-                </span>
-                {generatedCard && (
-                  <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>
-                    {new Date(generatedCard.timestamp).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-
-              <button
-                onClick={handleNextGeneration}
-                disabled={currentGenerationIndex >= allGenerations.length - 1}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: currentGenerationIndex >= allGenerations.length - 1 ? 'rgba(0,0,0,0.2)' : 'rgba(147, 51, 234, 0.3)',
-                  border: '1px solid rgba(147, 51, 234, 0.4)',
-                  borderRadius: '6px',
-                  color: currentGenerationIndex >= allGenerations.length - 1 ? 'rgba(255,255,255,0.3)' : '#e8e8e8',
-                  cursor: currentGenerationIndex >= allGenerations.length - 1 ? 'not-allowed' : 'pointer',
-                  fontSize: '0.9rem',
-                }}
-              >
-                Next →
-              </button>
-              </div>
-            )}
-            {generationError && (
-              <div style={{ color: '#ff6b6b', fontSize: '0.85rem' }}>
-                {generationError}
-              </div>
-            )}
-
-            {/* Prompt editor */}
-            {/* Delete button - only show if there is a generated card */}
-            {generatedCard && (
-              <button
-                onClick={handleDeleteCurrent}
-              style={{
-                padding: '0.75rem',
-                background: 'rgba(255, 0, 0, 0.2)',
-                border: '1px solid rgba(255, 0, 0, 0.4)',
-                borderRadius: '8px',
-                color: '#ff6b6b',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 0, 0, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 0, 0, 0.2)';
-              }}
-            >
-              🗑️ Delete This Generation
-            </button>
-          )}
-
-          {/* Keywords */}
-          <div>
-            <h3 style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Keywords
-            </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {interpretation.keywords.map((keyword, i) => (
-                <span
-                  key={i}
-                  style={{
-                    padding: '0.4rem 0.8rem',
-                    background: 'rgba(147, 51, 234, 0.2)',
-                    border: '1px solid rgba(147, 51, 234, 0.4)',
-                    borderRadius: '6px',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  {keyword}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right side - Card Info */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {/* Header */}
-          <div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.6, marginBottom: '0.5rem' }}>
-              Card {cards.findIndex((c) => c.number === selectedCard.number) + 1} / {totalCards}
-            </div>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '0.5rem', color: '#d4af37' }}>
-              {getTitle()}
-            </h2>
-            {interpretation.sequence && (
-              <div style={{ fontSize: '1rem', opacity: 0.8, marginBottom: '0.5rem' }}>
-                {interpretation.sequence}
-              </div>
-            )}
-          </div>
-
-          {/* Meaning */}
-          {interpretation.meaning && (
-            <div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', opacity: 0.9 }}>
-                Traditional Meaning
-              </h3>
-              <p style={{ fontSize: '1rem', lineHeight: '1.6', opacity: 0.8 }}>
-                {interpretation.meaning}
-              </p>
-            </div>
-          )}
-
-          {/* Abilities (for LoTM) */}
-          {interpretation.abilities && (
-            <div>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', opacity: 0.9 }}>
-                Abilities
-              </h3>
-              <p style={{ fontSize: '1rem', lineHeight: '1.6', opacity: 0.8 }}>
-                {interpretation.abilities}
-              </p>
-            </div>
-          )}
-
-          {/* Personal Lore */}
-          <div>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', opacity: 0.9 }}>
-              Personal Story
-            </h3>
-            <p style={{
-              fontSize: '1rem',
-              lineHeight: '1.6',
-              opacity: selectedCard.personalLore.startsWith('FILL THIS') ? 0.5 : 0.8,
-              fontStyle: selectedCard.personalLore.startsWith('FILL THIS') ? 'italic' : 'normal',
-            }}>
-              {selectedCard.personalLore}
-            </p>
-          </div>
-
-          {/* Prompt Editor */}
-          <div>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-              Generation Prompt
-            </h3>
-            <textarea
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              onBlur={handleSavePrompt}
-              rows={6}
-              style={{
-                width: '100%',
-                padding: '0.9rem 1rem',
-                background: 'rgba(0,0,0,0.25)',
-                border: '1px solid rgba(147, 51, 234, 0.3)',
-                borderRadius: '10px',
-                color: '#e8e8e8',
-                fontSize: '0.95rem',
-                lineHeight: 1.5,
-                resize: 'vertical',
-                fontFamily: 'monospace',
-              }}
-              placeholder="Edit the generation prompt for this card"
-            />
-            <div style={{ fontSize: '0.85rem', opacity: 0.65, marginTop: '0.35rem' }}>
-              Changes save on blur. Future uploads/share will include this prompt.
-            </div>
-          </div>
-        </div>
-
-          </>
-        )}
-      </motion.div>
-    </motion.div>
+    <CardDetailModal
+      navEnabled={navEnabled}
+      onNavigatePrev={() => navigateCard(-1)}
+      onNavigateNext={() => navigateCard(1)}
+      onClose={closeDetail}
+      selectedCardNumber={selectedCard.number}
+      navDirection={navDirection}
+      showDetails={showDetails}
+      onToggleDetails={() => setShowDetails((prev) => !prev)}
+      isCardReady={isCardReady}
+      generatedCard={generatedCard}
+      onDeleteCurrent={handleDeleteCurrent}
+      selectedCard={selectedCard}
+      videoSrc={videoSrc}
+      videoRef={videoRef}
+      videoMuted={videoMuted}
+      setVideoMuted={setVideoMuted}
+      getTitle={getTitle}
+      flipOrientation={flipOrientation}
+      flipTrigger={flipTrigger}
+      loadedMediaRef={loadedMediaRef}
+      onCardReady={handleCardReady}
+      interpretation={interpretation}
+      allGenerations={allGenerations}
+      currentGenerationIndex={currentGenerationIndex}
+      onPrevGeneration={handlePrevGeneration}
+      onNextGeneration={handleNextGeneration}
+      onGenerateVideo={() => generateVideo(selectedCard.number)}
+      isGenerating={isGenerating}
+      generationError={generationError ?? undefined}
+      promptText={promptText}
+      setPromptText={setPromptText}
+      onSavePrompt={handleSavePrompt}
+      totalCards={totalCards}
+      currentCardPosition={currentCardPosition}
+    />
   );
 }
