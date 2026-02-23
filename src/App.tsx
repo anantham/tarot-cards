@@ -7,12 +7,14 @@ import Settings from './components/Settings';
 import Header from './components/Header';
 import ErrorNotification, { showError } from './components/ErrorNotification';
 import { useStore } from './store/useStore';
-import { setDatabaseErrorCallback } from './utils/idb';
+import { getAllGeneratedCards, setDatabaseErrorCallback } from './utils/idb';
 import type { CommunityDeckGroup, CommunityGalleryRow } from './types';
 
 function App() {
-  const { selectedCard, showSettings, generatedCards, addGeneratedCard, setReturnToSettingsOnClose, settings, updateSettings } = useStore();
-  const autoImportStarted = useRef(false);
+  const { selectedCard, showSettings, generatedCards, addGeneratedCard, setReturnToSettingsOnClose, settings } = useStore();
+  const deckHydrationInFlightRef = useRef<string | null>(null);
+  const hydratedDecksRef = useRef<Set<string>>(new Set());
+  const prefetchedMediaRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     // Set up database error notification callback
@@ -23,35 +25,104 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Auto-import a community deck on first load if the user has no cards yet.
-    if (generatedCards.length > 0) return;
-    if (autoImportStarted.current) return;
-    if (typeof window !== 'undefined' && window.localStorage.getItem('communityImportedOnce') === '1') return;
+    // Warm card media in idle time so detail opens feel instant.
+    if (typeof window === 'undefined') return;
+    const selectedDeckType = settings.selectedDeckType;
+    if (!selectedDeckType) return;
 
-    autoImportStarted.current = true;
-    console.log('[AutoImport] Starting first-load import...');
+    const deckCards = generatedCards
+      .filter((card) => card.deckType === selectedDeckType)
+      .sort((a, b) => b.timestamp - a.timestamp);
+    if (deckCards.length === 0) return;
+
+    const seenCards = new Set<number>();
+    const urlsToPrefetch: string[] = [];
+    deckCards.forEach((card) => {
+      if (seenCards.has(card.cardNumber)) return;
+      seenCards.add(card.cardNumber);
+      const mediaUrl = card.gifUrl || card.frames?.[0];
+      if (mediaUrl) urlsToPrefetch.push(mediaUrl);
+    });
+
+    const uncachedUrls = urlsToPrefetch.filter((url) => !prefetchedMediaRef.current.has(url));
+    if (uncachedUrls.length === 0) return;
+
+    const queuePrefetch = () => {
+      uncachedUrls.forEach((url, index) => {
+        setTimeout(() => {
+          if (prefetchedMediaRef.current.has(url)) return;
+          prefetchedMediaRef.current.add(url);
+          const img = new Image();
+          img.decoding = 'async';
+          img.loading = 'eager';
+          img.src = url;
+        }, index * 60);
+      });
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as Window & {
+        requestIdleCallback: (
+          callback: IdleRequestCallback,
+          options?: IdleRequestOptions
+        ) => number;
+      }).requestIdleCallback(() => queuePrefetch(), { timeout: 1500 });
+      return;
+    }
+
+    const timer = setTimeout(queuePrefetch, 32);
+    return () => clearTimeout(timer);
+  }, [generatedCards, settings.selectedDeckType]);
+
+  useEffect(() => {
+    const selectedDeckType = settings.selectedDeckType;
+    if (!selectedDeckType) return;
+    if (deckHydrationInFlightRef.current === selectedDeckType) return;
+    if (hydratedDecksRef.current.has(selectedDeckType)) return;
+
+    let cancelled = false;
+    deckHydrationInFlightRef.current = selectedDeckType;
+    console.log(`[AutoImport] Starting startup hydration for deck "${selectedDeckType}"...`);
+
     (async () => {
+      let hydrationComplete = false;
       try {
-        const res = await fetch('/api/community-supabase');
+        const localCards = await getAllGeneratedCards().catch(() => []);
+        const existingCardNumbers = new Set(
+          [...localCards, ...generatedCards]
+            .filter((card) => card.deckType === selectedDeckType)
+            .map((card) => card.cardNumber)
+        );
+
+        if (existingCardNumbers.size >= 22) {
+          console.log(`[AutoImport] Deck "${selectedDeckType}" already hydrated locally (${existingCardNumbers.size} cards).`);
+          hydrationComplete = true;
+          return;
+        }
+
+        const res = await fetch(`/api/community-supabase?deckType=${encodeURIComponent(selectedDeckType)}`);
         if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
         const data = (await res.json()) as { galleries?: CommunityGalleryRow[] };
         const rows = data.galleries || [];
-        if (!rows.length) return;
+        if (!rows.length) {
+          hydrationComplete = true;
+          return;
+        }
 
-        // Group by deck_id (skip uncategorized for auto-import)
         const byDeck = new Map<string, CommunityGalleryRow[]>();
         rows.forEach((row) => {
+          const rowDeckType = row.deck_type || row.deckType || 'community';
+          if (rowDeckType !== selectedDeckType) return;
           const key = row.deck_id || row.deckId;
-          if (!key) return; // ignore uncategorized for auto-import
+          if (!key) return;
           if (!byDeck.has(key)) byDeck.set(key, []);
           byDeck.get(key)!.push(row);
         });
 
-        // Merge decks that share name/type/author to avoid splits
         const merged: Record<string, CommunityDeckGroup> = {};
         byDeck.forEach((cards, deckId) => {
           const sample = cards[0];
-          const deckType = sample.deck_type || sample.deckType || 'community';
+          const deckType = sample.deck_type || sample.deckType || selectedDeckType;
           const deckName = sample.deck_name || sample.deckName || deckType || 'Community Deck';
           const author = sample.author || 'Anonymous';
           const deckDescription = sample.deck_description || sample.deckDescription || '';
@@ -82,31 +153,43 @@ function App() {
         });
 
         const decks = Object.values(merged);
-        if (!decks.length) return;
+        if (!decks.length) {
+          hydrationComplete = true;
+          return;
+        }
 
-        // Prefer complete decks (>=22 cards), pick the most recent
         const completeDecks = decks
-          .filter((d) => (d.cards?.length || 0) >= 22)
+          .filter((deck) => {
+            const uniqueCardCount = new Set(
+              (deck.cards || [])
+                .map((card) => card.card_number ?? card.cardNumber)
+                .filter((value): value is number => typeof value === 'number')
+            ).size;
+            return uniqueCardCount >= 22;
+          })
           .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         const fallbackDecks = decks.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         const chosen = completeDecks[0] || fallbackDecks[0];
-        if (!chosen?.cards?.length) return;
+        if (!chosen?.cards?.length) {
+          hydrationComplete = true;
+          return;
+        }
 
         console.log(
-          `[AutoImport] Found ${decks.length} merged decks; importing "${chosen.deckName}" with ${chosen.cards.length} cards (complete=${
-            chosen.cards.length >= 22
-          }).`
+          `[AutoImport] Hydrating "${selectedDeckType}" from "${chosen.deckName}" with ${chosen.cards.length} rows.`
         );
 
-        let importedDeckType: string | undefined = chosen.deckType;
-        chosen.cards.forEach((bundle, idx) => {
+        let importedCount = 0;
+        chosen.cards.forEach((bundle) => {
           const cardNumber = bundle.card_number ?? bundle.cardNumber;
           if (typeof cardNumber !== 'number') return;
+          if (existingCardNumbers.has(cardNumber)) return;
+
           const prompt = bundle.prompt || null;
           const deckPromptSuffix = bundle.deck_prompt_suffix || bundle.deckPromptSuffix || null;
           addGeneratedCard({
             cardNumber,
-            deckType: bundle.deckType ?? bundle.deck_type ?? importedDeckType,
+            deckType: bundle.deckType ?? bundle.deck_type ?? selectedDeckType,
             frames: bundle.frames || [],
             gifUrl: bundle.gif_url ?? bundle.gifUrl,
             videoUrl: bundle.video_url ?? bundle.videoUrl,
@@ -121,27 +204,35 @@ function App() {
             deckDescription: bundle.deck_description ?? bundle.deckDescription ?? chosen.deckDescription,
             author: bundle.author || bundle.display_name || bundle.displayName || chosen.author,
           });
-          console.log(
-            `[AutoImport] Added card ${idx + 1}/${chosen.cards.length}: #${cardNumber}`
-          );
+          existingCardNumbers.add(cardNumber);
+          importedCount += 1;
         });
 
-        setReturnToSettingsOnClose(true);
-        // If the user had no cards, align the selected deck to the imported deck type to avoid "not generated yet" view.
-        if (!settings.selectedDeckType && importedDeckType) {
-          updateSettings({ selectedDeckType: importedDeckType });
+        if (importedCount > 0) {
+          setReturnToSettingsOnClose(true);
+          console.log(`[AutoImport] Imported ${importedCount} missing cards for "${selectedDeckType}".`);
         }
-        console.log('[AutoImport] Import completed.');
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem('communityImportedOnce', '1');
-        }
+
+        hydrationComplete = true;
       } catch (err) {
         console.error('[AutoImport] Failed:', err);
       } finally {
-        autoImportStarted.current = false;
+        if (hydrationComplete) {
+          hydratedDecksRef.current.add(selectedDeckType);
+        }
+        if (!cancelled && deckHydrationInFlightRef.current === selectedDeckType) {
+          deckHydrationInFlightRef.current = null;
+        }
       }
     })();
-  }, [generatedCards.length, addGeneratedCard, setReturnToSettingsOnClose]);
+
+    return () => {
+      cancelled = true;
+      if (deckHydrationInFlightRef.current === selectedDeckType) {
+        deckHydrationInFlightRef.current = null;
+      }
+    };
+  }, [addGeneratedCard, generatedCards, setReturnToSettingsOnClose, settings.selectedDeckType]);
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>

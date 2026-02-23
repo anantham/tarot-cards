@@ -5,7 +5,16 @@
     },
     "api/auth/w3up.ts": {
       "maxDuration": 10
+    },
+    "api/keepalive.ts": {
+      "maxDuration": 10
     }
   },
+  "crons": [
+    {
+      "path": "/api/keepalive",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "devCommand": ""
 }

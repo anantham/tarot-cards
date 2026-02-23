@@ -431,3 +431,88 @@ Phase 10 remediation execution: highest-impact split of `CardDeck.tsx` monolith 
 - `src/components/CardDeck.tsx` reduced from 1057 LOC to 88 LOC.
 - All newly added card-deck modules remain below 300 LOC.
 - Updated largest hotspots now: `src/hooks/useGallerySharing.ts` (424), `src/utils/idb.ts` (345), and `src/hooks/useCardGeneration.ts` (300 boundary).
+
+## 2026-02-22 21:51:52 IST
+
+### Scope
+Workspace hygiene cleanup: remove stray duplicate CardDeck file and prevent coverage report artifacts from being accidentally committed.
+
+### Hypotheses
+- `src/components/CardDeck (1).tsx` is an accidental duplicate snapshot and should not live in source control.
+- Adding `coverage/` to `.gitignore` will prevent accidental commits of generated local test artifacts.
+
+### Files Changed
+- `.gitignore` (line 13)
+  - Added `coverage` ignore rule so generated test coverage output is excluded from git status by default.
+- `src/components/CardDeck (1).tsx` (deleted)
+  - Removed untracked duplicate monolithic card-deck file that could cause confusion and drift from the modularized implementation.
+- `WORKLOG.md` (this entry)
+  - Recorded cleanup intent and scope for continuity.
+
+### Validation Runs
+- `git status --short` -> no duplicate `CardDeck (1).tsx`; `coverage/` no longer appears in status.
+
+### Notes
+- No runtime logic changed.
+
+## 2026-02-23 07:02:15 IST
+
+### Scope
+Startup deck hydration and media prefetch enhancement so the default selected deck is cached from Supabase on load and card opens are faster.
+
+### Hypotheses
+- Hydrating missing cards for `settings.selectedDeckType` at startup will reduce first-open latency in card detail.
+- Idle-time prefetch of primary media (`gifUrl` or first frame) will make card selection feel instant without blocking initial render.
+- Server-side deck filtering will reduce payload size and speed up hydration fetches.
+
+### Files Changed
+- `src/App.tsx` (lines 10-241)
+  - Added startup hydration state refs (`deckHydrationInFlightRef`, `hydratedDecksRef`, `prefetchedMediaRef`).
+  - Added idle-time media warmup for selected deck cards (lines 27-75).
+  - Reworked startup import to target `settings.selectedDeckType`, top-up only missing card numbers, and skip already-cached decks (lines 77-241).
+  - Added local IndexedDB cross-check (`getAllGeneratedCards`) before importing to reduce duplicate hydration.
+- `api/community-supabase.ts` (lines 21-33)
+  - Added optional `deckType` query support and `deck_type` filter in the Supabase query.
+
+### Validation Runs
+- `npm run lint` -> pass.
+- `npm run build` -> pass.
+- `npm run test:run` -> pass (6 files, 80 tests).
+
+### Notes
+- Startup hydration now prefers the default selected deck instead of only "first load with zero cards".
+- Media prefetch currently targets primary visual assets for each card (not full video payloads) to keep startup bandwidth bounded.
+
+## 2026-02-23 07:07:13 IST
+
+### Scope
+Implement Supabase free-tier keepalive via Vercel Cron with secret-gated API endpoint.
+
+### Hypotheses
+- A daily authenticated ping query against Supabase will prevent free-tier inactivity pause.
+- Enforcing `CRON_SECRET` bearer auth on the keepalive endpoint will prevent public abuse.
+- Keeping cron/config/env wiring in-repo reduces setup ambiguity and operational drift.
+
+### Files Changed
+- `api/keepalive.ts` (lines 1-62)
+  - Added `GET /api/keepalive` endpoint with:
+    - strict `Authorization: Bearer <CRON_SECRET>` validation,
+    - Supabase credential validation (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`),
+    - lightweight DB ping (`gallery` `head` select with count),
+    - structured success/error responses and `no-store` cache headers.
+- `vercel.json` (lines 1-20)
+  - Added function timeout config for `api/keepalive.ts`.
+  - Added daily cron trigger:
+    - path: `/api/keepalive`
+    - schedule: `0 12 * * *` (daily UTC).
+- `.env.example` (line 36)
+  - Added `CRON_SECRET` documentation for keepalive auth.
+
+### Validation Runs
+- `npm run lint` -> pass.
+- `npm run build` -> pass.
+- `npm run test:run` -> pass (6 files, 80 tests).
+
+### Notes
+- Endpoint is intentionally read-only and cron-authenticated.
+- A valid `CRON_SECRET` must be configured in Vercel environment variables before cron calls will succeed.

@@ -18,10 +18,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { data, error } = await supabase
+    const rawDeckType = req.query.deckType;
+    const deckType = Array.isArray(rawDeckType) ? rawDeckType[0] : rawDeckType;
+
+    let query = supabase
       .from('gallery')
       .select('*')
       .order('timestamp', { ascending: false });
+
+    if (deckType && deckType.trim()) {
+      query = query.eq('deck_type', deckType.trim());
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return res.status(200).json({ galleries: data || [] });
