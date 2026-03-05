@@ -1,7 +1,7 @@
 # Project Conventions
 
 <!--
-Last verified: 2026-03-05
+Last verified: 2026-03-06
 Code hash: 5286453
 Verified by: agent
 -->
@@ -173,6 +173,14 @@ export interface VideoResponse {
 ```
 
 Error messages must be descriptive and actionable — no silent failures, no generic "Something went wrong."
+
+### Error handling by context
+
+| Context | Pattern | Rationale |
+|---------|---------|-----------|
+| User-triggered operation (generate, share, delete) | `setError()` in hook → rendered by UI component | User needs to see and act on the failure |
+| Background startup sync (store init, IDB load) | `console.error(...)` on failure — always visible | Failure is unexpected and may explain broken state; not user-actionable so no toast |
+| Background prefetch/hydration progress | `debugLog(...)` for progress, `console.error(...)` on failure | Progress is noise; failure is signal |
 
 ---
 

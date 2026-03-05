@@ -56,7 +56,9 @@ export const useStore = create<StoreState>()(
   persist(
     (set, get) => {
       // Load any previously stored generations from IndexedDB
-      getAllGeneratedCards().then((cards) => set({ generatedCards: cards })).catch(() => {});
+      getAllGeneratedCards()
+        .then((cards) => set({ generatedCards: cards }))
+        .catch((err) => console.error('[Store] Failed to load cards from IDB:', err));
 
       return {
         // Initial settings
@@ -108,7 +110,9 @@ export const useStore = create<StoreState>()(
         deleteGeneratedCard: (timestamp) => {
           const updated = get().generatedCards.filter((c) => c.timestamp !== timestamp);
           set({ generatedCards: updated });
-          void deleteGeneratedCardFromStore(timestamp).catch(() => {});
+          void deleteGeneratedCardFromStore(timestamp).catch((err) =>
+            console.error('[Store] Failed to delete card from IDB (timestamp:', timestamp, '):', err)
+          );
         },
 
         clearGeneratedCards: () => {

@@ -8,6 +8,7 @@ import Header from './components/Header';
 import ErrorNotification, { showError } from './components/ErrorNotification';
 import { useStore } from './store/useStore';
 import { getAllGeneratedCards, setDatabaseErrorCallback } from './utils/idb';
+import { debugLog } from './utils/logger';
 import type { CommunityDeckGroup, CommunityGalleryRow } from './types';
 
 function App() {
@@ -82,12 +83,15 @@ function App() {
 
     let cancelled = false;
     deckHydrationInFlightRef.current = selectedDeckType;
-    console.log(`[AutoImport] Starting startup hydration for deck "${selectedDeckType}"...`);
+    debugLog(`[AutoImport] Starting startup hydration for deck "${selectedDeckType}"...`);
 
     (async () => {
       let hydrationComplete = false;
       try {
-        const localCards = await getAllGeneratedCards().catch(() => []);
+        const localCards = await getAllGeneratedCards().catch((err) => {
+          console.error('[App] IDB read failed during hydration:', err);
+          return [];
+        });
         const existingCardNumbers = new Set(
           [...localCards, ...generatedCards]
             .filter((card) => card.deckType === selectedDeckType)
@@ -95,7 +99,7 @@ function App() {
         );
 
         if (existingCardNumbers.size >= 22) {
-          console.log(`[AutoImport] Deck "${selectedDeckType}" already hydrated locally (${existingCardNumbers.size} cards).`);
+          debugLog(`[AutoImport] Deck "${selectedDeckType}" already hydrated locally (${existingCardNumbers.size} cards).`);
           hydrationComplete = true;
           return;
         }
@@ -175,7 +179,7 @@ function App() {
           return;
         }
 
-        console.log(
+        debugLog(
           `[AutoImport] Hydrating "${selectedDeckType}" from "${chosen.deckName}" with ${chosen.cards.length} rows.`
         );
 
@@ -210,7 +214,7 @@ function App() {
 
         if (importedCount > 0) {
           setReturnToSettingsOnClose(true);
-          console.log(`[AutoImport] Imported ${importedCount} missing cards for "${selectedDeckType}".`);
+          debugLog(`[AutoImport] Imported ${importedCount} missing cards for "${selectedDeckType}".`);
         }
 
         hydrationComplete = true;
