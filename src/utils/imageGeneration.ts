@@ -1,4 +1,5 @@
 import type { Settings, TarotCard } from '../types';
+import { debugLog } from './logger';
 import { generateImageWithGemini } from './geminiImageGeneration';
 import configData from '../data/tarot-config.json';
 import { toRoman } from './roman';
@@ -68,10 +69,10 @@ async function generateImageWithOpenRouter(
       modalities: ['image', 'text'],
     };
 
-    console.log('[OpenRouter] settings.apiEndpoint:', settings.apiEndpoint);
-    console.log('[OpenRouter] Using endpoint:', apiEndpoint);
-    console.log('[OpenRouter] Model:', settings.generationModel);
-    console.log('[OpenRouter] Request body:', requestBody);
+    debugLog('[OpenRouter] settings.apiEndpoint:', settings.apiEndpoint);
+    debugLog('[OpenRouter] Using endpoint:', apiEndpoint);
+    debugLog('[OpenRouter] Model:', settings.generationModel);
+    debugLog('[OpenRouter] Request body:', requestBody);
 
     const response = await fetch(apiEndpoint, {
       method: 'POST',
@@ -101,7 +102,7 @@ async function generateImageWithOpenRouter(
 
     const data = await response.json();
 
-    console.log('[ImageGen] Response data:', JSON.stringify(data, null, 2));
+    debugLog('[ImageGen] Response data:', JSON.stringify(data, null, 2));
 
     // Extract base64 image from response per OpenRouter docs:
     // response.choices[0].message.images[0].image_url.url
@@ -119,7 +120,7 @@ async function generateImageWithOpenRouter(
       throw new Error('Invalid image format in response');
     }
 
-    console.log('[ImageGen] Successfully extracted image URL (first 50 chars):', imageUrl.substring(0, 50));
+    debugLog('[ImageGen] Successfully extracted image URL (first 50 chars):', imageUrl.substring(0, 50));
 
     return { imageUrl };
   } catch (error) {

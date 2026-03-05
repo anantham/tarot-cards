@@ -32,8 +32,14 @@ export function useDeckAnimationController({
   const diagnosticDataRef = useRef<DiagnosticFrame[]>([]);
   const diagnosticEnabledRef = useRef(true);
   const lastDiagnosticTimeRef = useRef(0);
-  const DIAGNOSTIC_INTERVAL = 0.1;
-  const MAX_DIAGNOSTIC_FRAMES = 600;
+  const DIAGNOSTIC_INTERVAL = 0.1;    // seconds between diagnostic samples
+  const MAX_DIAGNOSTIC_FRAMES = 600;  // ring buffer: ~60s at 0.1s interval
+
+  // Phase timing: 30s cycle = 10s fast + 20s slow
+  const PHASE_CYCLE_DURATION = 30;       // total seconds per fast+slow cycle
+  const FAST_PHASE_DURATION = 10;        // first N seconds of each cycle are fast
+  const FAST_VELOCITY_MULTIPLIER = 5.0;  // speed factor in fast phase
+  const SLOW_VELOCITY_MULTIPLIER = 0.5;  // speed factor in slow phase
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,12 +66,12 @@ export function useDeckAnimationController({
   useFrame((state, dt) => {
     const phaseRef = phaseStateRef.current;
     phaseRef.elapsedTime += dt;
-    if (phaseRef.elapsedTime >= 30) {
+    if (phaseRef.elapsedTime >= PHASE_CYCLE_DURATION) {
       phaseRef.elapsedTime = 0;
     }
 
-    const targetPhase = phaseRef.elapsedTime < 10 ? 'fast' : 'slow';
-    const targetMultiplier = targetPhase === 'fast' ? 5.0 : 0.5;
+    const targetPhase = phaseRef.elapsedTime < FAST_PHASE_DURATION ? 'fast' : 'slow';
+    const targetMultiplier = targetPhase === 'fast' ? FAST_VELOCITY_MULTIPLIER : SLOW_VELOCITY_MULTIPLIER;
     if (phaseRef.currentPhase !== targetPhase) {
       debugLog(
         `[Animation] Phase change: ${phaseRef.currentPhase} → ${targetPhase} at ${phaseRef.elapsedTime.toFixed(2)}s, multiplier: ${phaseRef.velocityMultiplier.toFixed(2)} → ${targetMultiplier}`

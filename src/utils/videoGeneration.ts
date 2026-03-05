@@ -1,4 +1,5 @@
 import type { Settings } from '../types';
+import { debugLog } from './logger';
 
 interface VideoResponse {
   videoUrl?: string;
@@ -39,9 +40,12 @@ export async function generateVideoFromImage(
       throw new Error('Gemini API key is required for video generation.');
     }
 
+    // Veo 3.1 quota context: daily cap ~10 videos, RPM limit ~5.
+    // Poll every 2s for up to 2 minutes before giving up.
+    // 2 retries on hard failure (e.g. transient 5xx) before surfacing error.
     const maxRetries = 2;
-    const pollIntervalMs = 2000;
-    const maxPollAttempts = 60; // ~2 minutes
+    const pollIntervalMs = 2_000; // ms between status polls
+    const maxPollAttempts = 60;   // 60 × 2s = 2 min timeout
     const model = 'veo-3.1-generate-preview';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:predictLongRunning?key=${apiKey}`;
 
@@ -66,7 +70,7 @@ export async function generateVideoFromImage(
         },
       };
 
-      console.log('[VideoGen] request', {
+      debugLog('[VideoGen] request', {
         url,
         model,
         hasReferenceImage: Boolean(referenceImage),
@@ -109,7 +113,7 @@ export async function generateVideoFromImage(
         throw new Error(`Video start parse failed: ${String(err)} Body: ${startText}`);
       }
 
-      console.log('[VideoGen] start response', operation);
+      debugLog('[VideoGen] start response', operation);
       if (!operation?.name) {
         throw new Error('Video generation operation name missing');
       }
@@ -142,7 +146,7 @@ export async function generateVideoFromImage(
         } catch {
           throw new Error(`Video poll parse failed. Body: ${opText}`);
         }
-        console.log('[VideoGen] poll', { attempt: attempts, done: opData.done, response: opData });
+        debugLog('[VideoGen] poll', { attempt: attempts, done: opData.done, response: opData });
         if (opData.done) {
           const uri = extractVideoUri(opData);
           if (!uri) {
@@ -168,8 +172,8 @@ export async function generateVideoFromImage(
         if (attempt === maxRetries) {
           throw err;
         }
-        console.warn('[VideoGen] retrying after error:', err);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        debugLog('[VideoGen] retrying after error:', err);
+        await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
       }
     }
 

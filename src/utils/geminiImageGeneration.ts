@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Settings } from '../types';
 import type { ImageGenerationResult } from './imageGeneration';
+import { debugLog } from './logger';
 import configData from '../data/tarot-config.json';
 
 /**
@@ -32,10 +33,10 @@ export async function generateImageWithGemini(
 
     const allowImages = settings.usePhoto !== false;
 
-    console.log('[Gemini] Starting image generation');
-    console.log('[Gemini] Model:', settings.generationModel);
-    console.log('[Gemini] Prompt:', resolvedPrompt);
-    console.log(
+    debugLog('[Gemini] Starting image generation');
+    debugLog('[Gemini] Model:', settings.generationModel);
+    debugLog('[Gemini] Prompt:', resolvedPrompt);
+    debugLog(
       '[Gemini] Reference images:',
       allowImages ? settings.referenceImages?.length || 'Using legacy userPhoto' : 'Disabled by setting'
     );
@@ -54,13 +55,13 @@ export async function generateImageWithGemini(
 
     // Use new multi-image system if available
     if (hasReferenceImages) {
-      console.log('[Gemini] Using multi-image reference system');
+      debugLog('[Gemini] Using multi-image reference system');
 
       settings.referenceImages?.forEach((refImg, index) => {
         const base64Data = refImg.dataUrl.split(',')[1];
         const mimeType = refImg.dataUrl.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
 
-        console.log(`[Gemini] Adding reference image ${index + 1}: ${refImg.type} - "${refImg.instruction}"`);
+        debugLog(`[Gemini] Adding reference image ${index + 1}: ${refImg.type} - "${refImg.instruction}"`);
 
         parts.push({
           inlineData: {
@@ -77,7 +78,7 @@ export async function generateImageWithGemini(
       });
     } else if (hasUserPhoto) {
       // Fallback to legacy single photo
-      console.log('[Gemini] Using legacy single photo system');
+      debugLog('[Gemini] Using legacy single photo system');
       const base64Data = userPhoto.split(',')[1];
       const mimeType = userPhoto.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
 
@@ -92,7 +93,7 @@ export async function generateImageWithGemini(
         text: photoInstruction,
       });
     } else if (!allowImages) {
-      console.log('[Gemini] Personal images disabled via settings; generating from text prompt only');
+      debugLog('[Gemini] Personal images disabled via settings; generating from text prompt only');
     }
 
     // Prepare request with all parts
@@ -110,8 +111,8 @@ export async function generateImageWithGemini(
       responseModalities: ['TEXT', 'IMAGE'],
     };
 
-    console.log('[Gemini] Config:', JSON.stringify(requestPayload.generationConfig, null, 2));
-    console.log('[Gemini] Request:', {
+    debugLog('[Gemini] Config:', JSON.stringify(requestPayload.generationConfig, null, 2));
+    debugLog('[Gemini] Request:', {
       model: settings.generationModel,
       textParts: parts.filter((p) => p.text).map((p) => p.text),
       inlineImages: parts.filter((p) => p.inlineData).length,
@@ -120,11 +121,11 @@ export async function generateImageWithGemini(
         .map((p) => `${p.inlineData.mimeType || 'unknown'} (${p.inlineData.data.length} chars base64)`),
     });
 
-    console.log('[Gemini] Sending request...');
+    debugLog('[Gemini] Sending request...');
     const result = await model.generateContent(requestPayload);
     const response = result.response;
 
-    console.log('[Gemini] Response received');
+    debugLog('[Gemini] Response received');
 
     // Extract image from response
     let foundImageData: string | null = null;
@@ -134,7 +135,7 @@ export async function generateImageWithGemini(
       if (part.inlineData?.data) {
         foundImageData = part.inlineData.data;
         const partMimeType = part.inlineData.mimeType || 'image/png';
-        console.log('[Gemini] Found image data, mime type:', partMimeType);
+        debugLog('[Gemini] Found image data, mime type:', partMimeType);
 
         // Return as data URL
         const imageUrl = `data:${partMimeType};base64,${foundImageData}`;

@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import type { VercelRequest } from '@vercel/node';
 import { HttpError, type UploadCard, allowedRemoteHosts, uploadConfig, uploadLimits } from './supabase-upload-config';
 
@@ -90,7 +91,10 @@ export function assertAuthorized(req: VercelRequest): void {
   const headerToken = getHeaderValue(req.headers['x-upload-token']).trim();
   const provided = bearerToken || headerToken;
 
-  if (!provided || provided !== uploadConfig.uploadToken) {
+  const tokenMatch =
+    provided.length === uploadConfig.uploadToken.length &&
+    timingSafeEqual(Buffer.from(provided), Buffer.from(uploadConfig.uploadToken));
+  if (!provided || !tokenMatch) {
     throw new HttpError(401, 'Unauthorized upload request');
   }
 }

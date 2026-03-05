@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
@@ -24,7 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const providedSecret = getBearerToken(req);
-  if (!providedSecret || providedSecret !== cronSecret) {
+  const secretsMatch =
+    providedSecret.length === cronSecret.length &&
+    timingSafeEqual(Buffer.from(providedSecret), Buffer.from(cronSecret));
+  if (!providedSecret || !secretsMatch) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
