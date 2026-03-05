@@ -36,7 +36,7 @@ export default function Settings() {
   } = useStore();
 
   const { generateSingleCard, generateAllCards, generateAllVideos, error: generationError } = useCardGeneration();
-  const { uploadSession, uploading: isUploading, progress: uploadProgress } = useGallerySharing();
+  const { uploadIPFSGallery, uploading: isUploading, progress: uploadProgress } = useGallerySharing();
 
   const [testCardNumber, setTestCardNumber] = useState(0);
   const [unsharedCount, setUnsharedCount] = useState(0);
@@ -130,7 +130,7 @@ export default function Settings() {
 
   const handleSettingsClose = async () => {
     if (settings.autoShareEnabled && unsharedCount > 0 && !isUploading) {
-      const success = await uploadSession(settings.displayName);
+      const success = await uploadIPFSGallery(settings.displayName);
       if (success) {
         updateSettings({ lastSharedTimestamp: Date.now() });
       }
