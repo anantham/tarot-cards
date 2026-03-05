@@ -17,11 +17,11 @@ API endpoints.
 
 ### The dual-path upload architecture
 
-The hook contains two upload implementations within `uploadIPFSGallery`,
+The hook contains two upload implementations within `shareGallery`,
 controlled by the `useSupabase` flag (line 19, currently hardcoded `true`):
 
 ```
-uploadIPFSGallery(displayName)
+shareGallery(displayName)
   ├── if useSupabase === true  → Supabase path (ACTIVE)
   │     POST /api/upload-supabase  (batch, 1 card at a time)
   │     markCardsAsShared() in IDB
@@ -84,7 +84,7 @@ in parallel — simpler, acceptable latency for a one-time download.
 
 ## Public API
 
-### `uploadIPFSGallery(displayName?): Promise<boolean>`
+### `shareGallery(displayName?): Promise<boolean>`
 
 **Current behaviour (useSupabase = true):** Uploads all unshared cards to
 Supabase Storage via `/api/upload-supabase`, one card per request. Marks
@@ -97,7 +97,7 @@ Called automatically from `Settings.tsx` on close when `autoShareEnabled` is set
 
 ---
 
-### `downloadIPFSGallery(cid: string): Promise<number>`
+### `downloadGallery(cid: string): Promise<number>`
 
 Downloads a gallery bundle from IPFS by CID. Tries three gateways
 sequentially. On success, adds all cards to the Zustand store (which syncs to
@@ -124,7 +124,7 @@ useGallerySharing()
   ├── convertToWebP(dataUrl)        ← Canvas PNG→WebP (IPFS path only)
   ├── downloadVideo(geminiUrl)      ← /api/proxy fetch (IPFS path only)
   │
-  ├── uploadIPFSGallery(displayName)
+  ├── shareGallery(displayName)
   │     ├── [useSupabase=true]  Supabase batch upload loop
   │     │     → /api/upload-supabase (POST, 1 card)
   │     │     → markCardsAsShared(timestamps)
@@ -137,7 +137,7 @@ useGallerySharing()
   │           → /api/register-gallery (CID registration)
   │           → markCardsAsShared(timestamps)
   │
-  └── downloadIPFSGallery(cid)
+  └── downloadGallery(cid)
         → /api/gallery/[cid]          (metadata + validate exists)
         → gateway race (w3s, dweb, cloudflare)
         → addGeneratedCard() per card in manifest
@@ -160,7 +160,7 @@ useGallerySharing()
 
 ## Known Limitations
 
-- **Sequential gateway attempts:** `downloadIPFSGallery` tries gateways one
+- **Sequential gateway attempts:** `downloadGallery` tries gateways one
   at a time. A parallel `Promise.race` would be faster but more complex.
 - **No upload resume:** If a batch upload fails partway through, successfully
   uploaded batches are marked as shared but remaining cards are not retried
@@ -173,7 +173,7 @@ useGallerySharing()
 ## Tech Debt
 
 - **`useSupabase` cleanup:** When IPFS is ready, delete the Supabase branch
-  inside `uploadIPFSGallery` and the `useSupabase` constant. The Supabase
+  inside `shareGallery` and the `useSupabase` constant. The Supabase
   upload API route (`/api/upload-supabase`) can also be removed.
 - **Size estimation is approximate:** `estimateCardSize` counts base64 bytes
   from data URLs but misses cases where `frames` contain remote URLs (not
@@ -186,7 +186,7 @@ useGallerySharing()
 When the IPFS path is ready to go live:
 
 1. Resolve UCAN key-management issues in `/api/auth/w3up`
-2. Test `uploadIPFSGallery` end-to-end in staging with `useSupabase = false`
+2. Test `shareGallery` end-to-end in staging with `useSupabase = false`
 3. Change line 19: `const useSupabase = false;`
 4. Verify CID registration and gateway download in production
 5. Delete the Supabase branch (lines 112–186) and `estimateCardSize` helper

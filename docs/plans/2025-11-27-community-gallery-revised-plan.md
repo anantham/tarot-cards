@@ -1425,16 +1425,16 @@ git commit -m "refactor: remove server-side upload endpoint (replaced by client 
 
 ### Current Reality
 
-The IPFS architecture described above was implemented as designed (`uploadIPFSGallery`, `/api/auth/w3up`, `/api/proxy`, `/api/register-gallery`, `/api/galleries`), but the IPFS path is not in active production use.
+The IPFS architecture described above was implemented as designed (`shareGallery`, `/api/auth/w3up`, `/api/proxy`, `/api/register-gallery`, `/api/galleries`), but the IPFS path is not in active production use.
 
 **Active path (as of 2026-03-05):** `uploadSupabaseGallery` / `downloadSupabaseGallery` in `src/hooks/useGallerySharing.ts`. These upload card frames and videos directly to Supabase Storage and register rows in the `gallery` Supabase table.
 
-**IPFS path status:** Built and present in `uploadIPFSGallery` / `downloadIPFSGallery`, but stalled due to Web3.Storage UCAN delegation complexity. The functions remain in the codebase for future activation.
+**IPFS path status:** Built and present in `shareGallery` / `downloadGallery`, but stalled due to Web3.Storage UCAN delegation complexity. The functions remain in the codebase for future activation.
 
 ### Dual-Path Design
 
 `useGallerySharing.ts` intentionally exports both paths:
-- `uploadIPFSGallery` / `downloadIPFSGallery` — IPFS (future primary)
+- `shareGallery` / `downloadGallery` — IPFS (future primary)
 - `uploadSupabaseGallery` / `downloadSupabaseGallery` — Supabase (current primary)
 
 This is a deliberate interim design, not an accident. The naming symmetry (`*IPFSGallery` vs `*SupabaseGallery`) makes the two paths explicit for future removal of the Supabase path when IPFS is validated.
@@ -1442,7 +1442,7 @@ This is a deliberate interim design, not an accident. The naming symmetry (`*IPF
 ### Migration Plan
 
 When the IPFS path is ready to activate:
-1. Validate `uploadIPFSGallery` end-to-end in staging
-2. Switch `Settings.tsx` auto-share trigger from `uploadSupabaseGallery` to `uploadIPFSGallery`
+1. Validate `shareGallery` end-to-end in staging
+2. Switch `Settings.tsx` auto-share trigger from `uploadSupabaseGallery` to `shareGallery`
 3. Deprecate and remove `uploadSupabaseGallery` / `downloadSupabaseGallery`
 4. Update this ADR status to `Implemented`

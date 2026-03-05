@@ -74,7 +74,7 @@ export function useGallerySharing() {
    * 5. Register CID in Vercel KV
    * 6. Mark cards as shared in IndexedDB
    */
-  const uploadIPFSGallery = async (displayName?: string): Promise<boolean> => {
+  const shareGallery = async (displayName?: string): Promise<boolean> => {
     try {
       setUploading(true);
       setError(null);
@@ -347,7 +347,7 @@ export function useGallerySharing() {
    * - Uses first successful response
    * - High availability (99.9%+ uptime)
    */
-  const downloadIPFSGallery = async (cid: string): Promise<number> => {
+  const downloadGallery = async (cid: string): Promise<number> => {
     try {
       setError(null);
 
@@ -418,7 +418,7 @@ export function useGallerySharing() {
     uploading,
     error,
     progress,
-    uploadIPFSGallery,
-    downloadIPFSGallery,
+    shareGallery,
+    downloadGallery,
   };
 }

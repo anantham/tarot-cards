@@ -209,7 +209,7 @@ describe('idb migration: v1 → v3 (legacy upgrade, id keyPath)', () => {
 describe('idb migration: v2 → v3 (timestamp keyPath already correct)', () => {
   it('preserves all records without modification when keyPath is already timestamp', async () => {
     // Seed a v2 DB — has shared/source indexes and fields already
-    const db = await rawOpen(2, (d, tx) => {
+    const db = await rawOpen(2, (d, _tx) => {
       const store = d.createObjectStore(STORE_NAME, { keyPath: 'timestamp' });
       store.createIndex('by-card-deck', ['cardNumber', 'deckType'], { unique: false });
       store.createIndex('by-source', 'source', { unique: false });

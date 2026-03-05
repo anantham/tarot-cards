@@ -31,8 +31,7 @@ Functions that operate on the Supabase gallery path are suffixed `*SupabaseGalle
 
 | Path | Upload | Download |
 |------|--------|----------|
-| IPFS (future primary) | `uploadIPFSGallery` | `downloadIPFSGallery` |
-| Supabase (current primary) | `uploadSupabaseGallery` | `downloadSupabaseGallery` |
+| Either (current: Supabase, future: IPFS) | `shareGallery` | `downloadGallery` |
 
 This symmetry is intentional — see [Intentional Divergences](#intentional-divergences).
 
