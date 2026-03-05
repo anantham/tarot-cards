@@ -17,8 +17,8 @@ See [CONVENTIONS.md](../CONVENTIONS.md) for project-wide naming, patterns, and s
 
 | Module | Doc | Status | Notes |
 |--------|-----|--------|-------|
-| `src/utils/idb.ts` | — | undocumented | P2 — IDB migration invariants lack test coverage |
-| `src/hooks/useGallerySharing.ts` | — | undocumented | P2 — dual-path IPFS/Supabase design needs rationale doc |
+| `src/utils/idb.ts` | [idb](idb.md) | current | Migration invariants covered by idb.migration.test.ts |
+| `src/hooks/useGallerySharing.ts` | [useGallerySharing](useGallerySharing.md) | current | Dual-path design + IPFS activation migration plan documented |
 | `src/components/card-deck/` | — | undocumented | P3 — self-documenting post Phase-10 decomposition |
 | `src/components/card-detail/` | — | undocumented | P3 — self-documenting post Phase-6 decomposition |
 | `src/components/settings/` | — | undocumented | P3 — self-documenting post Phase-9 decomposition |
