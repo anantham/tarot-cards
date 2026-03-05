@@ -126,6 +126,9 @@ A sample output image for quick reference (visual style example).
 ### Lord of the Mysteries (Recommended)
 22 Beyonder pathways from the novel, depicting divine sequences and cosmic powers
 
+### Lord of the Mysteries — Masterpiece Edition
+Extended lore with richer visual direction for the same 22 pathways
+
 ### Traditional Rider-Waite
 Classic tarot symbolism with historical accuracy
 
@@ -137,6 +140,12 @@ Celtic gods, goddesses, and druidic wisdom
 
 ### Japanese Shinto
 Kami spirits and Japanese spiritual traditions
+
+### Buddhist
+Buddhist archetypes, bodhisattvas, and dharmic symbolism
+
+### Advaita Vedanta
+Non-dual Vedantic philosophy mapped onto the Major Arcana
 
 ## 📝 Customization Guide
 
@@ -164,7 +173,7 @@ All card data is in `src/data/tarot-decks.json`:
 ## 🌟 Features
 
 - ✅ Full 3D card deck visualization with touch controls
-- ✅ 5 different cultural/spiritual tarot interpretations
+- ✅ 8 different cultural/spiritual tarot interpretations
 - ✅ AI-powered image generation with your photo
 - ✅ Cinematic video generation for each card
 - ✅ Persistent caching of generated cards
@@ -178,24 +187,34 @@ All card data is in `src/data/tarot-decks.json`:
 ```
 tarot-cards/
 ├── src/
-│   ├── components/        # React components
-│   │   ├── CardDeck.tsx   # 3D floating card visualization
-│   │   ├── CardDetail.tsx # Expanded card view
-│   │   ├── Header.tsx     # App header
-│   │   └── Settings.tsx   # Settings panel
-│   ├── data/              # Card data
-│   │   ├── tarot-decks.json  # All 22 cards × 5 interpretations
+│   ├── components/           # React components
+│   │   ├── card-deck/        # 3D floating deck (motion, curves, physics, visuals)
+│   │   ├── card-detail/      # Card detail modal (preview, expanded, video fallback)
+│   │   ├── settings/         # Settings panel sections + image hooks
+│   │   ├── CardDeck.tsx      # Deck orchestrator (delegates to card-deck/)
+│   │   ├── CardDetail.tsx    # Detail orchestrator (delegates to card-detail/)
+│   │   ├── Settings.tsx      # Settings orchestrator (delegates to settings/)
+│   │   ├── CommunityGallery.tsx  # Community gallery browser
+│   │   ├── Header.tsx        # App header
+│   │   └── ErrorNotification.tsx # Toast notification system
+│   ├── data/                 # Card data
+│   │   ├── tarot-decks.json  # All 22 cards × 8 interpretations
 │   │   └── tarot-config.json # Configuration & Prompt Engineering
-│   ├── hooks/             # Custom React hooks
-│   │   └── useCardGeneration.ts
-│   ├── store/             # Zustand state management
+│   ├── hooks/                # Custom React hooks
+│   │   ├── useCardGeneration.ts  # Image + video generation orchestration
+│   │   └── useGallerySharing.ts  # Community gallery upload/download
+│   ├── store/                # Zustand state management
 │   │   └── useStore.ts
-│   ├── types/             # TypeScript types
+│   ├── types/                # TypeScript types
 │   │   └── index.ts
-│   ├── utils/             # Utilities
-│   │   ├── imageGeneration.ts  # OpenRouter API integration
-│   │   ├── videoGeneration.ts  # Google Veo API integration
-│   │   └── cardPhysics.ts      # 3D physics calculations
+│   ├── utils/                # Utilities
+│   │   ├── imageGeneration.ts     # Multi-provider image AI (Gemini / OpenRouter)
+│   │   ├── videoGeneration.ts     # Google Veo 3.1 video generation
+│   │   ├── cardPhysics.ts         # 3D physics calculations
+│   │   ├── idb.ts                 # IndexedDB abstraction layer
+│   │   ├── communityGallery.ts    # Supabase gallery data normalization
+│   │   ├── exportGeneratedCardsZip.ts  # ZIP export
+│   │   └── logger.ts              # Debug logging gate
 │   ├── App.tsx            # Main app component
 │   ├── main.tsx           # Entry point
 │   └── index.css          # Global styles
