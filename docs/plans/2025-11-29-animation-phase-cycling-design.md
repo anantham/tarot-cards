@@ -1,8 +1,8 @@
 # Animation Phase Cycling & Velocity Injection Design
 
 **Date:** 2025-11-29
-**Status:** Design Approved
-**Component:** CardDeck.tsx
+**Status:** Implemented (2026-02-22, Phase 10)
+**Component:** `src/components/card-deck/useDeckAnimationController.ts`
 
 ---
 
