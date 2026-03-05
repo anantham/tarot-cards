@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { getUnsharedCards, markCardsAsShared } from '../utils/idb';
+import { debugLog } from '../utils/logger';
 import * as Client from '@web3-storage/w3up-client';
 import * as Proof from '@web3-storage/w3up-client/proof';
 import type { GeneratedCard, IPFSCardPackage } from '../types';
@@ -19,7 +20,7 @@ export function useGallerySharing() {
   const useSupabase = true; // interim path
 
   const logProgress = (message: string) => {
-    console.log(`[Gallery] ${message}`);
+    debugLog(`[Gallery] ${message}`);
     setProgress(message);
   };
 
